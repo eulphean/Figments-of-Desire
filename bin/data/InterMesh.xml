@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<group>
+	<Mesh_Rows>15</Mesh_Rows>
+	<Mesh_Columns>15</Mesh_Columns>
+	<Mesh_Width>800</Mesh_Width>
+	<Mesh_Height>600</Mesh_Height>
+	<Vertex_Radius>6</Vertex_Radius>
+	<Vertex_density>1</Vertex_density>
+	<Vertex_bounce>0.3</Vertex_bounce>
+	<Vertex_friction>0.805</Vertex_friction>
+	<Joint_frequency>2.8</Joint_frequency>
+	<Joint_damping>5</Joint_damping>
+	<UnknownName>0</UnknownName>
+</group>
