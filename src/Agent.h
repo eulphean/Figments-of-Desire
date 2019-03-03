@@ -31,9 +31,10 @@ class Agent {
     void clean();
   
     // Behaviors
-    void addForce();
+    void applyBehaviors();
     void setTarget(int x, int y);
-    void disableVertex();
+    void setRandomForce();
+  
   
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
@@ -47,7 +48,11 @@ class Agent {
     ofMesh mesh;
     glm::vec2 targetPos;
     bool updateTarget;
+    bool applyRandomForce; 
     std::shared_ptr<ofxBox2dCircle> sourceVertex;
   
     std::vector<shared_ptr<ofxBox2dCircle>> randVertices;
+  
+    float maxAttForceAmt;
+    float maxRandForceAmt; 
 };

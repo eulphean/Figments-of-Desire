@@ -5,7 +5,7 @@ void ofApp::setup(){
   ofBackground(0);
   
   box2d.init();
-  box2d.setGravity(0, 0.2);
+  box2d.setGravity(0, 0);
   box2d.setFPS(60);
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
@@ -135,7 +135,7 @@ void ofApp::keyPressed(int key){
   if (key == 'f') {
     // Apply a random force
     for (auto &a: agents) {
-      a.addForce();
+      a.setRandomForce();
     }
   }
 }
