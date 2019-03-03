@@ -108,7 +108,7 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
       
       if (aData->agentId != bData->agentId) {
         // 2 unique agents colliding
-        cout << "2 Unique Agent collided" << "\n";
+//        cout << "2 Unique Agent collided" << "\n";
       }
     }
   }

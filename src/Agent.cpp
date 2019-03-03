@@ -8,7 +8,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   float area = agentProps.meshSize.x * agentProps.meshSize.y;
   
   maxAttForceAmt = 0.1;  // Set this based on the size of the mesh
-  maxRandForceAmt = 1.0;
+  maxRandForceAmt = 0.5;
   
   applyRandomForce = true;
   updateTarget = false;
@@ -137,7 +137,7 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   for (int i = 0; i < meshVertices.size(); i++) {
     auto vertex = std::make_shared<ofxBox2dCircle>();
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
-    vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(agentProps.vertexRadius));
+    vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(3, agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
     vertex->setData(new VertexData(agentProps.agentId)); // Data to identify current agent.
     vertices.push_back(vertex);
