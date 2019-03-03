@@ -4,9 +4,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
-  // Set these values based on the size of the agent.
-  float area = agentProps.meshSize.x * agentProps.meshSize.y;
-  
   maxAttForceAmt = 0.1;  // Set this based on the size of the mesh
   maxRandForceAmt = 0.5;
   
@@ -15,21 +12,8 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
 }
 
 void Agent::update() {
-  // Update each point in the mesh according to the
-  // box2D vertex.
-  auto meshPoints = mesh.getVertices();
-  
-  for (int j = 0; j < meshPoints.size(); j++) {
-    // Get the box2D vertex position.
-    glm::vec2 pos = vertices[j] -> getPosition();
-    
-    // Update mesh point's position with the position of
-    // the box2d vertex.
-    auto meshPoint = meshPoints[j];
-    meshPoint.x = pos.x;
-    meshPoint.y = pos.y;
-    mesh.setVertex(j, meshPoint);
-  }
+  // Use box2d circle to update the mesh. 
+  updateMesh();
   
   // Apply behavioral forces on the body.
   applyBehaviors();
@@ -75,6 +59,33 @@ void Agent::applyBehaviors() {
     }
     applyRandomForce = false;
   }
+}
+
+void Agent::clean() {
+  // Removes vertices.
+  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
+      return true;
+  });
+  
+  // Remove joints.
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+      return true;
+  });
+}
+
+void Agent::setTarget(int x, int y) {
+  targetPos = glm::vec2(x, y);
+  updateTarget = true;
+}
+
+void Agent::setRandomForce() {
+  applyRandomForce = true;
+}
+
+std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
+  int randV = ofRandom(vertices.size());
+  auto v = vertices[randV];
+  return v;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {
@@ -173,31 +184,20 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   }
 }
 
-void Agent::clean() {
-  // Removes vertices.
-  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
-      return true;
-  });
+void Agent::updateMesh() {
+  auto meshPoints = mesh.getVertices();
   
-  // Remove joints.
-  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
-      return true;
-  });
-}
-
-void Agent::setTarget(int x, int y) {
-  targetPos = glm::vec2(x, y);
-  updateTarget = true;
-}
-
-void Agent::setRandomForce() {
-  applyRandomForce = true;
-}
-
-std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
-  int randV = ofRandom(vertices.size());
-  auto v = vertices[randV];
-  return v;
+  for (int j = 0; j < meshPoints.size(); j++) {
+    // Get the box2D vertex position.
+    glm::vec2 pos = vertices[j] -> getPosition();
+    
+    // Update mesh point's position with the position of
+    // the box2d vertex.
+    auto meshPoint = meshPoints[j];
+    meshPoint.x = pos.x;
+    meshPoint.y = pos.y;
+    mesh.setVertex(j, meshPoint);
+  }
 }
 
 // Avoid texture right now.

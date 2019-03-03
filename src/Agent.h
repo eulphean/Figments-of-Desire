@@ -42,6 +42,7 @@ class Agent {
   private:
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
+    void updateMesh();
   
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
