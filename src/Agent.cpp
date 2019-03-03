@@ -3,6 +3,7 @@
 void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
+  addForce(); // Initial force to deform it.
   
   updateTarget = false;
 }
@@ -25,21 +26,31 @@ void Agent::update() {
   }
   
   if (updateTarget) {
-    auto d = glm::distance(targetPos, {sourceVertex->getPosition().x, sourceVertex->getPosition().y});
-    sourceVertex -> addAttractionPoint(targetPos.x, targetPos.y, d*0.01);
-    if (d >= 300) {
-      updateTarget = false;
-      // I've reached
-    }
+    ///auto d = glm::distance(targetPos, {sourceVertex->getPosition().x, sourceVertex->getPosition().y});
+    //sourceVertex -> addAttractionPoint(targetPos.x, targetPos.y, d*0.001);
+//    if (d <= 30) {
+//      updateTarget = false;
+//      // I've reached
+//    }
+
+    // Use rand vertices and add attraction points on it.
+    int maxForce = 10.0;
+//    for (auto &v: vertices) {
+//      //auto d = glm::distance(targetPos, {r->getPosition().x, r->getPosition().y});
+//      //r -> addAttractionPoint(targetPos.x, targetPos.y, );
+//      auto desired = glm::vec2(targetPos.x, targetPos.y) - glm::vec2(v->getPosition().x, v->getPosition().y); // Target - Location
+////      desired = glm::normalize(desired);
+////      desired = desired * 0.5;
+////      auto steer = desired - v->getVelocity();
+//      v->addForce({targetPos.x, targetPos.y}, 1.0);
+//
+//    }
+    vertices[0]->addForce({targetPos.x, targetPos.y}, 0.01);
   }
 }
 
 void Agent::draw(bool showSoftBody) {
-  
   // Draw the meshes.
-  ofSetColor(ofColor::white);
-  mesh.draw();
-  
   // Draw the soft bodies.
   if (showSoftBody) {
     ofPushStyle();
@@ -49,11 +60,14 @@ void Agent::draw(bool showSoftBody) {
         v->draw();
       }
 
-      for(auto j: joints) {
-        ofSetColor(ofColor::blue);
-        j->draw();
-      }
+//      for(auto j: joints) {
+//        ofSetColor(ofColor::blue);
+//        j->draw();
+//      }
     ofPopStyle();
+    
+    ofSetColor(ofColor::red);
+    mesh.draw();
   }
   
   auto centroid = mesh.getCentroid();
@@ -121,8 +135,9 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   for (int i = 0; i < meshVertices.size(); i++) {
     auto vertex = std::make_shared<ofxBox2dCircle>();
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
-    vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, agentProps.vertexRadius);
+    vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
+    vertex->setData(new VertexData(agentProps.agentId)); // Data to identify current agent.
     vertices.push_back(vertex);
   }
   
@@ -171,14 +186,22 @@ void Agent::clean() {
 void Agent::setTarget(int x, int y) {
   targetPos = glm::vec2(x, y);
   
+  //
+  
   // Pick the closest vertex on which to apply the force to get there.
-  int minD = 999999;
-  for (auto v : vertices) {
-    auto d = glm::distance(targetPos, {v->getPosition().x, v->getPosition().y});
-    if (d < minD) {
-      minD = d;
-      sourceVertex = v;
-    }
+//  int minD = 999999;
+//  for (auto v : vertices) {
+//    auto d = glm::distance(targetPos, {v->getPosition().x, v->getPosition().y});
+//    if (d < minD) {
+//      minD = d;
+//      sourceVertex = v;
+//    }
+//  }
+
+  // Pick 4 random vertices
+  randVertices.clear();
+  for (int i = 0; i < 4; i++) {
+      randVertices.push_back(vertices[ofRandom(vertices.size())]);
   }
   
   updateTarget = true;
@@ -186,7 +209,7 @@ void Agent::setTarget(int x, int y) {
 
 std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
   int randV = ofRandom(vertices.size());
-  auto v = vertices[vertices.size() - 1];
+  auto v = vertices[randV];
   return v;
 }
 
@@ -197,13 +220,7 @@ void Agent::disableVertex() {
 
 void Agent::addForce() {
   auto randV = getRandomVertex();
-  randV -> addForce(glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5)), 2.0);
-//  int increment = 2;
-//  for (int i = 0; i < vertices.size(); i+=increment) {
-//    auto v = vertices[i];
-//    auto pos = v -> getPosition();
-//    v -> addForce(glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5)), 0.1);
-//  }
+  randV -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), 10.0);
 }
 
 

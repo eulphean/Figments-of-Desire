@@ -9,6 +9,16 @@ struct AgentProperties {
   ofPoint jointPhysics;
   ofPoint textureDimensions; // Use it when we have a texture. 
   float vertexRadius;
+  int agentId; 
+};
+
+class VertexData {
+  public:
+    VertexData(int idx) {
+      agentId = idx;
+    }
+  
+    int agentId;
 };
 
 
@@ -38,4 +48,6 @@ class Agent {
     glm::vec2 targetPos;
     bool updateTarget;
     std::shared_ptr<ofxBox2dCircle> sourceVertex;
+  
+    std::vector<shared_ptr<ofxBox2dCircle>> randVertices;
 };

@@ -10,6 +10,9 @@ void ofApp::setup(){
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
   
+  ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
+  ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
+  
   // Setup gui.
   setupGui();
   
@@ -21,7 +24,7 @@ void ofApp::setup(){
   bounds.width = ofGetWidth(); bounds.height = ofGetHeight();
   box2d.createBounds(bounds);
   
-  idx = 1;
+  agentNum = 0; 
 }
 
 //--------------------------------------------------------------
@@ -54,19 +57,17 @@ void ofApp::updateAgentProps() {
   agentProps.vertexRadius = vertexRadius;
   agentProps.vertexPhysics = ofPoint(vertexBounce, vertexDensity, vertexFriction); // x (bounce), y (density), z (friction)
   agentProps.jointPhysics = ofPoint(jointFrequency, jointDamping); // x (frequency), y (damping)
+  agentProps.agentId = agentNum; 
 }
 
 void ofApp::createAgent() {
   Agent a;
   a.setup(box2d, agentProps);
   agents.push_back(a);
+  agentNum++;
 }
 
-void ofApp::mousePressed(int x, int y, int button) {
-   for (auto &a: agents) {
-    a.setTarget(x, y);
-  }
-}
+
 
 void ofApp::clearAgents() {
   // Clear agent's soft bodies
@@ -96,6 +97,27 @@ void ofApp::setupGui() {
     gui.loadFromFile("InterMesh.xml");
 }
 
+void ofApp::contactStart(ofxBox2dContactArgs &e) {
+  if(e.a != NULL && e.b != NULL) {
+    
+    // Only when a circle contacts the polygon, then this routine will run.
+    if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
+      // Extract sound data.
+      VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
+      VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+      
+      if (aData->agentId != bData->agentId) {
+        // 2 unique agents colliding
+        cout << "2 Unique Agent collided" << "\n";
+      }
+    }
+  }
+}
+
+void ofApp::contactEnd(ofxBox2dContactArgs &e) {
+
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
   if (key == 'n') {
@@ -115,6 +137,12 @@ void ofApp::keyPressed(int key){
     for (auto &a: agents) {
       a.addForce();
     }
+  }
+}
+
+void ofApp::mousePressed(int x, int y, int button) {
+   for (auto &a: agents) {
+    a.setTarget(x, y);
   }
 }
 

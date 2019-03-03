@@ -17,13 +17,16 @@ class ofApp : public ofBaseApp{
     void clearAgents();
     void updateAgentProps();
   
+    // Contact listening callbacks.
+    void contactStart(ofxBox2dContactArgs &e);
+    void contactEnd(ofxBox2dContactArgs &e);
+  
     // Interactive elements
 		void keyPressed(int key);
     void mousePressed(int x, int y, int button); 
     void exit();
   
     bool hideGui;
-    int idx; 
   
     // Box2d
     ofxBox2d box2d;
@@ -57,5 +60,8 @@ class ofApp : public ofBaseApp{
   
     // Soft body turn on
     ofxToggle showSoftBody;
+  
+  private:
+    int agentNum; 
   
 };
