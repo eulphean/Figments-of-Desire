@@ -14,11 +14,13 @@ struct AgentProperties {
 
 class VertexData {
   public:
-    VertexData(int idx) {
+    VertexData(int idx, int vId) {
       agentId = idx;
+      vertexId = std::to_string(idx) + '_' + std::to_string(vId);
     }
   
     int agentId;
+    string vertexId;
 };
 
 

@@ -40,8 +40,8 @@ void Agent::draw(bool showSoftBody) {
       }
     ofPopStyle();
     
-    ofSetColor(ofColor::red);
-    mesh.draw();
+//    ofSetColor(ofColor::red);
+//    mesh.draw();
   }
   
   auto centroid = mesh.getCentroid();
@@ -176,14 +176,16 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   vertices.clear();
   joints.clear();
 
+  int vId = 0;
   // Create mesh vertices as Box2D elements.
   for (int i = 0; i < meshVertices.size(); i++) {
     auto vertex = std::make_shared<ofxBox2dCircle>();
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
     vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(3, agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
-    vertex->setData(new VertexData(agentProps.agentId)); // Data to identify current agent.
+    vertex->setData(new VertexData(agentProps.agentId, vId)); // Data to identify current agent.
     vertices.push_back(vertex);
+    vId++; 
   }
   
   int meshRows = agentProps.meshDimensions.x;

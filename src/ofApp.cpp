@@ -38,13 +38,15 @@ void ofApp::update(){
     a.update();
   }
   
+  // Should I create interAgent joints?
   if (collidingBodies.size()>0) {
     // We have pending bodies to create a joint with.
+    // If body a already has 3 joints with body b, then don't create a joint
+    auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
-    
     auto d = collidingBodies[0]->GetPosition() - collidingBodies[1]->GetPosition();
-    j->setLength(ofRandom(20, 100));
+    j->setLength(ofRandom(100, 200));
     interAgentJoints.push_back(j);
   }
 }
@@ -128,14 +130,45 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
       VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
       
       if (aData->agentId != bData->agentId) {
+            // Should I create this joint? Do a and b agree?
+            // Whose more eager to create this joint?
+            // Bonding eagerness?
             collidingBodies.clear();
-            auto a = e.a->GetBody();
-            auto b = e.b->GetBody();
-            collidingBodies.push_back(a);
-            collidingBodies.push_back(b);
+            bool a = isJointed(aData->vertexId, bData->agentId);
+            bool b = isJointed(bData->vertexId, aData->agentId);
+            if (!a & !b) {
+              // Create a joint
+              auto a = e.a->GetBody();
+              auto b = e.b->GetBody();
+              collidingBodies.push_back(a);
+              collidingBodies.push_back(b);
+              
+              // Update joint history
+              interAgentHistory.insert(std::make_pair(aData->vertexId, bData->agentId));
+              interAgentHistory.insert(std::make_pair(bData->vertexId, aData->agentId));
+            }
+
       }
     }
   }
+}
+
+bool ofApp::isJointed(string vId, int agentId) {
+  auto it = interAgentHistory.find(vId);
+  if (it != interAgentHistory.end()) {
+    // Has agentId, check it
+    return agentId == it->second;
+  } else {
+    return false;
+  }
+}
+
+void ofApp::cleanInterAgentJoints() {
+  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
+      return true;
+  });
+  
+  interAgentJoints.clear();
 }
 
 //--------------------------------------------------------------
@@ -145,6 +178,8 @@ void ofApp::keyPressed(int key){
   }
   
   if (key == 'c') {
+    collidingBodies.clear();
+    cleanInterAgentJoints();
     clearAgents();
   }
   

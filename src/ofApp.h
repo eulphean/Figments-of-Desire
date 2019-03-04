@@ -17,6 +17,9 @@ class ofApp : public ofBaseApp{
     void clearAgents();
     void updateAgentProps();
   
+    // InterAgentJoints
+    void cleanInterAgentJoints();
+  
     // Contact listening callbacks.
     void contactStart(ofxBox2dContactArgs &e);
     void contactEnd(ofxBox2dContactArgs &e);
@@ -65,5 +68,8 @@ class ofApp : public ofBaseApp{
     int agentNum;
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
+    std::map <std::string, int> interAgentHistory;
   
+    // Helper methods
+    bool isJointed(string vId, int agentId);
 };
