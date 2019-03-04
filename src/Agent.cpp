@@ -40,8 +40,8 @@ void Agent::draw(bool showSoftBody) {
       }
     ofPopStyle();
     
-//    ofSetColor(ofColor::red);
-//    mesh.draw();
+    ofSetColor(ofColor::red);
+    mesh.draw();
   }
   
   auto centroid = mesh.getCentroid();

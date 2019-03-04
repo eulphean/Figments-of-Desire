@@ -47,9 +47,21 @@ void ofApp::update(){
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
     j->setLength(ofRandom(50, 500));
     interAgentJoints.push_back(j);
-    cout << "Joints: " << interAgentJoints.size() << "\n";
     collidingBodies.clear();
   }
+  
+  // Go through out interAgentJoint and print the reaction forc
+  // Create a threshold beyond which the bond breaks.
+//  for (auto &j: interAgentJoints) {
+//    auto f = j->getReactionForce(ofGetElapsedTimef());
+//    cout << "Force: " << f.length() << "\n";
+//  }
+  
+  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
+      auto f = c->getReactionForce(ofGetElapsedTimef());
+      return f.length() > 15;
+  });
+  
 }
 
 //--------------------------------------------------------------
@@ -87,8 +99,6 @@ void ofApp::createAgent() {
   agentNum++;
 }
 
-
-
 void ofApp::clearAgents() {
   // Clear agent's soft bodies
   for (auto &a: agents) {
@@ -116,7 +126,7 @@ void ofApp::setupGui() {
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
-
+  
 }
 
 // Store information during collision and make
