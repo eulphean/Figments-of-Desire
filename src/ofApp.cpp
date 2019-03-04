@@ -37,10 +37,26 @@ void ofApp::update(){
   for (auto &a : agents) {
     a.update();
   }
+  
+  if (collidingBodies.size()>0) {
+    // We have pending bodies to create a joint with.
+    auto j = std::make_shared<ofxBox2dJoint>();
+    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
+    
+    auto d = collidingBodies[0]->GetPosition() - collidingBodies[1]->GetPosition();
+    j->setLength(ofRandom(20, 100));
+    interAgentJoints.push_back(j);
+  }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+  // Draw InterAgentJoints
+  for (auto j: interAgentJoints) {
+    ofSetColor(ofColor::green);
+    j->draw();
+  }
+  
   for (auto a: agents) {
     a.draw(true);
   }
@@ -97,6 +113,12 @@ void ofApp::setupGui() {
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
+
+}
+
+// Store information during collision and make
+// the bodies right after update. Check for joint making.
+void ofApp::contactEnd(ofxBox2dContactArgs &e) {
   if(e.a != NULL && e.b != NULL) {
     
     // Only when a circle contacts the polygon, then this routine will run.
@@ -106,15 +128,14 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
       VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
       
       if (aData->agentId != bData->agentId) {
-        // 2 unique agents colliding
-//        cout << "2 Unique Agent collided" << "\n";
+            collidingBodies.clear();
+            auto a = e.a->GetBody();
+            auto b = e.b->GetBody();
+            collidingBodies.push_back(a);
+            collidingBodies.push_back(b);
       }
     }
   }
-}
-
-void ofApp::contactEnd(ofxBox2dContactArgs &e) {
-
 }
 
 //--------------------------------------------------------------

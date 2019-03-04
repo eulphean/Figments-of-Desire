@@ -62,6 +62,8 @@ class ofApp : public ofBaseApp{
     ofxToggle showSoftBody;
   
   private:
-    int agentNum; 
+    int agentNum;
+    std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
+    std::vector<b2Body *> collidingBodies;
   
 };

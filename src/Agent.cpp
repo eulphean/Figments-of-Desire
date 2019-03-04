@@ -45,12 +45,12 @@ void Agent::draw(bool showSoftBody) {
   }
   
   auto centroid = mesh.getCentroid();
-  ofPushMatrix();
-    ofTranslate(centroid);
-    ofNoFill();
-    ofSetColor(ofColor::white);
-    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
-  ofPopMatrix();
+//  ofPushMatrix();
+//    ofTranslate(centroid);
+//    ofNoFill();
+//    ofSetColor(ofColor::white);
+//    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+//  ofPopMatrix();
 }
 
 void Agent::applyBehaviors() {
