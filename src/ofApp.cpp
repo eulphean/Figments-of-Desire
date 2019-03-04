@@ -59,6 +59,7 @@ void ofApp::update(){
   
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
       auto f = c->getReactionForce(ofGetElapsedTimef());
+      cout << "Force on the joint:" << f.length() << "\n";
       return f.length() > 15;
   });
   
