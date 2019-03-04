@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
   ofBackground(0);
+  ofSetCircleResolution(20);
   
   box2d.init();
   box2d.setGravity(0, 0);
@@ -41,7 +42,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   for (auto a: agents) {
-    a.draw(showSoftBody);
+    a.draw(true);
   }
   
   // Health parameters
@@ -91,8 +92,6 @@ void ofApp::setupGui() {
     gui.add(vertexFriction.setup("Vertex friction", 0.5, 0, 1));
     gui.add(jointFrequency.setup("Joint frequency", 4.f, 0.f, 20.f ));
     gui.add(jointDamping.setup("Joint damping", 1.f, 0.f, 5.f));
-    gui.add(showSoftBody.setup("Show soft body", 0.f));
-  
   
     gui.loadFromFile("InterMesh.xml");
 }

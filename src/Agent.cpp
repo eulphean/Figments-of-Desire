@@ -4,15 +4,24 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
-  maxAttForceAmt = 0.1;  // Set this based on the size of the mesh
-  maxRandForceAmt = 0.5;
+  // Calculate a targetPerceptionRad based on the size of the mesh
+  auto area = agentProps.meshSize.x * agentProps.meshSize.y;
+  targetPerceptionRad = sqrt(area/PI);
+  
+  // Force weights for various body activities. 
+  attractWeight = 0.1;
+  randWeight = 0.5;
+  
+  // Healths to keep track when to execute something again.
+  tickleHealth = 100;
+  targetHealth = 200;
   
   applyRandomForce = true;
   updateTarget = false;
 }
 
 void Agent::update() {
-  // Use box2d circle to update the mesh. 
+  // Use box2d circle to update the mesh.
   updateMesh();
   
   // Apply behavioral forces on the body.
@@ -36,16 +45,39 @@ void Agent::draw(bool showSoftBody) {
   }
   
   auto centroid = mesh.getCentroid();
-  ofSetColor(ofColor::black);
-  ofDrawCircle(centroid.x, centroid.y, 5);
+  ofPushMatrix();
+    ofTranslate(centroid);
+    ofNoFill();
+    ofSetColor(ofColor::white);
+    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+  ofPopMatrix();
 }
 
 void Agent::applyBehaviors() {
+  // Check for tickle health.
+  if (tickleHealth == 0) {
+    applyRandomForce = true;
+    tickleHealth = 100;
+  } else {
+    tickleHealth -= 0.5;
+  }
+  
+  // New target to go to.
+  if (targetHealth == 0) {
+    // Calculate a random target and go there
+    targetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
+    updateTarget = true;
+    targetHealth = 200;
+  } else {
+    targetHealth -= 0.5;
+  }
+
+
   // New target? Add an impulse in that direction.
   if (updateTarget) {
     // seek()
     for (auto &v: vertices) {
-        v->addAttractionPoint(targetPos.x, targetPos.y, maxAttForceAmt);
+        v->addAttractionPoint(targetPos.x, targetPos.y, attractWeight);
         v->setRotation(ofRandom(120));
     }
     updateTarget = false;
@@ -55,7 +87,7 @@ void Agent::applyBehaviors() {
   if (applyRandomForce) {
     // force()
     for (auto &v: vertices) {
-      v -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), maxRandForceAmt);
+      v -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), randWeight);
     }
     applyRandomForce = false;
   }
@@ -206,45 +238,6 @@ void Agent::updateMesh() {
 //      float texY = ofMap(iy, 0, agentProps.textureDimensions.y, 0, 1, true); // Map the calculated y coordinate from 0 - 1
 //      mesh.addTexCoord(glm::vec2(texX, texY));
 
-
-
-    // Use rand vertices and add attraction points on it.
-//    int maxForce = 10.0;
-//    for (auto &v: vertices) {
-//      //auto d = glm::distance(targetPos, {r->getPosition().x, r->getPosition().y});
-//      //r -> addAttractionPoint(targetPos.x, targetPos.y, );
-//      auto desired = glm::vec2(targetPos.x, targetPos.y) - glm::vec2(v->getPosition().x, v->getPosition().y); // Target - Location
-////      desired = glm::normalize(desired);
-////      desired = desired * 0.5;
-////      auto steer = desired - v->getVelocity();
-//      v->addForce({targetPos.x, targetPos.y}, 1.0);
-//
-//    }
-
-
-//    for (auto &r : vertices) {
-//      auto d = glm::distance(targetPos, {r->getPosition().x, r->getPosition().y});
-//
-////      float forceAmt;
-////      //r -> setRotationFriction(0.1);
-////      if (d <= 200) {
-////        forceAmt = ofMap(d, 0, 200, -20/d, 1/d);
-////        // I've reached
-////      } else {
-////        forceAmt = 1/d;
-////      }
-////
-////      r -> addAttractionPoint({targetPos.x, targetPos.y}, forceAmt);
-////      r -> setRotation(ofRandom(90));
-////
-////      if (d <= 30) {
-////        updateTarget = false;
-////      }
-////
-//
-//
-//      updateTarget = false;
-//    }
 
 //      glm::vec2 currentPos = glm::vec2(v->getPosition().x, v->getPosition().y);
 //      auto desired = targetPos - currentPos; // Target - Current
