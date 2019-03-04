@@ -68,8 +68,10 @@ class ofApp : public ofBaseApp{
     int agentNum;
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
-    std::map <std::string, int> interAgentHistory;
+    std::map <std::string, std::vector<int> *> interAgentHistory;
   
     // Helper methods
     bool isJointed(string vId, int agentId);
+  
+    int num; 
 };

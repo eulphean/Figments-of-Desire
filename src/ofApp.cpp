@@ -25,7 +25,8 @@ void ofApp::setup(){
   bounds.width = ofGetWidth(); bounds.height = ofGetHeight();
   box2d.createBounds(bounds);
   
-  agentNum = 0; 
+  agentNum = 0;
+  num = 0;
 }
 
 //--------------------------------------------------------------
@@ -41,13 +42,13 @@ void ofApp::update(){
   // Should I create interAgent joints?
   if (collidingBodies.size()>0) {
     // We have pending bodies to create a joint with.
-    // If body a already has 3 joints with body b, then don't create a joint
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
-    auto d = collidingBodies[0]->GetPosition() - collidingBodies[1]->GetPosition();
-    j->setLength(ofRandom(100, 200));
+    j->setLength(ofRandom(50, 500));
     interAgentJoints.push_back(j);
+    cout << "Joints: " << interAgentJoints.size() << "\n";
+    collidingBodies.clear();
   }
 }
 
@@ -143,21 +144,47 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
               collidingBodies.push_back(a);
               collidingBodies.push_back(b);
               
-              // Update joint history
-              interAgentHistory.insert(std::make_pair(aData->vertexId, bData->agentId));
-              interAgentHistory.insert(std::make_pair(bData->vertexId, aData->agentId));
+              // This logic maintains the joint history for each of the InterAgentJoints
+              
+              // Update joint history for aData's vertexId
+              auto it1 = interAgentHistory.find(aData->vertexId);
+              if (it1 != interAgentHistory.end()) {
+                auto &val = it1->second;
+                val->push_back(bData->agentId);
+              } else {
+                auto vec = new std::vector<int>();
+                vec->push_back(bData->agentId);
+                interAgentHistory.insert(std::make_pair(aData->vertexId, vec));
+              }
+              
+              // Update joint history for bData's vertexId
+              auto it2 = interAgentHistory.find(bData->vertexId);
+              if (it2 != interAgentHistory.end()) {
+                auto &val = it2->second;
+                val->push_back(aData->agentId);
+              } else {
+                auto vec = new std::vector<int>();
+                vec->push_back(aData->agentId);
+                interAgentHistory.insert(std::make_pair(bData->vertexId, vec));
+              }
             }
-
+        }
       }
     }
-  }
 }
 
 bool ofApp::isJointed(string vId, int agentId) {
-  auto it = interAgentHistory.find(vId);
-  if (it != interAgentHistory.end()) {
-    // Has agentId, check it
-    return agentId == it->second;
+  auto it1 = interAgentHistory.find(vId);
+  if (it1 != interAgentHistory.end()) {
+    // Does it have the agentid?
+    auto a = it1->second;
+    for (int i = 0; i < a->size(); i++) {
+      if (agentId == a->at(i)) {
+        return true;
+      }
+    }
+    
+    return false;
   } else {
     return false;
   }
