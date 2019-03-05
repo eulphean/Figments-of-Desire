@@ -73,7 +73,7 @@ void ofApp::interAgentJointCreateDestroy() {
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-    j->setLength(ofRandom(200, 300));
+    j->setLength(0);
     interAgentJoints.push_back(j);
     collidingBodies.clear();
   }

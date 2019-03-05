@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <Inter_Mesh_Settings>
 	<Mesh_Params>
-		<Mesh_Rows>10</Mesh_Rows>
-		<Mesh_Columns>10</Mesh_Columns>
-		<Mesh_Width>200</Mesh_Width>
-		<Mesh_Height>200</Mesh_Height>
+		<Mesh_Rows>5</Mesh_Rows>
+		<Mesh_Columns>5</Mesh_Columns>
+		<Mesh_Width>100</Mesh_Width>
+		<Mesh_Height>100</Mesh_Height>
 	</Mesh_Params>
 	<Vertex_Params>
 		<Vertex_Radius>6</Vertex_Radius>
