@@ -4,32 +4,26 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
-  // Set these values based on the size of the agent.
-  float area = agentProps.meshSize.x * agentProps.meshSize.y;
+  // Calculate a targetPerceptionRad based on the size of the mesh
+  auto area = agentProps.meshSize.x * agentProps.meshSize.y;
+  targetPerceptionRad = sqrt(area/PI);
   
-  maxAttForceAmt = 0.1;  // Set this based on the size of the mesh
-  maxRandForceAmt = 0.5;
+  // Force weights for various body activities. 
+  attractWeight = 0.1;
+  randWeight = 0.5;
+  
+  // Healths to keep track when to execute something again.
+  tickleHealth = 100;
+  targetHealth = 200;
   
   applyRandomForce = true;
-  updateTarget = false;
+  attractTarget = false;
+  repelTarget = false;
 }
 
 void Agent::update() {
-  // Update each point in the mesh according to the
-  // box2D vertex.
-  auto meshPoints = mesh.getVertices();
-  
-  for (int j = 0; j < meshPoints.size(); j++) {
-    // Get the box2D vertex position.
-    glm::vec2 pos = vertices[j] -> getPosition();
-    
-    // Update mesh point's position with the position of
-    // the box2d vertex.
-    auto meshPoint = meshPoints[j];
-    meshPoint.x = pos.x;
-    meshPoint.y = pos.y;
-    mesh.setVertex(j, meshPoint);
-  }
+  // Use box2d circle to update the mesh.
+  updateMesh();
   
   // Apply behavioral forces on the body.
   applyBehaviors();
@@ -47,34 +41,114 @@ void Agent::draw(bool showSoftBody) {
       }
     ofPopStyle();
     
-    ofSetColor(ofColor::red);
-    mesh.draw();
+//    ofSetColor(ofColor::red);
+//    mesh.draw();
   }
   
   auto centroid = mesh.getCentroid();
-  ofSetColor(ofColor::black);
-  ofDrawCircle(centroid.x, centroid.y, 5);
+  ofPushMatrix();
+    ofTranslate(centroid);
+    ofNoFill();
+    ofSetColor(ofColor::white);
+    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+  ofPopMatrix();
 }
 
 void Agent::applyBehaviors() {
-  // New target? Add an impulse in that direction.
-  if (updateTarget) {
-    // seek()
-    for (auto &v: vertices) {
-        v->addAttractionPoint(targetPos.x, targetPos.y, maxAttForceAmt);
-        v->setRotation(ofRandom(120));
-    }
-    updateTarget = false;
+  handleTickle();
+  handleAttraction();
+  handleRepulsion();
+}
+
+void Agent::handleTickle() {
+  // Check for tickle health.
+  if (tickleHealth == 0) {
+    applyRandomForce = true;
+    tickleHealth = 100;
+  } else {
+    tickleHealth -= 0.5;
   }
   
   // Random force/ Force all vertices.
   if (applyRandomForce) {
     // force()
     for (auto &v: vertices) {
-      v -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), maxRandForceAmt);
+      v -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), randWeight);
     }
     applyRandomForce = false;
   }
+}
+
+void Agent::handleAttraction() {
+  // New target to go to.
+  if (targetHealth == 0) {
+    // Calculate a random target and go there
+    attractTargetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
+    attractTarget = true;
+    targetHealth = 200;
+  } else {
+    targetHealth -= 0.5;
+  }
+
+  // New target? Add an impulse in that direction.
+  if (attractTarget) {
+    // seek()
+    for (auto &v: vertices) {
+        v->addAttractionPoint(attractTargetPos.x, attractTargetPos.y, attractWeight);
+        v->setRotation(ofRandom(120));
+    }
+    attractTarget = false;
+  }
+}
+
+void Agent::handleRepulsion() {
+  // Initiate a repel on all the vertices and then stop.
+  // Repulsion impulse and then stop.
+  if (repelTarget) {
+    for (auto &v: vertices) {
+      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3gi.0);
+    }
+    
+    repelTarget = false;
+  }
+  
+  // Once or keep applying the force randomly?
+}
+
+glm::vec2 Agent::getCentroid() {
+  return mesh.getCentroid();
+}
+
+void Agent::clean() {
+  // Removes vertices.
+  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
+      return true;
+  });
+  
+  // Remove joints.
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+      return true;
+  });
+}
+
+void Agent::setAttractionTarget(glm::vec2 target) {
+  attractTargetPos = target;
+  attractTarget = true;
+}
+
+void Agent::setRepulsionTarget(glm::vec2 target) {
+  repelTargetPos = target; 
+  repelTarget = true;
+}
+
+void Agent::setRandomForce() {
+  applyRandomForce = true;
+}
+
+std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
+  int randV = ofRandom(vertices.size());
+  auto v = vertices[randV];
+  return v;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {
@@ -133,14 +207,16 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   vertices.clear();
   joints.clear();
 
+  int vId = 0;
   // Create mesh vertices as Box2D elements.
   for (int i = 0; i < meshVertices.size(); i++) {
     auto vertex = std::make_shared<ofxBox2dCircle>();
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
     vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(3, agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
-    vertex->setData(new VertexData(agentProps.agentId)); // Data to identify current agent.
+    vertex->setData(new VertexData(agentProps.agentId, vId)); // Data to identify current agent.
     vertices.push_back(vertex);
+    vId++; 
   }
   
   int meshRows = agentProps.meshDimensions.x;
@@ -173,31 +249,20 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   }
 }
 
-void Agent::clean() {
-  // Removes vertices.
-  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
-      return true;
-  });
+void Agent::updateMesh() {
+  auto meshPoints = mesh.getVertices();
   
-  // Remove joints.
-  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
-      return true;
-  });
-}
-
-void Agent::setTarget(int x, int y) {
-  targetPos = glm::vec2(x, y);
-  updateTarget = true;
-}
-
-void Agent::setRandomForce() {
-  applyRandomForce = true;
-}
-
-std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
-  int randV = ofRandom(vertices.size());
-  auto v = vertices[randV];
-  return v;
+  for (int j = 0; j < meshPoints.size(); j++) {
+    // Get the box2D vertex position.
+    glm::vec2 pos = vertices[j] -> getPosition();
+    
+    // Update mesh point's position with the position of
+    // the box2d vertex.
+    auto meshPoint = meshPoints[j];
+    meshPoint.x = pos.x;
+    meshPoint.y = pos.y;
+    mesh.setVertex(j, meshPoint);
+  }
 }
 
 // Avoid texture right now.
@@ -206,45 +271,6 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
 //      float texY = ofMap(iy, 0, agentProps.textureDimensions.y, 0, 1, true); // Map the calculated y coordinate from 0 - 1
 //      mesh.addTexCoord(glm::vec2(texX, texY));
 
-
-
-    // Use rand vertices and add attraction points on it.
-//    int maxForce = 10.0;
-//    for (auto &v: vertices) {
-//      //auto d = glm::distance(targetPos, {r->getPosition().x, r->getPosition().y});
-//      //r -> addAttractionPoint(targetPos.x, targetPos.y, );
-//      auto desired = glm::vec2(targetPos.x, targetPos.y) - glm::vec2(v->getPosition().x, v->getPosition().y); // Target - Location
-////      desired = glm::normalize(desired);
-////      desired = desired * 0.5;
-////      auto steer = desired - v->getVelocity();
-//      v->addForce({targetPos.x, targetPos.y}, 1.0);
-//
-//    }
-
-
-//    for (auto &r : vertices) {
-//      auto d = glm::distance(targetPos, {r->getPosition().x, r->getPosition().y});
-//
-////      float forceAmt;
-////      //r -> setRotationFriction(0.1);
-////      if (d <= 200) {
-////        forceAmt = ofMap(d, 0, 200, -20/d, 1/d);
-////        // I've reached
-////      } else {
-////        forceAmt = 1/d;
-////      }
-////
-////      r -> addAttractionPoint({targetPos.x, targetPos.y}, forceAmt);
-////      r -> setRotation(ofRandom(90));
-////
-////      if (d <= 30) {
-////        updateTarget = false;
-////      }
-////
-//
-//
-//      updateTarget = false;
-//    }
 
 //      glm::vec2 currentPos = glm::vec2(v->getPosition().x, v->getPosition().y);
 //      auto desired = targetPos - currentPos; // Target - Current

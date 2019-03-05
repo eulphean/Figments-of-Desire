@@ -9,16 +9,18 @@ struct AgentProperties {
   ofPoint jointPhysics;
   ofPoint textureDimensions; // Use it when we have a texture. 
   float vertexRadius;
-  int agentId; 
+  int agentId;
 };
 
 class VertexData {
   public:
-    VertexData(int idx) {
+    VertexData(int idx, int vId) {
       agentId = idx;
+      vertexId = std::to_string(idx) + '_' + std::to_string(vId);
     }
   
     int agentId;
+    string vertexId;
 };
 
 
@@ -32,27 +34,44 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void setTarget(int x, int y);
-    void setRandomForce();
+    void handleAttraction();
+    void handleRepulsion();
+    void handleTickle();
   
+    // Enabling behaviors
+    void setAttractionTarget(glm::vec2 target);
+    void setRandomForce();
+    void setRepulsionTarget(glm::vec2 target);
   
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
+    glm::vec2 getCentroid();
     
   private:
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
+    void updateMesh();
   
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
-    glm::vec2 targetPos;
-    bool updateTarget;
-    bool applyRandomForce; 
-    std::shared_ptr<ofxBox2dCircle> sourceVertex;
   
-    std::vector<shared_ptr<ofxBox2dCircle>> randVertices;
+    // Target position
+    glm::vec2 attractTargetPos;
+    glm::vec2 repelTargetPos;
   
-    float maxAttForceAmt;
-    float maxRandForceAmt; 
+    bool applyRandomForce;
+    bool attractTarget;
+    bool repelTarget;
+  
+    // Weights
+    float attractWeight;
+    float randWeight;
+  
+    // Health
+    float tickleHealth;
+    float targetHealth;
+  
+    // Perception
+    int targetPerceptionRad; 
 };

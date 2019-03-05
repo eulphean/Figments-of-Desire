@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxGui.h"
+#include "World.h"
 #include "Agent.h"
 
 class ofApp : public ofBaseApp{
@@ -16,6 +17,9 @@ class ofApp : public ofBaseApp{
     void createAgent();
     void clearAgents();
     void updateAgentProps();
+  
+    // InterAgentJoints
+    void cleanInterAgentJoints();
   
     // Contact listening callbacks.
     void contactStart(ofxBox2dContactArgs &e);
@@ -62,6 +66,18 @@ class ofApp : public ofBaseApp{
     ofxToggle showSoftBody;
   
   private:
-    int agentNum; 
+    // Body repel timer. 
+    bool startRepelling; 
   
+    int agentNum;
+    std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
+    std::vector<b2Body *> collidingBodies;
+  
+    // Helper methods
+    bool canJoin(b2Body* body, int curAgentId);
+    void handleSerial();
+    void enableRepulsion();
+  
+    // Serial
+    ofSerial serial;
 };
