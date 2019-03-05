@@ -66,7 +66,6 @@ class ofApp : public ofBaseApp{
   
   private:
     // Body repel timer. 
-    float repelTimer;
     bool startRepelling; 
   
     int agentNum;
@@ -77,6 +76,7 @@ class ofApp : public ofBaseApp{
     // Helper methods
     bool isJointed(string vId, int agentId);
     void handleSerial();
+    void enableRepulsion();
   
     // Serial
     ofSerial serial;

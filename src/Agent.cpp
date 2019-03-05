@@ -17,8 +17,8 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   targetHealth = 200;
   
   applyRandomForce = true;
-  updateTarget = false;
-  shouldRepel = false;
+  attractTarget = false;
+  repelTarget = false;
 }
 
 void Agent::update() {
@@ -55,39 +55,18 @@ void Agent::draw(bool showSoftBody) {
 }
 
 void Agent::applyBehaviors() {
+  handleTickle();
+  handleAttraction();
+  handleRepulsion();
+}
+
+void Agent::handleTickle() {
   // Check for tickle health.
   if (tickleHealth == 0) {
     applyRandomForce = true;
     tickleHealth = 100;
   } else {
     tickleHealth -= 0.5;
-  }
-  
-  // New target to go to.
-  if (targetHealth == 0) {
-    // Calculate a random target and go there
-    targetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
-    updateTarget = true;
-    targetHealth = 200;
-  } else {
-    targetHealth -= 0.5;
-  }
-
-
-  // New target? Add an impulse in that direction.
-  if (updateTarget) {
-    // seek()
-    for (auto &v: vertices) {
-        v->addAttractionPoint(targetPos.x, targetPos.y, attractWeight);
-        v->setRotation(ofRandom(120));
-    }
-    updateTarget = false;
-  }
-  
-  if (shouldRepel) {
-    // Target point of repelling (opposite body's centroid)
-    
-    // Keep repelling till all the interAgentJoints are broken. 
   }
   
   // Random force/ Force all vertices.
@@ -98,6 +77,46 @@ void Agent::applyBehaviors() {
     }
     applyRandomForce = false;
   }
+}
+
+void Agent::handleAttraction() {
+  // New target to go to.
+  if (targetHealth == 0) {
+    // Calculate a random target and go there
+    attractTargetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
+    attractTarget = true;
+    targetHealth = 200;
+  } else {
+    targetHealth -= 0.5;
+  }
+
+  // New target? Add an impulse in that direction.
+  if (attractTarget) {
+    // seek()
+    for (auto &v: vertices) {
+        v->addAttractionPoint(attractTargetPos.x, attractTargetPos.y, attractWeight);
+        v->setRotation(ofRandom(120));
+    }
+    attractTarget = false;
+  }
+}
+
+void Agent::handleRepulsion() {
+  // Initiate a repel on all the vertices and then stop.
+  // Repulsion impulse and then stop.
+  if (repelTarget) {
+    for (auto &v: vertices) {
+      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3.0);
+    }
+    
+    repelTarget = false;
+  }
+  
+  // Once or keep applying the force randomly?
+}
+
+glm::vec2 Agent::getCentroid() {
+  return mesh.getCentroid();
 }
 
 void Agent::clean() {
@@ -112,9 +131,14 @@ void Agent::clean() {
   });
 }
 
-void Agent::setTarget(int x, int y) {
-  targetPos = glm::vec2(x, y);
-  updateTarget = true;
+void Agent::setAttractionTarget(glm::vec2 target) {
+  attractTargetPos = target;
+  attractTarget = true;
+}
+
+void Agent::setRepulsionTarget(glm::vec2 target) {
+  repelTargetPos = target; 
+  repelTarget = true;
 }
 
 void Agent::setRandomForce() {

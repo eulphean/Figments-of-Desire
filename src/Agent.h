@@ -34,12 +34,18 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void setTarget(int x, int y);
-    void setRandomForce();
+    void handleAttraction();
+    void handleRepulsion();
+    void handleTickle();
   
+    // Enabling behaviors
+    void setAttractionTarget(glm::vec2 target);
+    void setRandomForce();
+    void setRepulsionTarget(glm::vec2 target);
   
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
+    glm::vec2 getCentroid();
     
   private:
     void createMesh(AgentProperties softBodyProperties);
@@ -49,11 +55,14 @@ class Agent {
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
-    glm::vec2 targetPos;
   
-    bool updateTarget;
+    // Target position
+    glm::vec2 attractTargetPos;
+    glm::vec2 repelTargetPos;
+  
     bool applyRandomForce;
-    bool shouldRepel;
+    bool attractTarget;
+    bool repelTarget;
   
     // Weights
     float attractWeight;

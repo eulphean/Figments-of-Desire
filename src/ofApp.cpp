@@ -28,15 +28,15 @@ void ofApp::setup(){
   
   agentNum = 0;
   
-  serial.setup("/dev/cu.usbmodem1411", 9600);
+  //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
-  
-  handleSerial();
+//
+//  handleSerial();
   updateAgentProps();
   
   for (auto &a : agents) {
@@ -49,44 +49,15 @@ void ofApp::update(){
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
-    j->setLength(ofRandom(50, 500));
+    j->setLength(ofRandom(50, 100));
     interAgentJoints.push_back(j);
     collidingBodies.clear();
-  }
-  
-  if (startRepelling && repelTimer == 0) {
-    // Mark all the current joints as dirty
-    // All these joints need to be broken
-    for (auto &j: interAgentJoints) {
-      auto bodyA = j->joint->GetBodyA();
-      auto bodyB = j->joint->GetBodyB();
-
-      auto v = (bodyA->GetPosition() - bodyB->GetPosition());
-      auto v2 = b2Vec2(v.x * 2, v.y * 5);
-
-      // Apply force on bodyA in the opposite direction of bodyB
-      bodyA->ApplyForceToCenter(v2, true);
-
-      // Apply force on bodyB in the opposite direction of bodyA
-      v2 = b2Vec2(-v.x * 2, -v.y * 5);
-      bodyB->ApplyForceToCenter(v2, true);
-    }
-    
-    repelTimer = 0;
-  }
-  
-
-  if (interAgentJoints.size() == 0) {
-    startRepelling = false;
-  } else {
-    repelTimer = 0;
   }
   
   // Joint removal condition
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
       auto f = c->getReactionForce(ofGetElapsedTimef());
-//      cout << "Force on the joint:" << f.length() << "\n";
-      if (f.length() > 80) {
+      if (f.length() > 2) {
         // Remove the joint history
         VertexData *aData = reinterpret_cast<VertexData*>(c->joint->GetBodyA()->GetUserData());
         VertexData *bData = reinterpret_cast<VertexData*>(c->joint->GetBodyB()->GetUserData());
@@ -284,6 +255,30 @@ void ofApp::cleanInterAgentJoints() {
   interAgentJoints.clear();
 }
 
+void ofApp::enableRepulsion() {
+    // Enable repelling on the agent.
+    for (auto &j: interAgentJoints) {
+      auto bodyA = j->joint->GetBodyA();
+      auto bodyB = j->joint->GetBodyB();
+      
+      // Agent A (centroid will be the repulsion point)
+      auto agentIdA = reinterpret_cast<VertexData*>(bodyA -> GetUserData()) -> agentId;
+      auto &agentA = agents.at(agentIdA);
+      auto centroidA = agentA.getCentroid();
+      
+      // Agent B (centroid will be the repulsion point)
+      auto agentIdB = reinterpret_cast<VertexData*>(bodyB -> GetUserData()) -> agentId;
+      auto &agentB = agents.at(agentIdB);
+      auto centroidB = agentB.getCentroid();
+      
+      // Set a repulsion target for agent A
+      agentA.setRepulsionTarget(centroidB);
+      agentB.setRepulsionTarget(centroidA);
+      
+      // Set a repulsion target for agent B as well. After trying.
+    }
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
   if (key == 'n') {
@@ -312,19 +307,31 @@ void ofApp::keyPressed(int key){
   }
   
   if (key == 'r') {
-    // Reset repel timer. 
-    // Give it an impulse force once the timer reaches 0.
-    repelTimer = 0;
-    startRepelling = true;
+    enableRepulsion();
   }
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
    for (auto &a: agents) {
-    a.setTarget(x, y);
+    a.setAttractionTarget(glm::vec2(x, y));
   }
 }
 
 void ofApp::exit() {
   gui.saveToFile("InterMesh.xml");
 }
+
+
+//
+//      auto v = (bodyA->GetPosition() - bodyB->GetPosition());
+//      auto v2 = b2Vec2(v.x * 2, v.y * 5);
+//
+//      // Get bodyA's agentId
+//      // apply force on bodyB's vertices away from the centroid of bodyA
+//
+//      // Apply force on bodyA in the opposite direction of bodyB
+//      bodyA->ApplyForceToCenter(v2, true);
+//
+//      // Apply force on bodyB in the opposite direction of bodyA
+//      v2 = b2Vec2(-v.x * 2, -v.y * 5);
+//      bodyB->ApplyForceToCenter(v2, true);
