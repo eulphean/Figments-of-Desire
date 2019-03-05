@@ -31,6 +31,7 @@ class ofApp : public ofBaseApp{
     void exit();
   
     bool hideGui;
+    bool debug;
   
     // Box2d
     ofxBox2d box2d;
@@ -41,29 +42,32 @@ class ofApp : public ofBaseApp{
   
     // GUI
     ofxPanel gui;
+    ofParameterGroup settings; 
   
-    // Mesh dimensions
-    ofxIntSlider meshColumns;
-    ofxIntSlider meshRows;
+    // Mesh group
+    ofParameterGroup meshParams;
+    ofParameter<int> meshColumns;
+    ofParameter<int> meshRows;
+    ofParameter<int> meshWidth;
+    ofParameter<int> meshHeight;
   
-    // Mesh size
-    ofxIntSlider meshWidth;
-    ofxIntSlider meshHeight;
+    // Vertex group
+    ofParameterGroup vertexParams;
+    ofParameter<float> vertexRadius;
+    ofParameter<float> vertexDensity;
+    ofParameter<float> vertexBounce;
+    ofParameter<float> vertexFriction;
   
-    // Vertex radius
-    ofxFloatSlider vertexRadius;
+    // Agent joint (joints inside the agent)
+    ofParameterGroup jointParams;
+    ofParameter<float> jointFrequency;
+    ofParameter<float> jointDamping;
   
-    // Vertex physics
-    ofxFloatSlider vertexDensity;
-    ofxFloatSlider vertexBounce;
-    ofxFloatSlider vertexFriction;
-  
-    // Joint physics
-    ofxFloatSlider jointFrequency;
-    ofxFloatSlider jointDamping;
-  
-    // Soft body turn on
-    ofxToggle showSoftBody;
+    // InterAgentJoint
+    ofParameterGroup interAgentJointParams;
+    ofParameter<float> frequency;
+    ofParameter<float> damping;
+    ofParameter<int> maxJointForce; 
   
   private:
     // Body repel timer. 
@@ -76,6 +80,7 @@ class ofApp : public ofBaseApp{
     // Helper methods
     bool canJoin(b2Body* body, int curAgentId);
     void handleSerial();
+    void interAgentJointCreateDestroy();
     void enableRepulsion();
   
     // Serial

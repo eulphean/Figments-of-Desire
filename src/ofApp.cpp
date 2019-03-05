@@ -6,7 +6,7 @@ void ofApp::setup(){
   ofSetCircleResolution(20);
   
   box2d.init();
-  box2d.setGravity(0, 0);
+  box2d.setGravity(-0.5, 0.5);
   box2d.setFPS(60);
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
@@ -19,6 +19,7 @@ void ofApp::setup(){
   
   hideGui = false;
   startRepelling = false;
+  debug = false;
   
   // Boundaries
   ofRectangle bounds;
@@ -35,7 +36,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
-//
+
 //  handleSerial();
   updateAgentProps();
   
@@ -43,28 +44,8 @@ void ofApp::update(){
     a.update();
   }
   
-  // Should I create interAgent joints?
-  if (collidingBodies.size()>0) {
-    // We have pending bodies to create a joint with.
-    auto jointList = collidingBodies[0]->GetJointList();
-    auto j = std::make_shared<ofxBox2dJoint>();
-    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], agentProps.jointPhysics.x, agentProps.jointPhysics.y);
-    j->setLength(ofRandom(50, 100));
-    interAgentJoints.push_back(j);
-    collidingBodies.clear();
-  }
-  
-  // Joint removal condition
-  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
-      auto f = c->getReactionForce(ofGetElapsedTimef());
-      if (f.length() > 5) {
-        box2d.getWorld()->DestroyJoint(c->joint);
-        return true;
-      }
-
-      return false;
-  });
-  
+  // Should create/destroy interAgentJoints?
+  interAgentJointCreateDestroy();
 }
 
 //--------------------------------------------------------------
@@ -76,7 +57,7 @@ void ofApp::draw(){
   }
   
   for (auto a: agents) {
-    a.draw(true);
+    a.draw(debug);
   }
   
   // Health parameters
@@ -85,33 +66,29 @@ void ofApp::draw(){
   }
 }
 
-void ofApp::handleSerial() {
-  while (serial.available() > 0)
-    {
-        // [Summary] Data is sent from the Arduino byte by byte.
-        // In this while loop, we read the data byte by byte until
-        // there is incoming data. Every character we are sending from
-        // there is a byte wide. We keep constructing the buffer until
-        // we reach the new line character, which determines that we are
-        // done reading the first set of data.
-    
-        // Read the byte.
-        char b = serial.readByte();
-      
-        // End of line character.
-        if (b == '\n')
-        {
-            // Skip
-            cout<< "New line" << "\n";
-        }
-        else
-        {
-            // If it's not the line feed character, add it to the buffer.
-            cout << "Received: " << b << "\n";
-            startRepelling = b - '0';
-            cout << "Replling: " << startRepelling << "\n";
-        }
-    }
+void ofApp::interAgentJointCreateDestroy() {
+  // Joint creation based on when two bodies collide at certain vertices. 
+  if (collidingBodies.size()>0) {
+    // We have pending bodies to create a joint with.
+    auto jointList = collidingBodies[0]->GetJointList();
+    auto j = std::make_shared<ofxBox2dJoint>();
+    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
+    j->setLength(ofRandom(200, 300));
+    interAgentJoints.push_back(j);
+    collidingBodies.clear();
+  }
+  
+  // Joint destruction based on a predetermined force between agents.
+  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
+      auto f = c->getReactionForce(ofGetElapsedTimef());
+      cout << "Reaction Force on joints: " << f.length() << endl;
+      if (f.length() > maxJointForce) {
+        box2d.getWorld()->DestroyJoint(c->joint);
+        return true;
+      }
+
+      return false;
+  });
 }
 
 void ofApp::updateAgentProps() {
@@ -143,17 +120,39 @@ void ofApp::clearAgents() {
 
 void ofApp::setupGui() {
     gui.setup();
-    gui.add(meshRows.setup("Mesh Rows", 20, 1, 100));
-    gui.add(meshColumns.setup("Mesh Columns", 20, 1, 100));
-    gui.add(meshWidth.setup("Mesh Width", 50, 10, ofGetWidth()));
-    gui.add(meshHeight.setup("Mesh Height", 50, 10, ofGetHeight()));
-    gui.add(vertexRadius.setup("Vertex Radius", 5, 1, 30));
-    gui.add(vertexDensity.setup("Vertex density", 0.5, 0, 5));
-    gui.add(vertexBounce.setup("Vertex bounce", 0.5, 0, 1));
-    gui.add(vertexFriction.setup("Vertex friction", 0.5, 0, 1));
-    gui.add(jointFrequency.setup("Joint frequency", 4.f, 0.f, 20.f ));
-    gui.add(jointDamping.setup("Joint damping", 1.f, 0.f, 5.f));
+    settings.setName("Inter Mesh Settings");
   
+    // Mesh parameters.
+    meshParams.setName("Mesh Params");
+    meshParams.add(meshRows.set("Mesh Rows", 5, 5, 100)); // Add the current value
+    meshParams.add(meshColumns.set("Mesh Columns", 5, 5, 100));
+    meshParams.add(meshWidth.set("Mesh Width", 100, 10, ofGetWidth()/2));
+    meshParams.add(meshHeight.set("Mesh Height", 100, 10, ofGetHeight()/2));
+  
+    // Vertex parameters
+    vertexParams.setName("Vertex Params");
+    vertexParams.add(vertexRadius.set("Vertex Radius", 6, 1, 30));
+    vertexParams.add(vertexDensity.set("Vertex Density", 1, 0, 5));
+    vertexParams.add(vertexBounce.set("Vertex Bounce", 0.3, 0, 1));
+    vertexParams.add(vertexFriction.set("Vertex Friction", 1, 0, 1));
+  
+    // Joint parameters
+    jointParams.setName("Joint Params");
+    jointParams.add(jointFrequency.set("Joint Frequency", 2.0f, 0.0f, 20.0f));
+    jointParams.add(jointDamping.set("Joint Damping", 1.0f, 0.0f, 5.0f));
+  
+    // InterAgentJoint parameters
+    interAgentJointParams.setName("InterAgentJoint Params");
+    interAgentJointParams.add(frequency.set("Joint Frequency", 2.0f, 0.0f, 20.0f));
+    interAgentJointParams.add(damping.set("Joint Damping", 1.0f, 0.0f, 10.0f));
+    interAgentJointParams.add(maxJointForce.set("Max Joint Force", 6.f, 1.f, 20.0f));
+  
+    settings.add(meshParams);
+    settings.add(vertexParams);
+    settings.add(jointParams);
+    settings.add(interAgentJointParams);
+  
+    gui.setup(settings);
     gui.loadFromFile("InterMesh.xml");
 }
 
@@ -243,6 +242,10 @@ void ofApp::enableRepulsion() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+  if (key == 'd') {
+    debug = !debug;
+  }
+  
   if (key == 'n') {
     createAgent(); 
   }
@@ -283,6 +286,35 @@ void ofApp::exit() {
   gui.saveToFile("InterMesh.xml");
 }
 
+void ofApp::handleSerial() {
+  while (serial.available() > 0)
+    {
+        // [Summary] Data is sent from the Arduino byte by byte.
+        // In this while loop, we read the data byte by byte until
+        // there is incoming data. Every character we are sending from
+        // there is a byte wide. We keep constructing the buffer until
+        // we reach the new line character, which determines that we are
+        // done reading the first set of data.
+    
+        // Read the byte.
+        char b = serial.readByte();
+      
+        // End of line character.
+        if (b == '\n')
+        {
+            // Skip
+            cout<< "New line" << "\n";
+        }
+        else
+        {
+            // If it's not the line feed character, add it to the buffer.
+            cout << "Received: " << b << "\n";
+            startRepelling = b - '0';
+            cout << "Replling: " << startRepelling << "\n";
+        }
+    }
+}
+
 
 //
 //      auto v = (bodyA->GetPosition() - bodyB->GetPosition());
@@ -314,3 +346,16 @@ void ofApp::exit() {
 //  } else {
 //    return false;
 //  }
+
+
+//    gui.add(meshRows.setup("Mesh Rows", 20, 1, 100));
+//    gui.add(meshColumns.setup("Mesh Columns", 20, 1, 100));
+//    gui.add(meshWidth.setup("Mesh Width", 50, 10, ofGetWidth()));
+//    gui.add(meshHeight.setup("Mesh Height", 50, 10, ofGetHeight()));
+//    gui.add(vertexRadius.setup("Vertex Radius", 5, 1, 30));
+//    gui.add(vertexDensity.setup("Vertex density", 0.5, 0, 5));
+//    gui.add(vertexBounce.setup("Vertex bounce", 0.5, 0, 1));
+//    gui.add(vertexFriction.setup("Vertex friction", 0.5, 0, 1));
+//    gui.add(jointFrequency.setup("Joint frequency", 4.f, 0.f, 20.f ));
+//    gui.add(jointDamping.setup("Joint damping", 1.f, 0.f, 5.f));
+//

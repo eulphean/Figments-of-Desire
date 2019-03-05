@@ -1,15 +1,24 @@
 <?xml version="1.0"?>
-<group>
-	<Mesh_Rows>5</Mesh_Rows>
-	<Mesh_Columns>5</Mesh_Columns>
-	<Mesh_Width>100</Mesh_Width>
-	<Mesh_Height>100</Mesh_Height>
-	<Vertex_Radius>6</Vertex_Radius>
-	<Vertex_density>1</Vertex_density>
-	<Vertex_bounce>0.3</Vertex_bounce>
-	<Vertex_friction>1</Vertex_friction>
-	<Joint_frequency>2</Joint_frequency>
-	<Joint_damping>1</Joint_damping>
-	<Show_body>1</Show_body>
-	<UnknownName>1</UnknownName>
-</group>
+<Inter_Mesh_Settings>
+	<Mesh_Params>
+		<Mesh_Rows>10</Mesh_Rows>
+		<Mesh_Columns>10</Mesh_Columns>
+		<Mesh_Width>200</Mesh_Width>
+		<Mesh_Height>200</Mesh_Height>
+	</Mesh_Params>
+	<Vertex_Params>
+		<Vertex_Radius>6</Vertex_Radius>
+		<Vertex_Density>1</Vertex_Density>
+		<Vertex_Bounce>0.3</Vertex_Bounce>
+		<Vertex_Friction>1</Vertex_Friction>
+	</Vertex_Params>
+	<Joint_Params>
+		<Joint_Frequency>2</Joint_Frequency>
+		<Joint_Damping>1</Joint_Damping>
+	</Joint_Params>
+	<InterAgentJoint_Params>
+		<Joint_Frequency>2</Joint_Frequency>
+		<Joint_Damping>4</Joint_Damping>
+		<Max_Joint_Force>8</Max_Joint_Force>
+	</InterAgentJoint_Params>
+</Inter_Mesh_Settings>

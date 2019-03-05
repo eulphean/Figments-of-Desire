@@ -10,11 +10,11 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Force weights for various body activities. 
   attractWeight = 0.1;
-  randWeight = 0.5;
+  randWeight = 0.3;
   
   // Healths to keep track when to execute something again.
   tickleHealth = 100;
-  targetHealth = 200;
+  targetHealth = 100;
   
   applyRandomForce = true;
   attractTarget = false;
@@ -29,29 +29,29 @@ void Agent::update() {
   applyBehaviors();
 }
 
-void Agent::draw(bool showSoftBody) {
+void Agent::draw(bool debug) {
   // Draw the meshes.
   // Draw the soft bodies.
-  if (showSoftBody) {
-    ofPushStyle();
-      for(auto v: vertices) {
-        ofNoFill();
-        ofSetColor(ofColor::red);
-        v->draw();
-      }
-    ofPopStyle();
-    
-//    ofSetColor(ofColor::red);
-//    mesh.draw();
+  ofPushStyle();
+    for(auto v: vertices) {
+      ofNoFill();
+      ofSetColor(ofColor::red);
+      v->draw();
+    }
+  ofPopStyle();
+
+  ofSetColor(ofColor::red);
+  mesh.draw();
+
+  if (debug) {
+    auto centroid = mesh.getCentroid();
+    ofPushMatrix();
+      ofTranslate(centroid);
+      ofNoFill();
+      ofSetColor(ofColor::white);
+      ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+    ofPopMatrix();
   }
-  
-  auto centroid = mesh.getCentroid();
-  ofPushMatrix();
-    ofTranslate(centroid);
-    ofNoFill();
-    ofSetColor(ofColor::white);
-    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
-  ofPopMatrix();
 }
 
 void Agent::applyBehaviors() {
@@ -66,7 +66,7 @@ void Agent::handleTickle() {
     applyRandomForce = true;
     tickleHealth = 100;
   } else {
-    tickleHealth -= 0.5;
+    tickleHealth -= 0.1;
   }
   
   // Random force/ Force all vertices.
@@ -85,9 +85,9 @@ void Agent::handleAttraction() {
     // Calculate a random target and go there
     attractTargetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
     attractTarget = true;
-    targetHealth = 200;
+    targetHealth = 100;
   } else {
-    targetHealth -= 0.5;
+    targetHealth -= 1.0;
   }
 
   // New target? Add an impulse in that direction.
@@ -106,7 +106,7 @@ void Agent::handleRepulsion() {
   // Repulsion impulse and then stop.
   if (repelTarget) {
     for (auto &v: vertices) {
-      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3.0);
+      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 0.8);
     }
     
     repelTarget = false;

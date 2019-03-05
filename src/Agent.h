@@ -29,7 +29,7 @@ class Agent {
   public:
     void setup(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void update();
-    void draw(bool showSoftBody);
+    void draw(bool debug);
     void clean();
   
     // Behaviors
