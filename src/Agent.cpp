@@ -106,7 +106,7 @@ void Agent::handleRepulsion() {
   // Repulsion impulse and then stop.
   if (repelTarget) {
     for (auto &v: vertices) {
-      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3gi.0);
+      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3.0);
     }
     
     repelTarget = false;
