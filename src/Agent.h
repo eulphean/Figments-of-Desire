@@ -50,8 +50,10 @@ class Agent {
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
     glm::vec2 targetPos;
+  
     bool updateTarget;
     bool applyRandomForce;
+    bool shouldRepel;
   
     // Weights
     float attractWeight;

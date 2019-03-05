@@ -65,6 +65,10 @@ class ofApp : public ofBaseApp{
     ofxToggle showSoftBody;
   
   private:
+    // Body repel timer. 
+    float repelTimer;
+    bool startRepelling; 
+  
     int agentNum;
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
@@ -72,6 +76,8 @@ class ofApp : public ofBaseApp{
   
     // Helper methods
     bool isJointed(string vId, int agentId);
+    void handleSerial();
   
-    int num; 
+    // Serial
+    ofSerial serial;
 };

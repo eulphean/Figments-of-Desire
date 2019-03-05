@@ -18,6 +18,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   applyRandomForce = true;
   updateTarget = false;
+  shouldRepel = false;
 }
 
 void Agent::update() {
@@ -45,12 +46,12 @@ void Agent::draw(bool showSoftBody) {
   }
   
   auto centroid = mesh.getCentroid();
-//  ofPushMatrix();
-//    ofTranslate(centroid);
-//    ofNoFill();
-//    ofSetColor(ofColor::white);
-//    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
-//  ofPopMatrix();
+  ofPushMatrix();
+    ofTranslate(centroid);
+    ofNoFill();
+    ofSetColor(ofColor::white);
+    ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+  ofPopMatrix();
 }
 
 void Agent::applyBehaviors() {
@@ -81,6 +82,12 @@ void Agent::applyBehaviors() {
         v->setRotation(ofRandom(120));
     }
     updateTarget = false;
+  }
+  
+  if (shouldRepel) {
+    // Target point of repelling (opposite body's centroid)
+    
+    // Keep repelling till all the interAgentJoints are broken. 
   }
   
   // Random force/ Force all vertices.

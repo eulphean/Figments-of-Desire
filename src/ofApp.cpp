@@ -18,6 +18,7 @@ void ofApp::setup(){
   setupGui();
   
   hideGui = false;
+  startRepelling = false;
   
   // Boundaries
   ofRectangle bounds;
@@ -26,13 +27,16 @@ void ofApp::setup(){
   box2d.createBounds(bounds);
   
   agentNum = 0;
-  num = 0;
+  
+  serial.setup("/dev/cu.usbmodem1411", 9600);
 }
+
 
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
   
+  handleSerial();
   updateAgentProps();
   
   for (auto &a : agents) {
@@ -50,17 +54,59 @@ void ofApp::update(){
     collidingBodies.clear();
   }
   
-  // Go through out interAgentJoint and print the reaction forc
-  // Create a threshold beyond which the bond breaks.
-//  for (auto &j: interAgentJoints) {
-//    auto f = j->getReactionForce(ofGetElapsedTimef());
-//    cout << "Force: " << f.length() << "\n";
-//  }
+  if (startRepelling && repelTimer == 0) {
+    // Mark all the current joints as dirty
+    // All these joints need to be broken
+    for (auto &j: interAgentJoints) {
+      auto bodyA = j->joint->GetBodyA();
+      auto bodyB = j->joint->GetBodyB();
+
+      auto v = (bodyA->GetPosition() - bodyB->GetPosition());
+      auto v2 = b2Vec2(v.x * 2, v.y * 5);
+
+      // Apply force on bodyA in the opposite direction of bodyB
+      bodyA->ApplyForceToCenter(v2, true);
+
+      // Apply force on bodyB in the opposite direction of bodyA
+      v2 = b2Vec2(-v.x * 2, -v.y * 5);
+      bodyB->ApplyForceToCenter(v2, true);
+    }
+    
+    repelTimer = 0;
+  }
   
+
+  if (interAgentJoints.size() == 0) {
+    startRepelling = false;
+  } else {
+    repelTimer = 0;
+  }
+  
+  // Joint removal condition
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
       auto f = c->getReactionForce(ofGetElapsedTimef());
-      cout << "Force on the joint:" << f.length() << "\n";
-      return f.length() > 15;
+//      cout << "Force on the joint:" << f.length() << "\n";
+      if (f.length() > 80) {
+        // Remove the joint history
+        VertexData *aData = reinterpret_cast<VertexData*>(c->joint->GetBodyA()->GetUserData());
+        VertexData *bData = reinterpret_cast<VertexData*>(c->joint->GetBodyB()->GetUserData());
+        
+        // History of A
+        auto it = interAgentHistory.find(aData->vertexId);
+        if (it != interAgentHistory.end()) {
+          interAgentHistory.erase(it);
+        }
+        
+        // History of B
+        it = interAgentHistory.find(bData->vertexId);
+        if (it != interAgentHistory.end()) {
+          interAgentHistory.erase(it);
+        }
+        
+        return true;
+      }
+    
+      return false;
   });
   
 }
@@ -81,6 +127,35 @@ void ofApp::draw(){
   if (hideGui) {
     gui.draw();
   }
+}
+
+void ofApp::handleSerial() {
+  while (serial.available() > 0)
+    {
+        // [Summary] Data is sent from the Arduino byte by byte.
+        // In this while loop, we read the data byte by byte until
+        // there is incoming data. Every character we are sending from
+        // there is a byte wide. We keep constructing the buffer until
+        // we reach the new line character, which determines that we are
+        // done reading the first set of data.
+    
+        // Read the byte.
+        char b = serial.readByte();
+      
+        // End of line character.
+        if (b == '\n')
+        {
+            // Skip
+            cout<< "New line" << "\n";
+        }
+        else
+        {
+            // If it's not the line feed character, add it to the buffer.
+            cout << "Received: " << b << "\n";
+            startRepelling = b - '0';
+            cout << "Replling: " << startRepelling << "\n";
+        }
+    }
 }
 
 void ofApp::updateAgentProps() {
@@ -230,6 +305,17 @@ void ofApp::keyPressed(int key){
     for (auto &a: agents) {
       a.setRandomForce();
     }
+  }
+  
+  if (key == 'j') {
+    cleanInterAgentJoints();
+  }
+  
+  if (key == 'r') {
+    // Reset repel timer. 
+    // Give it an impulse force once the timer reaches 0.
+    repelTimer = 0;
+    startRepelling = true;
   }
 }
 
