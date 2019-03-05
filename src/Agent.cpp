@@ -41,8 +41,8 @@ void Agent::draw(bool showSoftBody) {
       }
     ofPopStyle();
     
-    ofSetColor(ofColor::red);
-    mesh.draw();
+//    ofSetColor(ofColor::red);
+//    mesh.draw();
   }
   
   auto centroid = mesh.getCentroid();
@@ -106,7 +106,7 @@ void Agent::handleRepulsion() {
   // Repulsion impulse and then stop.
   if (repelTarget) {
     for (auto &v: vertices) {
-      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3.0);
+      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 3gi.0);
     }
     
     repelTarget = false;

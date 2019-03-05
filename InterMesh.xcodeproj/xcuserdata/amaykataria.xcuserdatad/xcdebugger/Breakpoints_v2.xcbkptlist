@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../../addons/ofxBox2d/libs/Box2D/Dynamics/Joints/b2Joint.h"
-            timestampString = "573369136.242749"
+            timestampString = "573472272.1736569"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "57"

@@ -57,26 +57,11 @@ void ofApp::update(){
   // Joint removal condition
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
       auto f = c->getReactionForce(ofGetElapsedTimef());
-      if (f.length() > 2) {
-        // Remove the joint history
-        VertexData *aData = reinterpret_cast<VertexData*>(c->joint->GetBodyA()->GetUserData());
-        VertexData *bData = reinterpret_cast<VertexData*>(c->joint->GetBodyB()->GetUserData());
-        
-        // History of A
-        auto it = interAgentHistory.find(aData->vertexId);
-        if (it != interAgentHistory.end()) {
-          interAgentHistory.erase(it);
-        }
-        
-        // History of B
-        it = interAgentHistory.find(bData->vertexId);
-        if (it != interAgentHistory.end()) {
-          interAgentHistory.erase(it);
-        }
-        
+      if (f.length() > 5) {
+        box2d.getWorld()->DestroyJoint(c->joint);
         return true;
       }
-    
+
       return false;
   });
   
@@ -176,83 +161,62 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
   
 }
 
-// Store information during collision and make
-// the bodies right after update. Check for joint making.
+// Joint creation sequence. 
 void ofApp::contactEnd(ofxBox2dContactArgs &e) {
   if(e.a != NULL && e.b != NULL) {
-    
-    // Only when a circle contacts the polygon, then this routine will run.
     if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
-      // Extract sound data.
+      // Extract vertex data.
       VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
       VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
       
       if (aData->agentId != bData->agentId) {
-            // Should I create this joint? Do a and b agree?
-            // Whose more eager to create this joint?
-            // Bonding eagerness?
-            collidingBodies.clear();
-            bool a = isJointed(aData->vertexId, bData->agentId);
-            bool b = isJointed(bData->vertexId, aData->agentId);
-            if (!a & !b) {
-              // Create a joint
-              auto a = e.a->GetBody();
-              auto b = e.b->GetBody();
-              collidingBodies.push_back(a);
-              collidingBodies.push_back(b);
-              
-              // This logic maintains the joint history for each of the InterAgentJoints
-              
-              // Update joint history for aData's vertexId
-              auto it1 = interAgentHistory.find(aData->vertexId);
-              if (it1 != interAgentHistory.end()) {
-                auto &val = it1->second;
-                val->push_back(bData->agentId);
-              } else {
-                auto vec = new std::vector<int>();
-                vec->push_back(bData->agentId);
-                interAgentHistory.insert(std::make_pair(aData->vertexId, vec));
-              }
-              
-              // Update joint history for bData's vertexId
-              auto it2 = interAgentHistory.find(bData->vertexId);
-              if (it2 != interAgentHistory.end()) {
-                auto &val = it2->second;
-                val->push_back(aData->agentId);
-              } else {
-                auto vec = new std::vector<int>();
-                vec->push_back(aData->agentId);
-                interAgentHistory.insert(std::make_pair(bData->vertexId, vec));
-              }
-            }
+          collidingBodies.clear();
+          auto bodyA = e.a->GetBody();
+          auto bodyB = e.b->GetBody();
+        
+          // Condense this in a function
+          bool a = canJoin(bodyA, aData->agentId);
+          bool b = canJoin(bodyB, bData->agentId);
+        
+          if (a && b) {
+            // Reached here?
+            collidingBodies.push_back(bodyA);
+            collidingBodies.push_back(bodyB);
+          }
         }
       }
     }
 }
 
-bool ofApp::isJointed(string vId, int agentId) {
-  auto it1 = interAgentHistory.find(vId);
-  if (it1 != interAgentHistory.end()) {
-    // Does it have the agentid?
-    auto a = it1->second;
-    for (int i = 0; i < a->size(); i++) {
-      if (agentId == a->at(i)) {
-        return true;
-      }
+bool ofApp::canJoin(b2Body* body, int curAgentId) {
+  // If it joins anything except itself, then it cannot join.
+  auto curEdge = body -> GetJointList();
+  // Traverse the joint doubly linked list.
+  while (curEdge && curEdge != curEdge -> next) {
+    // Get the other body and check if its agentId is same as
+    // bodyBAgentId
+    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
+    
+    // It's not the same body? That means it's jointed with someone else.
+    if (otherAgentId != curAgentId) {
+      return false;
     }
     
-    return false;
-  } else {
-    return false;
+    curEdge = curEdge -> next;
   }
+  
+  return true;
 }
 
 void ofApp::cleanInterAgentJoints() {
-  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
+  // Actually destroy the joint... Else, the joint disappears but it still sit between the bodies.
+  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> j){
+      box2d.getWorld()->DestroyJoint(j->joint);
       return true;
   });
   
   interAgentJoints.clear();
+  collidingBodies.clear();
 }
 
 void ofApp::enableRepulsion() {
@@ -274,8 +238,6 @@ void ofApp::enableRepulsion() {
       // Set a repulsion target for agent A
       agentA.setRepulsionTarget(centroidB);
       agentB.setRepulsionTarget(centroidA);
-      
-      // Set a repulsion target for agent B as well. After trying.
     }
 }
 
@@ -335,3 +297,20 @@ void ofApp::exit() {
 //      // Apply force on bodyB in the opposite direction of bodyA
 //      v2 = b2Vec2(-v.x * 2, -v.y * 5);
 //      bodyB->ApplyForceToCenter(v2, true);
+
+
+
+//  auto it1 = interAgentHistory.find(vId);
+//  if (it1 != interAgentHistory.end()) {
+//    // Does it have the agentid?
+//    auto a = it1->second;
+//    for (int i = 0; i < a->size(); i++) {
+//      if (agentId == a->at(i)) {
+//        return true;
+//      }
+//    }
+//
+//    return false;
+//  } else {
+//    return false;
+//  }

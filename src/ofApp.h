@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxGui.h"
+#include "World.h"
 #include "Agent.h"
 
 class ofApp : public ofBaseApp{
@@ -71,10 +72,9 @@ class ofApp : public ofBaseApp{
     int agentNum;
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
-    std::map <std::string, std::vector<int> *> interAgentHistory;
   
     // Helper methods
-    bool isJointed(string vId, int agentId);
+    bool canJoin(b2Body* body, int curAgentId);
     void handleSerial();
     void enableRepulsion();
   
