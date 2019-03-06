@@ -207,8 +207,6 @@ void Agent::createMesh(AgentProperties agentProps) {
     for (int x = 0; x < nCols; x++) {
       float ix = meshOrigin.x + w * x / (nCols - 1);
       float iy = meshOrigin.y + h * y / (nRows - 1);
-      
-      cout << "ix, iy: " << ix << ", " << iy << endl;
      
       mesh.addVertex({ix, iy, 0});
       

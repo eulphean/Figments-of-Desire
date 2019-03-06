@@ -82,6 +82,7 @@ class ofApp : public ofBaseApp{
     void handleSerial();
     void interAgentJointCreateDestroy();
     void enableRepulsion();
+    bool shouldBond(int agentA, int agentB);
   
     // Serial
     ofSerial serial;

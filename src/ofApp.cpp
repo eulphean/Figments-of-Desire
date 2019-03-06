@@ -46,16 +46,18 @@ void ofApp::update(){
   }
   
   // Should create/destroy interAgentJoints?
-  // interAgentJointCreateDestroy();
+  interAgentJointCreateDestroy();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  // Draw InterAgentJoints
-  for (auto j: interAgentJoints) {
-    ofSetColor(ofColor::green);
-    j->draw();
-  }
+  ofPushStyle();
+    // Draw InterAgentJoints
+    for (auto j: interAgentJoints) {
+      ofSetColor(ofColor::green);
+      j->draw();
+    }
+  ofPopStyle();
   
   for (auto a: agents) {
     a.draw(debug);
@@ -74,7 +76,7 @@ void ofApp::interAgentJointCreateDestroy() {
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-    j->setLength(0);
+    j->setLength(20);
     interAgentJoints.push_back(j);
     collidingBodies.clear();
   }
@@ -82,7 +84,6 @@ void ofApp::interAgentJointCreateDestroy() {
   // Joint destruction based on a predetermined force between agents.
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
       auto f = c->getReactionForce(ofGetElapsedTimef());
-      cout << "Reaction Force on joints: " << f.length() << endl;
       if (f.length() > maxJointForce) {
         box2d.getWorld()->DestroyJoint(c->joint);
         return true;
@@ -106,7 +107,7 @@ void ofApp::createAgent() {
   Agent a;
   a.setup(box2d, agentProps);
   agents.push_back(a);
-  agentNum++;
+  agentNum = agents.size();
 }
 
 void ofApp::clearAgents() {
@@ -117,6 +118,7 @@ void ofApp::clearAgents() {
   
   // Empty the vector
   agents.clear();
+  agentNum = 0;
 }
 
 void ofApp::setupGui() {
@@ -169,7 +171,11 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
       VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
       VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
       
-      if (aData->agentId != bData->agentId) {
+      // Should these 2 bodies bond???
+      // [WARNING] Assuming both agentNum is the agent's index in the array. Bad Assumption
+      // Figure out a better solution soon.
+      // Evaluate color slots of both these agents.
+      if (shouldBond(aData->agentId, bData->agentId)) {
           collidingBodies.clear();
           auto bodyA = e.a->GetBody();
           auto bodyB = e.b->GetBody();
@@ -186,6 +192,41 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         }
       }
     }
+}
+
+//
+bool ofApp::shouldBond(int agentA, int agentB) {
+  if (agentA != agentB) {
+    auto agent1 = agents.at(agentA);
+    auto agent2 = agents.at(agentB);
+    
+    // How many common colors are between the two arrays?
+    int commonColorsNum = 0;
+    int uncommonColorsNum = 0;
+    bool a; bool b;
+    
+    // Agent 1
+    auto colors = agent1.colors;
+    for (int i = 0; i < colors.size(); i++) {
+      a = ofContains(agent1.colorSlots, colors.at(i));
+      b = ofContains(agent2.colorSlots, colors.at(i));
+      if (a & b) {
+        commonColorsNum++;
+      }
+      
+      if (!a && !b) {
+        // Color isn't in a and b.
+      } else {
+        // It's in one but not the other.
+        uncommonColorsNum++;
+      }
+    }
+    
+    // Should be some common and some uncommon colors.
+    return commonColorsNum >= 3 && uncommonColorsNum >=2;
+  }
+  
+  return false;
 }
 
 bool ofApp::canJoin(b2Body* body, int curAgentId) {

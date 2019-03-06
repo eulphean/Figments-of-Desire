@@ -46,6 +46,11 @@ class Agent {
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
+  
+    // Color dimension of this agent.
+    std::vector<ofColor> colorSlots;
+    // Core colors.
+    std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
     
   private:
     void createMesh(AgentProperties softBodyProperties);
@@ -79,10 +84,6 @@ class Agent {
     // Perception
     int targetPerceptionRad;
   
-    // Color dimension of this agent.
-    std::vector<ofColor> colorSlots;
-    const int maxSlots = 7; // Number of slots.
-    // Core colors.
-    std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
+    const int maxSlots = 5; // Number of slots.
     ofFbo fbo;
 };
