@@ -1,8 +1,13 @@
 #include "Agent.h"
 
 void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
+  // Populate color slots.
+  populateSlots();
+  createTexture(agentProps.meshSize); // Design the look of this creature.
+  
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
+  
   
   // Calculate a targetPerceptionRad based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
@@ -39,9 +44,11 @@ void Agent::draw(bool debug) {
       v->draw();
     }
   ofPopStyle();
-
-  ofSetColor(ofColor::red);
+  
+  // Bind the fbo.
+  fbo.getTexture().bind();
   mesh.draw();
+  fbo.getTexture().unbind();
 
   if (debug) {
     auto centroid = mesh.getCentroid();
@@ -51,6 +58,30 @@ void Agent::draw(bool debug) {
       ofSetColor(ofColor::white);
       ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
     ofPopMatrix();
+  }
+}
+
+void Agent::createTexture(ofPoint meshSize) {
+  // Create a simple fbo. 
+  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+  fbo.begin();
+    ofClear(255, 255, 255, 0);
+    ofBackground(ofColor::green);
+    int gap = meshSize.x / maxSlots;
+  
+    // Create the slots in the fbo. 
+    for (int i = 0, x = 0; i < maxSlots; i++, x+=gap) {
+      ofSetColor(colorSlots.at(i));
+      ofDrawRectangle(x, 0, gap, ofGetHeight());
+    }
+  fbo.end();
+}
+
+void Agent::populateSlots() {
+  colorSlots.clear();
+  for (int i = 0; i < maxSlots; i++) {
+    int randIdx = ofRandom(colors.size());
+    colorSlots.push_back(colors.at(randIdx));
   }
 }
 
@@ -167,12 +198,20 @@ void Agent::createMesh(AgentProperties agentProps) {
   int w = agentProps.meshSize.x;
   int h = agentProps.meshSize.y;
   
+  auto texture = fbo.getTexture();
   // Create the mesh.
   for (int y = 0; y < nRows; y++) {
     for (int x = 0; x < nCols; x++) {
       float ix = meshOrigin.x + w * x / (nCols - 1);
       float iy = meshOrigin.y + h * y / (nRows - 1);
+      
+      cout << "ix, iy: " << ix << ", " << iy << endl;
+     
       mesh.addVertex({ix, iy, 0});
+      
+      float texX = ofMap(ix - meshOrigin.x, 0, fbo.getTexture().getWidth(), 0, 1, true); // Map the calculated x coordinate from 0 - 1
+      float texY = ofMap(iy - meshOrigin.y, 0, fbo.getTexture().getHeight(), 0, 1, true); // Map the calculated y coordinate from 0 - 1
+      mesh.addTexCoord({texX, texY});
     }
   }
 

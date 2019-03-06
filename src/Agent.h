@@ -52,6 +52,10 @@ class Agent {
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void updateMesh();
   
+    // Colors
+    void populateSlots();
+    void createTexture(ofPoint meshSize);
+  
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
@@ -73,5 +77,12 @@ class Agent {
     float targetHealth;
   
     // Perception
-    int targetPerceptionRad; 
+    int targetPerceptionRad;
+  
+    // Color dimension of this agent.
+    std::vector<ofColor> colorSlots;
+    const int maxSlots = 7; // Number of slots.
+    // Core colors.
+    std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
+    ofFbo fbo;
 };

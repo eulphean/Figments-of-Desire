@@ -4,6 +4,7 @@
 void ofApp::setup(){
   ofBackground(0);
   ofSetCircleResolution(20);
+  ofDisableArbTex();
   
   box2d.init();
   box2d.setGravity(-0.5, 0.5);
