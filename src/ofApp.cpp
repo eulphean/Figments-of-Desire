@@ -76,7 +76,7 @@ void ofApp::interAgentJointCreateDestroy() {
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-    j->setLength(20);
+    j->setLength(40);
     interAgentJoints.push_back(j);
     collidingBodies.clear();
   }
@@ -204,7 +204,7 @@ bool ofApp::shouldBond(int agentA, int agentB) {
     auto agent1 = agents.at(agentA);
     auto agent2 = agents.at(agentB);
     
-    // Checks to make sure if bonding is happening, it's only between agentA and agentB. 
+    // Checks to make sure if bonding is happening, it's only between agentA and agentB.
     for (auto v : agent1.vertices) {
       int otherAgentId = findOtherAgent(v->body, agentA);
       if (otherAgentId == agentA || otherAgentId == agentB) {
