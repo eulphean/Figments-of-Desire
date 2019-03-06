@@ -43,7 +43,6 @@ void Agent::draw(bool debug) {
         ofTranslate(v->getPosition());
         ofSetColor(ofColor::red);
         ofDrawCircle(0, 0, v->getRadius());
-        //      v->draw();
       ofPopMatrix();
     }
   ofPopStyle();
@@ -62,6 +61,22 @@ void Agent::draw(bool debug) {
       ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
     ofPopMatrix();
   }
+}
+
+void Agent::clean(ofxBox2d &box2d) {
+  // Remove joints.
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+    box2d.getWorld()->DestroyJoint(j->joint);
+    return true;
+  });
+  
+  // Remove vertices
+  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
+    return true;
+  });
+
+  joints.clear();
+  vertices.clear();
 }
 
 void Agent::createTexture(ofPoint meshSize) {
@@ -153,18 +168,6 @@ glm::vec2 Agent::getCentroid() {
   return mesh.getCentroid();
 }
 
-void Agent::clean() {
-  // Removes vertices.
-  ofRemove(vertices, [&](std::shared_ptr<ofxBox2dCircle> c){
-      return true;
-  });
-  
-  // Remove joints.
-  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
-      return true;
-  });
-}
-
 void Agent::setAttractionTarget(glm::vec2 target) {
   attractTargetPos = target;
   attractTarget = true;
@@ -253,7 +256,7 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
     vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(3, agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
-    vertex->setData(new VertexData(agentProps.agentId, vId)); // Data to identify current agent.
+    vertex -> setData(new VertexData(agentProps.agentId, vId)); // Data to identify current agent.
     vertices.push_back(vertex);
     vId++; 
   }
@@ -303,18 +306,3 @@ void Agent::updateMesh() {
     mesh.setVertex(j, meshPoint);
   }
 }
-
-// Avoid texture right now.
-//      // Since, we have ofDisableArbTex, we map the coordinates from 0 - 1.
-//      float texX = ofMap(ix, 0, agentProps.textureDimensions.x, 0, 1, true); // Map the calculated x coordinate from 0 - 1
-//      float texY = ofMap(iy, 0, agentProps.textureDimensions.y, 0, 1, true); // Map the calculated y coordinate from 0 - 1
-//      mesh.addTexCoord(glm::vec2(texX, texY));
-
-
-//      glm::vec2 currentPos = glm::vec2(v->getPosition().x, v->getPosition().y);
-//      auto desired = targetPos - currentPos; // Target - Current
-//      desired = glm::normalize(desired);
-//      auto steer = v->getVelocity() - desired;
-//      v->addImpulseForce(steer, maxSteerImpulse);
-//      v->addForce(steer, 0.2);
-//      v->setRotation(ofRandom(60));

@@ -30,7 +30,9 @@ class Agent {
     void setup(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void update();
     void draw(bool debug);
-    void clean();
+  
+    // Clean the agent
+    void clean(ofxBox2d &box2d);
   
     // Behaviors
     void applyBehaviors();

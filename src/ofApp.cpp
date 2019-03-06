@@ -29,6 +29,7 @@ void ofApp::setup(){
   box2d.createBounds(bounds);
   
   agentNum = 0;
+
   
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
@@ -37,14 +38,15 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
-
-//  handleSerial();
-  updateAgentProps();
   
   for (auto &a : agents) {
     a.update();
   }
+
+  updateAgentProps();
   
+//  handleSerial();
+
   // Should create/destroy interAgentJoints?
   interAgentJointCreateDestroy();
 }
@@ -108,17 +110,7 @@ void ofApp::createAgent() {
   a.setup(box2d, agentProps);
   agents.push_back(a);
   agentNum = agents.size();
-}
-
-void ofApp::clearAgents() {
-  // Clear agent's soft bodies
-  for (auto &a: agents) {
-    a.clean();
-  }
-  
-  // Empty the vector
-  agents.clear();
-  agentNum = 0;
+  cout << "Agent Num: " << agentNum;
 }
 
 void ofApp::setupGui() {
@@ -165,29 +157,33 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
 
 // Joint creation sequence. 
 void ofApp::contactEnd(ofxBox2dContactArgs &e) {
-  if(e.a != NULL && e.b != NULL) {
-    if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
-      // Extract vertex data.
-      VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
-      VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
-      
-      // Should these 2 bodies bond???
-      // [WARNING] Assuming both agentNum is the agent's index in the array. Bad Assumption
-      // Figure out a better solution soon.
-      // Evaluate color slots of both these agents.
-      if (shouldBond(aData->agentId, bData->agentId)) {
-          collidingBodies.clear();
-          auto bodyA = e.a->GetBody();
-          auto bodyB = e.b->GetBody();
+  if (agents.size() > 0) {
+    if(e.a != NULL && e.b != NULL) {
+      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
+        // Extract vertex data.
+        VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
+        VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
         
-          // Condense this in a function
-          bool a = canJoin(bodyA, aData->agentId);
-          bool b = canJoin(bodyB, bData->agentId);
-        
-          if (a && b) {
-            // Reached here?
-            collidingBodies.push_back(bodyA);
-            collidingBodies.push_back(bodyB);
+        if (e.a->GetBody() && e.b->GetBody()) {
+          // Should these 2 bodies bond???
+          // [WARNING] Assuming both agentNum is the agent's index in the array. Bad Assumption
+          // Figure out a better solution soon.
+          // Evaluate color slots of both these agents.
+          if (shouldBond(aData->agentId, bData->agentId)) {
+              collidingBodies.clear();
+              auto bodyA = e.a->GetBody();
+              auto bodyB = e.b->GetBody();
+            
+              // Condense this in a function
+              bool a = canJoin(bodyA, aData->agentId);
+              bool b = canJoin(bodyB, bData->agentId);
+            
+              if (a && b) {
+                // Reached here?
+                collidingBodies.push_back(bodyA);
+                collidingBodies.push_back(bodyB);
+              }
+            }
           }
         }
       }
@@ -275,13 +271,20 @@ bool ofApp::canJoin(b2Body* body, int curAgentId) {
 }
 
 int ofApp::findOtherAgent(b2Body *body, int curAgentId) {
+  if (body == NULL) {
+    return -1;
+  }
+  
   auto curEdge = body -> GetJointList();
   // Traverse the joint doubly linked list.
   while (curEdge && curEdge != curEdge -> next) {
     // Get the other body and check if its agentId is same as
     // bodyBAgentId
-    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
+    if (curEdge->other == NULL) {
+      ofLogWarning("A Null Pointer came around");
+    }
     
+    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
     // It's not the same body? That means it's jointed with someone else.
     if (otherAgentId != curAgentId) {
       return otherAgentId;
@@ -300,6 +303,7 @@ void ofApp::cleanInterAgentJoints() {
       return true;
   });
   
+  cout << "InterAgentJoints cleared." << endl;
   interAgentJoints.clear();
   collidingBodies.clear();
 }
@@ -337,9 +341,25 @@ void ofApp::keyPressed(int key){
   }
   
   if (key == 'c') {
+    // [WARNING] For some reason, these events are still fired when trying to clean things as one could be in the
+    // middle of a step function. Disabling and renabling the events work as a good solution for now.
+    box2d.disableEvents();
+    
     collidingBodies.clear();
     cleanInterAgentJoints();
-    clearAgents();
+    for (auto &a : agents) {
+      a.clean(box2d);
+    }
+    agents.clear();
+    agentNum = 0;
+    
+    box2d.enableEvents();
+  }
+  
+  if (key == 'j') {
+    box2d.disableEvents();
+    cleanInterAgentJoints();
+    box2d.enableEvents();
   }
   
   if (key == 'h') {
@@ -351,10 +371,6 @@ void ofApp::keyPressed(int key){
     for (auto &a: agents) {
       a.setRandomForce();
     }
-  }
-  
-  if (key == 'j') {
-    cleanInterAgentJoints();
   }
   
   if (key == 'r') {
@@ -369,19 +385,13 @@ void ofApp::mousePressed(int x, int y, int button) {
 }
 
 void ofApp::exit() {
+  box2d.disableEvents();
   gui.saveToFile("InterMesh.xml");
 }
 
 void ofApp::handleSerial() {
   while (serial.available() > 0)
     {
-        // [Summary] Data is sent from the Arduino byte by byte.
-        // In this while loop, we read the data byte by byte until
-        // there is incoming data. Every character we are sending from
-        // there is a byte wide. We keep constructing the buffer until
-        // we reach the new line character, which determines that we are
-        // done reading the first set of data.
-    
         // Read the byte.
         char b = serial.readByte();
       
@@ -400,48 +410,3 @@ void ofApp::handleSerial() {
         }
     }
 }
-
-
-//
-//      auto v = (bodyA->GetPosition() - bodyB->GetPosition());
-//      auto v2 = b2Vec2(v.x * 2, v.y * 5);
-//
-//      // Get bodyA's agentId
-//      // apply force on bodyB's vertices away from the centroid of bodyA
-//
-//      // Apply force on bodyA in the opposite direction of bodyB
-//      bodyA->ApplyForceToCenter(v2, true);
-//
-//      // Apply force on bodyB in the opposite direction of bodyA
-//      v2 = b2Vec2(-v.x * 2, -v.y * 5);
-//      bodyB->ApplyForceToCenter(v2, true);
-
-
-
-//  auto it1 = interAgentHistory.find(vId);
-//  if (it1 != interAgentHistory.end()) {
-//    // Does it have the agentid?
-//    auto a = it1->second;
-//    for (int i = 0; i < a->size(); i++) {
-//      if (agentId == a->at(i)) {
-//        return true;
-//      }
-//    }
-//
-//    return false;
-//  } else {
-//    return false;
-//  }
-
-
-//    gui.add(meshRows.setup("Mesh Rows", 20, 1, 100));
-//    gui.add(meshColumns.setup("Mesh Columns", 20, 1, 100));
-//    gui.add(meshWidth.setup("Mesh Width", 50, 10, ofGetWidth()));
-//    gui.add(meshHeight.setup("Mesh Height", 50, 10, ofGetHeight()));
-//    gui.add(vertexRadius.setup("Vertex Radius", 5, 1, 30));
-//    gui.add(vertexDensity.setup("Vertex density", 0.5, 0, 5));
-//    gui.add(vertexBounce.setup("Vertex bounce", 0.5, 0, 1));
-//    gui.add(vertexFriction.setup("Vertex friction", 0.5, 0, 1));
-//    gui.add(jointFrequency.setup("Joint frequency", 4.f, 0.f, 20.f ));
-//    gui.add(jointDamping.setup("Joint damping", 1.f, 0.f, 5.f));
-//
