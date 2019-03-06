@@ -83,6 +83,7 @@ class ofApp : public ofBaseApp{
     void interAgentJointCreateDestroy();
     void enableRepulsion();
     bool shouldBond(int agentA, int agentB);
+    int findOtherAgent(b2Body* body, int curAgentId);
   
     // Serial
     ofSerial serial;

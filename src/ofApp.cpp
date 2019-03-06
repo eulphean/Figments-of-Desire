@@ -196,10 +196,35 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 
 //
 bool ofApp::shouldBond(int agentA, int agentB) {
-  if (agentA != agentB) {
+  if (agentA != agentB) { // Hope it's not the same agent
+    // Agent A and Agent B should not have any interAgentJoints
+    // Go through each vertex of A and check if each of the vertices can Join
+    // Go through each vertex of B and check if each of the vertices can Join
+
     auto agent1 = agents.at(agentA);
     auto agent2 = agents.at(agentB);
     
+    // Checks to make sure if bonding is happening, it's only between agentA and agentB. 
+    for (auto v : agent1.vertices) {
+      int otherAgentId = findOtherAgent(v->body, agentA);
+      if (otherAgentId == agentA || otherAgentId == agentB) {
+        // Cool. Keep going through each other.
+      } else {
+        // No bonding.
+        return;
+      }
+    }
+    
+    for (auto v : agent2.vertices) {
+      int otherAgentId = findOtherAgent(v->body, agentB);
+      if (otherAgentId == agentB || otherAgentId == agentA) {
+        // Cool. Keep going through each other.
+      } else {
+        // No bonding.
+        return;
+      }
+    }
+
     // How many common colors are between the two arrays?
     int commonColorsNum = 0;
     int uncommonColorsNum = 0;
@@ -247,6 +272,25 @@ bool ofApp::canJoin(b2Body* body, int curAgentId) {
   }
   
   return true;
+}
+
+int ofApp::findOtherAgent(b2Body *body, int curAgentId) {
+  auto curEdge = body -> GetJointList();
+  // Traverse the joint doubly linked list.
+  while (curEdge && curEdge != curEdge -> next) {
+    // Get the other body and check if its agentId is same as
+    // bodyBAgentId
+    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
+    
+    // It's not the same body? That means it's jointed with someone else.
+    if (otherAgentId != curAgentId) {
+      return otherAgentId;
+    }
+    
+    curEdge = curEdge -> next;
+  }
+  
+  return curAgentId;
 }
 
 void ofApp::cleanInterAgentJoints() {

@@ -47,10 +47,12 @@ class Agent {
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
   
+  
     // Color dimension of this agent.
     std::vector<ofColor> colorSlots;
     // Core colors.
     std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
+    std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     
   private:
     void createMesh(AgentProperties softBodyProperties);
@@ -61,7 +63,6 @@ class Agent {
     void populateSlots();
     void createTexture(ofPoint meshSize);
   
-    std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
   
