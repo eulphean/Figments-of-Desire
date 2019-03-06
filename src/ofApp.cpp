@@ -45,7 +45,7 @@ void ofApp::update(){
   }
   
   // Should create/destroy interAgentJoints?
-  interAgentJointCreateDestroy();
+  // interAgentJointCreateDestroy();
 }
 
 //--------------------------------------------------------------
