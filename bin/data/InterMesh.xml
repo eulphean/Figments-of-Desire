@@ -3,8 +3,8 @@
 	<Mesh_Params>
 		<Mesh_Rows>10</Mesh_Rows>
 		<Mesh_Columns>10</Mesh_Columns>
-		<Mesh_Width>250</Mesh_Width>
-		<Mesh_Height>250</Mesh_Height>
+		<Mesh_Width>200</Mesh_Width>
+		<Mesh_Height>200</Mesh_Height>
 	</Mesh_Params>
 	<Vertex_Params>
 		<Vertex_Radius>6</Vertex_Radius>

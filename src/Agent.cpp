@@ -61,6 +61,14 @@ void Agent::draw(bool debug) {
       ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
     ofPopMatrix();
   }
+  
+  // Draw the targetMesh's centroid
+//  if (repelTargetAgent != NULL) {
+//    ofPushStyle();
+//      ofSetColor(ofColor::cyan);
+//      ofDrawCircle(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y, 20);
+//    ofPopStyle();
+//  }
 }
 
 void Agent::clean(ofxBox2d &box2d) {
@@ -154,18 +162,31 @@ void Agent::handleRepulsion() {
   // Initiate a repel on all the vertices and then stop.
   // Repulsion impulse and then stop.
   if (repelTarget) {
-    for (auto &v: vertices) {
-      v->addRepulsionForce(repelTargetPos.x, repelTargetPos.y, 0.8);
+    if (ofGetElapsedTimeMillis() - repelTotalTimer < 20000) {
+      if (ofGetElapsedTimeMillis() - repelIntervalTimer > 2000) {
+        // Repel and reset time
+        cout << "Repulsion";
+        for (auto &v: vertices) {
+          auto pos = glm::vec2(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y);
+          v->addRepulsionForce(pos.x, pos.y, 2.0);
+        }
+        repelIntervalTimer = ofGetElapsedTimeMillis(); // Reset timer
+      }
+    } else {
+      repelTarget = false;
+      // Check if we are still connected???
+      // Need to do that check somewhere..
+      repelTotalTimer = ofGetElapsedTimeMillis();
     }
-    
-    repelTarget = false;
   }
-  
-  // Once or keep applying the force randomly?
 }
 
 glm::vec2 Agent::getCentroid() {
   return mesh.getCentroid();
+}
+
+ofMesh& Agent::getMesh() {
+  return mesh;
 }
 
 void Agent::setAttractionTarget(glm::vec2 target) {
@@ -173,9 +194,17 @@ void Agent::setAttractionTarget(glm::vec2 target) {
   attractTarget = true;
 }
 
-void Agent::setRepulsionTarget(glm::vec2 target) {
-  repelTargetPos = target; 
-  repelTarget = true;
+void Agent::setRepulsionTarget(Agent *targetAgent, int newTargetAgentId) {
+  if (newTargetAgentId == repelTargetAgentId) {
+    // Don't do anything
+  } else {
+    repelTargetAgentId = newTargetAgentId;
+    repelTargetAgent = targetAgent;
+    repelTarget = true;
+    repelTotalTimer = ofGetElapsedTimeMillis();
+    repelIntervalTimer = ofGetElapsedTimeMillis();
+    // Start the timer as well.
+  }
 }
 
 void Agent::setRandomForce() {

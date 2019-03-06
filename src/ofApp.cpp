@@ -54,8 +54,11 @@ void ofApp::draw(){
   ofPushStyle();
     // Draw InterAgentJoints
     for (auto j: interAgentJoints) {
-      ofSetColor(ofColor::green);
+      ofSetColor(ofColor::red);
+      ofSetLineWidth(3);
       j->draw();
+//      auto a = j->joint->GetAnchorA(); auto b = j->joint->GetAnchorB();
+//      ofDrawLine(a.x,a.y, b.x, b.y);
     }
   ofPopStyle();
   
@@ -76,8 +79,17 @@ void ofApp::interAgentJointCreateDestroy() {
     auto jointList = collidingBodies[0]->GetJointList();
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-    j->setLength(40);
+    j->setLength(ofRandom(100, 150));
     interAgentJoints.push_back(j);
+    
+    // Get agent IDs and set the repulsion targets.
+    auto id1 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
+    auto id2 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
+    auto &agent1 = agents.at(id1);
+    auto &agent2 = agents.at(id2);
+    agent1.setRepulsionTarget(&agent2, id2);
+    agent2.setRepulsionTarget(&agent1, id1);
+    
     collidingBodies.clear();
   }
   
@@ -164,7 +176,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         if (e.a->GetBody() && e.b->GetBody()) {
           // Should these 2 bodies bond???
           // [WARNING] Assuming both agentNum is the agent's index in the array. Bad Assumption
-          // Figure out a better solution soon.
+          // Figure out a better solution.
           // Evaluate color slots of both these agents.
           if (shouldBond(aData->agentId, bData->agentId)) {
               collidingBodies.clear();
@@ -172,6 +184,8 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
               auto bodyB = e.b->GetBody();
             
               // Condense this in a function
+              // Ensures that this vertex doesn't join to more than one vertex
+              // no matter what.
               bool a = canJoin(bodyA, aData->agentId);
               bool b = canJoin(bodyB, bData->agentId);
             
@@ -179,6 +193,9 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
                 // Reached here?
                 collidingBodies.push_back(bodyA);
                 collidingBodies.push_back(bodyB);
+                
+                // Maybe tell AgentA and AgentB instance that they
+                // are bonded to each other.
               }
             }
           }
@@ -190,14 +207,13 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 //
 bool ofApp::shouldBond(int agentA, int agentB) {
   if (agentA != agentB) { // Hope it's not the same agent
-    // Agent A and Agent B should not have any interAgentJoints
-    // Go through each vertex of A and check if each of the vertices can Join
-    // Go through each vertex of B and check if each of the vertices can Join
-
+    // Agent instances
     auto agent1 = agents.at(agentA);
     auto agent2 = agents.at(agentB);
     
-    // Checks to make sure if bonding is happening, it's only between agentA and agentB.
+    
+    // These two for loops ensure that A doesn't bond with anybody except B
+    // And B doesn't bond with anybody except A
     for (auto v : agent1.vertices) {
       int otherAgentId = findOtherAgent(v->body, agentA);
       if (otherAgentId == agentA || otherAgentId == agentB) {
@@ -223,6 +239,9 @@ bool ofApp::shouldBond(int agentA, int agentB) {
     int uncommonColorsNum = 0;
     bool a; bool b;
     
+    // Obviously the condition to bond should be met still even if there
+    // have been bonds between these bodies before.
+    
     // Agent 1
     auto colors = agent1.colors;
     for (int i = 0; i < colors.size(); i++) {
@@ -241,7 +260,7 @@ bool ofApp::shouldBond(int agentA, int agentB) {
     }
     
     // Should be some common and some uncommon colors.
-    return commonColorsNum >= 3 && uncommonColorsNum >=2;
+    return commonColorsNum >= 2 && uncommonColorsNum >=1;
   }
   
   return false;
@@ -321,8 +340,8 @@ void ofApp::enableRepulsion() {
       auto centroidB = agentB.getCentroid();
       
       // Set a repulsion target for agent A
-      agentA.setRepulsionTarget(centroidB);
-      agentB.setRepulsionTarget(centroidA);
+      //agentA.setRepulsionTarget(&agentB, agentIdB);
+      agentB.setRepulsionTarget(&agentA, agentIdA);
     }
 }
 

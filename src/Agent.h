@@ -43,12 +43,12 @@ class Agent {
     // Enabling behaviors
     void setAttractionTarget(glm::vec2 target);
     void setRandomForce();
-    void setRepulsionTarget(glm::vec2 target);
+    void setRepulsionTarget(Agent *target, int targetAgentId);
   
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
-  
+    ofMesh& getMesh();
   
     // Color dimension of this agent.
     std::vector<ofColor> colorSlots;
@@ -70,11 +70,18 @@ class Agent {
   
     // Target position
     glm::vec2 attractTargetPos;
-    glm::vec2 repelTargetPos;
+  
+    bool repelTarget;
+    Agent *repelTargetAgent = NULL;
+    long repelIntervalTimer;
+    long repelTotalTimer;
   
     bool applyRandomForce;
     bool attractTarget;
-    bool repelTarget;
+  
+  
+    // Agent Id that you are repelling from. 
+    int repelTargetAgentId = -1;
   
     // Weights
     float attractWeight;
