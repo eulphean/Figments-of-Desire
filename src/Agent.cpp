@@ -39,9 +39,12 @@ void Agent::draw(bool debug) {
   // Draw the soft bodies.
   ofPushStyle();
     for(auto v: vertices) {
-      ofNoFill();
-      ofSetColor(ofColor::red);
-      v->draw();
+      ofPushMatrix();
+        ofTranslate(v->getPosition());
+        ofSetColor(ofColor::red);
+        ofDrawCircle(0, 0, v->getRadius());
+        //      v->draw();
+      ofPopMatrix();
     }
   ofPopStyle();
   
@@ -242,7 +245,6 @@ void Agent::createMesh(AgentProperties agentProps) {
 
 void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   auto meshVertices = mesh.getVertices();
-  
   vertices.clear();
   joints.clear();
 
