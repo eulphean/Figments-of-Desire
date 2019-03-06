@@ -29,8 +29,6 @@ void ofApp::setup(){
   box2d.createBounds(bounds);
   
   agentNum = 0;
-
-  
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
@@ -110,7 +108,6 @@ void ofApp::createAgent() {
   a.setup(box2d, agentProps);
   agents.push_back(a);
   agentNum = agents.size();
-  cout << "Agent Num: " << agentNum;
 }
 
 void ofApp::setupGui() {
@@ -303,7 +300,6 @@ void ofApp::cleanInterAgentJoints() {
       return true;
   });
   
-  cout << "InterAgentJoints cleared." << endl;
   interAgentJoints.clear();
   collidingBodies.clear();
 }
