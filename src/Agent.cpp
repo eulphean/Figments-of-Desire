@@ -11,19 +11,20 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Calculate a targetPerceptionRad based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
-  targetPerceptionRad = sqrt(area/PI);
+  targetPerceptionRad = sqrt(area/PI) * 1.5;
   
   // Force weights for various body activities. 
   attractWeight = 0.1;
-  randWeight = 0.3;
+  randWeight = 1.0;
   
   // Healths to keep track when to execute something again.
-  tickleHealth = 100;
-  targetHealth = 100;
+  tickleHealth = 50;
   
-  applyRandomForce = true;
-  attractTarget = false;
+  applyRandomForce = false;
+  attractTarget = true;
   repelTarget = false;
+  
+  attractTargetPos = glm::vec2(ofRandom(50, ofGetWidth() - 200), ofRandom(0, 200));
 }
 
 void Agent::update() {
@@ -128,34 +129,42 @@ void Agent::handleTickle() {
   
   // Random force/ Force all vertices.
   if (applyRandomForce) {
+    cout << "Random Force " << endl;
     // force()
     for (auto &v: vertices) {
-      v -> addForce(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)), randWeight);
+      glm::vec2 force = glm::normalize(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)));
+      v -> addForce(force, randWeight);
     }
     applyRandomForce = false;
   }
 }
 
 void Agent::handleAttraction() {
-  // New target to go to.
-  if (targetHealth == 0) {
-    // Calculate a random target and go there
-    attractTargetPos = glm::vec2(ofRandom(ofGetWidth()), ofRandom(ofGetHeight()));
-    attractTarget = true;
-    targetHealth = 100;
-  } else {
-    targetHealth -= 1.0;
-  }
-
   // New target? Add an impulse in that direction.
   if (attractTarget) {
     // seek()
     for (auto &v: vertices) {
         v->addAttractionPoint(attractTargetPos.x, attractTargetPos.y, attractWeight);
-        v->setRotation(ofRandom(120));
+        v->setRotation(ofRandom(180, 360));
     }
     attractTarget = false;
   }
+  
+  // Pick a new target location once it starts slowing down.
+  glm::vec2 avgVel;
+  for (auto v : vertices) {
+    avgVel += glm::vec2(v->getVelocity().x, v->getVelocity().y);
+  }
+  avgVel = avgVel/vertices.size();
+  if (abs(avgVel.g) < ofRandom(0.1, 0.3)) {
+    // Pick a new target.
+    auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
+    attractTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
+    attractWeight = ofRandom(0.1, 0.3);
+    attractTarget = true;
+  }
+  
+  cout << "Velocity of 0th: " << avgVel.g << endl;
 }
 
 void Agent::handleRepulsion() {
@@ -219,7 +228,7 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
 
 void Agent::createMesh(AgentProperties agentProps) {
   //auto a = ofRandom(50, ofGetWidth() - 50); auto b = ofRandom(50, ofGetHeight() - 50);
-  auto a = ofPoint(100, 100);
+  auto a = ofPoint(50, ofGetHeight() - agentProps.meshSize.y * 1.5);
   auto meshOrigin = glm::vec2(a.x, a.y);
   
   mesh.clear();

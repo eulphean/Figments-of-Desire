@@ -7,7 +7,7 @@ void ofApp::setup(){
   ofDisableArbTex();
   
   box2d.init();
-  box2d.setGravity(-0.5, 0.5);
+  box2d.setGravity(0, 0.7);
   box2d.setFPS(60);
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
