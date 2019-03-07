@@ -2,7 +2,6 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxFilterLibrary.h"
-#include "ofxKsmrFragmentFx.h"
 
 struct AgentProperties {
   ofPoint meshSize; // w, h of the mesh.
@@ -27,12 +26,14 @@ class Agent {
     void applyBehaviors();
     void handleAttraction();
     void handleRepulsion();
+    void handleCentrifugalForce();
     void handleTickle();
   
     // Enabling behaviors
     void setAttractionTarget(glm::vec2 target);
-    void setRandomForce();
+    void setRandomForce(float weight);
     void setRepulsionTarget(Agent *target, int targetAgentId);
+    void setCentrifugalForce(float weight);
   
     // Filters
     void nextFilter();
@@ -78,6 +79,7 @@ class Agent {
   
     bool applyRandomForce;
     bool attractTarget;
+    bool applyCentrifugalForce;
   
   
     // Agent Id that you are repelling from. 
@@ -86,6 +88,7 @@ class Agent {
     // Weights
     float attractWeight;
     float randWeight;
+    float centrifugalWeight;
   
     // Health
     float tickleHealth;

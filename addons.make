@@ -1,4 +1,4 @@
 ofxBox2d
+ofxFft
 ofxFilterLibrary
 ofxGui
-ofxKsmrFragmentFx

@@ -41,6 +41,10 @@ void ofApp::setup(){
       sounds.push_back(sound);
   }
   
+  // Setup fft.
+  fft.setup();
+  fft.setNormalize(true);
+  
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
@@ -72,6 +76,23 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
+  fft.update();
+  
+  // Check for a clap.
+  // Heard a clap loud enough
+  if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.9) {
+    // Break joints
+    for (auto &sa : superAgents) {
+      sa.clean(box2d);
+    }
+    superAgents.clear();
+    
+    // Apply some random force on the agents.
+    for (auto &a : agents) {
+      a -> setCentrifugalForce(0.2);
+    }
+  }
+  
   //handleSerial();
   
   ofRemove(superAgents, [&](SuperAgent &sa){
@@ -104,7 +125,20 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-   for (auto j : newJoints) {
+  if (debug) {
+    fft.drawBars();
+    fft.drawDebug();
+    fft.drawHistoryGraph(ofPoint(824,0), LOW);
+    fft.drawHistoryGraph(ofPoint(824,200),MID );
+    fft.drawHistoryGraph(ofPoint(824,400),HIGH );
+    fft.drawHistoryGraph(ofPoint(824,600),MAXSOUND );
+    ofDrawBitmapString("LOW",850,20);
+    ofDrawBitmapString("HIGH",850,420);
+    ofDrawBitmapString("MID",850,220);
+    ofDrawBitmapString("MAX VOLUME",850,620);
+  }
+  
+  for (auto j : newJoints) {
     ofPushStyle();
       ofSetColor(ofColor::red);
       ofSetLineWidth(3);
@@ -253,7 +287,7 @@ void ofApp::keyPressed(int key){
   if (key == 'f') {
     // Apply a random force
     for (auto &a: agents) {
-      a -> setRandomForce();
+      a -> setRandomForce(1.0);
     }
   }
   
@@ -379,7 +413,7 @@ void ofApp::createSuperAgents() {
     
     if (triggerSound) {
       auto data = (SoundData *) j -> joint -> GetUserData();
-      sounds.at(data->joinIdx) -> play();
+      //sounds.at(data->joinIdx) -> play();
     }
     
     collidingBodies.clear();

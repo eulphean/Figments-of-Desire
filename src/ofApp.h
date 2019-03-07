@@ -5,6 +5,7 @@
 #include "ofxGui.h"
 #include "Agent.h"
 #include "SuperAgent.h"
+#include "ofxProcessFFT.h"
 
 class ofApp : public ofBaseApp{
 
@@ -92,5 +93,8 @@ class ofApp : public ofBaseApp{
   
     // SuperAgents => These are abstract agents that have a bond with each other. 
     std::vector<SuperAgent> superAgents;
-    std::vector<std::shared_ptr<ofxBox2dJoint>> newJoints; 
+    std::vector<std::shared_ptr<ofxBox2dJoint>> newJoints;
+  
+    // Audio analysis.
+    ProcessFFT fft;
 };

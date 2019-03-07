@@ -9,285 +9,6 @@
 		<string>46</string>
 		<key>objects</key>
 		<dict>
-			<key>86A0591E49C25C1F25032CDF</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxKsmrFragmentFx.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/ofxKsmrFragmentFx.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>5538BD70A84CB59D5C31F622</key>
-			<dict>
-				<key>fileRef</key>
-				<string>BC3C2C251531900A5A93F9B8</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>BC3C2C251531900A5A93F9B8</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxKsmrFragmentFx.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/ofxKsmrFragmentFx.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>4E4C57B405C64BD4A1146C5B</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxKsmrFragFXUnit.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/ofxKsmrFragFXUnit.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>DCFE68246C543C4242A2D447</key>
-			<dict>
-				<key>fileRef</key>
-				<string>36326A8FAB7DAF92AE53EFCF</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>36326A8FAB7DAF92AE53EFCF</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxKsmrFragFXUnit.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/ofxKsmrFragFXUnit.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>757E57859D11B625E306BC76</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_water.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_water.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>22727309207A2B11550B4198</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_verticalSlide.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_verticalSlide.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>A145BB7B41EC56F4D27B94B5</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_verticalNoise.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_verticalNoise.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>05FF085774EB3D85181AB5DB</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_test1.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_test1.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>997E7EA9D56750E172E1CF0C</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_sawagi1.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_sawagi1.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>4E1BA0177EA73A810901872B</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_noise.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_noise.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>593A2A89AA63806BB931F537</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_TexChip.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_TexChip.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>49633FB968125F715412A0F4</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_SlantShift.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_SlantShift.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>8390803E73B176AFD5364D01</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_Invert.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_Invert.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>19905429F2B5CE9B66277305</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_Fringe.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_Fringe.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>A0461093F46923436AED9954</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>92C860CF988B20B7C804DF27</string>
-					<string>19905429F2B5CE9B66277305</string>
-					<string>8390803E73B176AFD5364D01</string>
-					<string>49633FB968125F715412A0F4</string>
-					<string>593A2A89AA63806BB931F537</string>
-					<string>4E1BA0177EA73A810901872B</string>
-					<string>997E7EA9D56750E172E1CF0C</string>
-					<string>05FF085774EB3D85181AB5DB</string>
-					<string>A145BB7B41EC56F4D27B94B5</string>
-					<string>22727309207A2B11550B4198</string>
-					<string>757E57859D11B625E306BC76</string>
-					<string>36326A8FAB7DAF92AE53EFCF</string>
-					<string>4E4C57B405C64BD4A1146C5B</string>
-					<string>BC3C2C251531900A5A93F9B8</string>
-					<string>86A0591E49C25C1F25032CDF</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>src</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>09A6EDD8C384DEF196ECEEE2</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>A0461093F46923436AED9954</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>ofxKsmrFragmentFx</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>92C860CF988B20B7C804DF27</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>FragFXUnits_EdgeOnTop.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxKsmrFragmentFx/src/FragFXUnits_EdgeOnTop.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
 			<key>0A1DAC09F322AE313A40706D</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -3731,6 +3452,388 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>9A2FCCF1ABF23081D2CD9D5F</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxProcessFFT.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxProcessFFT.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>47741AD4D543009E4DF29CEA</key>
+			<dict>
+				<key>fileRef</key>
+				<string>971B530AB93ACC5065D9489E</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>971B530AB93ACC5065D9489E</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxProcessFFT.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxProcessFFT.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>D8952DEFF3CE56AC1009A996</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFftw.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFftw.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>29938E05AF78B3DF7A591187</key>
+			<dict>
+				<key>fileRef</key>
+				<string>5F353204A917F4B2BCEEABE6</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>5F353204A917F4B2BCEEABE6</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFftw.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFftw.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>7D3BE1A2ADAFC399E7B20A91</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFftBasic.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFftBasic.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>007F713E619B81D821BEA319</key>
+			<dict>
+				<key>fileRef</key>
+				<string>CE67198F2891A8FFEA3686E6</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>CE67198F2891A8FFEA3686E6</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFftBasic.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFftBasic.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>B36431C04C788FEDB1ECD8FC</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFft.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFft.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>D409288D137DB82107887FFD</key>
+			<dict>
+				<key>fileRef</key>
+				<string>32CA89CD22339F4F9433CAF6</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>32CA89CD22339F4F9433CAF6</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxFft.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxFft.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>CAB67BC7A1CC020FDAC5381B</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxEasyFft.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxEasyFft.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>14D2E3EE0233F84B1B324DD9</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>67BFC7F21E824F5A7FAC65E0</string>
+					<string>CAB67BC7A1CC020FDAC5381B</string>
+					<string>32CA89CD22339F4F9433CAF6</string>
+					<string>B36431C04C788FEDB1ECD8FC</string>
+					<string>CE67198F2891A8FFEA3686E6</string>
+					<string>7D3BE1A2ADAFC399E7B20A91</string>
+					<string>5F353204A917F4B2BCEEABE6</string>
+					<string>D8952DEFF3CE56AC1009A996</string>
+					<string>971B530AB93ACC5065D9489E</string>
+					<string>9A2FCCF1ABF23081D2CD9D5F</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>src</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>7A61C288AE942E5885881232</key>
+			<dict>
+				<key>fileRef</key>
+				<string>67BFC7F21E824F5A7FAC65E0</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>67BFC7F21E824F5A7FAC65E0</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxEasyFft.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/src/ofxEasyFft.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>977E7DDA94E88633BE025A78</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>kiss_fftr.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/kiss/kiss_fftr.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>6DB9E3911BA6216FE1F0E91C</key>
+			<dict>
+				<key>fileRef</key>
+				<string>DACFE8C08D7F4619176E65D7</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>DACFE8C08D7F4619176E65D7</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.c</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>kiss_fftr.c</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/kiss/kiss_fftr.c</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>A6F65D3430FD7E893FFF58F3</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>kiss_fft.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/kiss/kiss_fft.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>0686C38EE993C67B96002FA1</key>
+			<dict>
+				<key>fileRef</key>
+				<string>4B053B6F1252BCFCFF0F59AC</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>4B053B6F1252BCFCFF0F59AC</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.c</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>kiss_fft.c</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/kiss/kiss_fft.c</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>A2C4D2900B6384FDE5E77208</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>1CBD6F883000C78087DD5738</string>
+					<string>4B053B6F1252BCFCFF0F59AC</string>
+					<string>A6F65D3430FD7E893FFF58F3</string>
+					<string>DACFE8C08D7F4619176E65D7</string>
+					<string>977E7DDA94E88633BE025A78</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>kiss</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>1CBD6F883000C78087DD5738</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>_kiss_fft_guts.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/kiss/_kiss_fft_guts.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>F2022DF37286FECB8B9BA5B2</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>2D0C0AA4436B2A16530BA991</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>include</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>A0535D33570F65575182C18F</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>F2022DF37286FECB8B9BA5B2</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>fftw</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>72C89FAFAC11F96856792042</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>A0535D33570F65575182C18F</string>
+					<string>A2C4D2900B6384FDE5E77208</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>libs</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>BBC2B4228932C2AACC6701CF</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>72C89FAFAC11F96856792042</string>
+					<string>14D2E3EE0233F84B1B324DD9</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>ofxFft</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>2D0C0AA4436B2A16530BA991</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>fftw3.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxFft/libs/fftw/include/fftw3.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>3C9685D59F4D73A3593DEF83</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -6458,11 +6561,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -6515,11 +6623,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_RELEASE)</string>
@@ -6556,9 +6669,9 @@ fi
 				<key>children</key>
 				<array>
 					<string>BD1B24C549BFA7D54BC59DE3</string>
+					<string>BBC2B4228932C2AACC6701CF</string>
 					<string>E1DF4A358BE4E8201D5B07B9</string>
 					<string>480A780D8D0308AE4A368801</string>
-					<string>09A6EDD8C384DEF196ECEEE2</string>
 				</array>
 				<key>isa</key>
 				<string>PBXGroup</string>
@@ -9336,11 +9449,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -9413,11 +9531,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -9499,6 +9622,13 @@ fi
 					<string>12548B44285B5C07EEA5379C</string>
 					<string>DFACEC3A1E9D23315321D7EA</string>
 					<string>B103DF2084E0F38D03E0E6F1</string>
+					<string>0686C38EE993C67B96002FA1</string>
+					<string>6DB9E3911BA6216FE1F0E91C</string>
+					<string>7A61C288AE942E5885881232</string>
+					<string>D409288D137DB82107887FFD</string>
+					<string>007F713E619B81D821BEA319</string>
+					<string>29938E05AF78B3DF7A591187</string>
+					<string>47741AD4D543009E4DF29CEA</string>
 					<string>03A07D0187FC14EFF839316F</string>
 					<string>77B79458F10CC9539300668F</string>
 					<string>66F3DD5768F62B538CEE7C2D</string>
@@ -9580,8 +9710,6 @@ fi
 					<string>837220E80EB56CD44AD27F2A</string>
 					<string>B56FE57CC35806596D38118C</string>
 					<string>1CD33E884D9E3358252E82A1</string>
-					<string>DCFE68246C543C4242A2D447</string>
-					<string>5538BD70A84CB59D5C31F622</string>
 				</array>
 				<key>isa</key>
 				<string>PBXSourcesBuildPhase</string>
@@ -9693,11 +9821,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_DEBUG)</string>
@@ -9761,11 +9894,16 @@ fi
 						<string>../../../addons/ofxBox2d/libs/Box2D/Rope</string>
 						<string>../../../addons/ofxBox2d/libs/triangle</string>
 						<string>../../../addons/ofxBox2d/src</string>
+						<string>../../../addons/ofxFft/libs</string>
+						<string>../../../addons/ofxFft/libs/fftw</string>
+						<string>../../../addons/ofxFft/libs/fftw/include</string>
+						<string>../../../addons/ofxFft/libs/fftw/lib</string>
+						<string>../../../addons/ofxFft/libs/kiss</string>
+						<string>../../../addons/ofxFft/src</string>
 						<string>../../../addons/ofxFilterLibrary/src</string>
 						<string>../../../addons/ofxFilterLibrary/src/filters</string>
 						<string>../../../addons/ofxFilterLibrary/src/parameters</string>
 						<string>../../../addons/ofxGui/src</string>
-						<string>../../../addons/ofxKsmrFragmentFx/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_RELEASE)</string>

@@ -21,7 +21,8 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Force weights for various body activities. 
   attractWeight = 0.1;
-  randWeight = 0.6;
+  randWeight = 0.3;
+  centrifugalWeight = 0.5;
   
   // Healths to keep track when to execute something again.
   tickleHealth = 50;
@@ -29,6 +30,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   applyRandomForce = false;
   attractTarget = true;
   repelTarget = false;
+  applyCentrifugalForce = false;
 }
 
 void Agent::update() {
@@ -144,6 +146,22 @@ void Agent::applyBehaviors() {
   handleTickle();
   handleAttraction();
   handleRepulsion();
+  handleCentrifugalForce();
+}
+
+void Agent::handleCentrifugalForce() {
+  if (applyCentrifugalForce) {
+    // Apply force away from centroid
+    for (auto &v : vertices) {
+      if (ofRandom(1) < 0.4) {
+         v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, centrifugalWeight);
+      } else {
+        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, centrifugalWeight);
+      }
+      v->setRotation(ofRandom(150));
+    }
+    applyCentrifugalForce = false;
+  }
 }
 
 void Agent::handleTickle() {
@@ -151,16 +169,16 @@ void Agent::handleTickle() {
   if (tickleHealth == 0) {
     applyRandomForce = true;
     tickleHealth = 100;
+    randWeight = 0.3;
   } else {
     tickleHealth -= 0.1;
   }
   
   // Random force/ Force all vertices.
   if (applyRandomForce) {
-    cout << "Random Force " << endl;
     // force()
     for (auto &v: vertices) {
-      glm::vec2 force = glm::normalize(glm::vec2(ofRandom(-20, 20), ofRandom(-20, 20)));
+      glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
       v -> addForce(force, randWeight);
     }
     applyRandomForce = false;
@@ -242,8 +260,15 @@ void Agent::setRepulsionTarget(Agent *targetAgent, int newTargetAgentId) {
   }
 }
 
-void Agent::setRandomForce() {
+void Agent::setRandomForce(float avgForceWeight) {
   applyRandomForce = true;
+  randWeight = avgForceWeight;
+  tickleHealth = 0; 
+}
+
+void Agent::setCentrifugalForce(float avgWeight) {
+  applyCentrifugalForce = true;
+  centrifugalWeight = avgWeight;
 }
 
 std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {

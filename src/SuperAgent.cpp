@@ -17,7 +17,7 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
      
       // Trigger the break sound here.
       auto data = (SoundData *) j -> joint -> GetUserData();
-      sounds[data->breakIdx]->play();
+      //sounds[data->breakIdx]->play();
       
       return true;
     } else {
