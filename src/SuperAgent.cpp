@@ -6,8 +6,33 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   joints.push_back(joint);
 }
 
-void SuperAgent::update() {
-
+void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
+  // Max Force based on which the joint breaks.
+  
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+    auto force = j->getReactionForce(ofGetElapsedTimef());
+    //    cout << "Max Force Exerted: " << force.length() << endl;
+    if (abs(force.length()) > maxJointForce) {
+      box2d.getWorld()->DestroyJoint(j->joint);
+      cout << "Joint Rmemoved: " << endl;
+      return true;
+    } else {
+      return false;
+    }
+  });
+  
+  if (joints.size() == 0) {
+    agentA -> setPartner(NULL);
+    agentB -> setPartner(NULL);
+    shouldRemove = true;
+  }
+  // Calculate the exertion force on the bonds
+  // If exertion force is greater than a limit, break the bond.
+  
+  // Update partner conditions after every bond that breaks. Is it
+  // still a partner? If not, set the pointer to null
+  
+  // Then come to behaviors when they are bonded.. Exert those behaviors on both AgentA and AgentB.
 }
 
 void SuperAgent::draw() {
@@ -42,5 +67,6 @@ void SuperAgent::clean(ofxBox2d &box2d) {
     box2d.getWorld()->DestroyJoint(j->joint);
     return true;
   });
+  
   joints.clear();
 }

@@ -64,6 +64,15 @@ void ofApp::update(){
   box2d.update();
   //handleSerial();
   
+  ofRemove(superAgents, [&](SuperAgent &sa){
+    sa.update(box2d, maxJointForce);
+    if (sa.shouldRemove) {
+      cout << "Removing SuperAgent" << endl;
+    }
+    return sa.shouldRemove;
+  });
+  
+  // [TODO] Hook this boolean to a motion sensor value.
   if (mutateColors) {
     for (auto &a: agents) {
       if (a->getPartner() == NULL) {

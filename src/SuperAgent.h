@@ -8,7 +8,7 @@
 class SuperAgent {
   public:
     void setup(Agent *agentA, Agent *agentB, std::shared_ptr<ofxBox2dJoint>);
-    void update();
+    void update(ofxBox2d &box2d, int maxJointForce);
     void draw();
     bool contains(Agent *agentA, Agent *agentB);
     void clean(ofxBox2d &box2d);
@@ -16,6 +16,7 @@ class SuperAgent {
     Agent *agentA;
     Agent *agentB;
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints;  // These are interAgent joints.
+    bool shouldRemove = false;
 };
 
 

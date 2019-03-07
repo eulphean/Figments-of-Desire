@@ -21,7 +21,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Force weights for various body activities. 
   attractWeight = 0.1;
-  randWeight = 1.0;
+  randWeight = 0.6;
   
   // Healths to keep track when to execute something again.
   tickleHealth = 50;
@@ -32,6 +32,15 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
 }
 
 void Agent::update() {
+  if (partner != NULL) {
+    auto area = fbo.getWidth() * fbo.getHeight();
+    targetPerceptionRad = sqrt(area/PI) * 0.75;
+    attractWeight = ofRandom(0.4, 0.6);
+  } else {
+    auto area = fbo.getWidth() * fbo.getHeight();
+    targetPerceptionRad = sqrt(area/PI) * 2.5;
+  }
+  
   // Use box2d circle to update the mesh.
   updateMesh();
   
@@ -47,6 +56,7 @@ void Agent::draw(bool debug) {
       ofPushMatrix();
         ofTranslate(v->getPosition());
         ofSetColor(ofColor::red);
+        ofFill();
         ofDrawCircle(0, 0, v->getRadius());
       ofPopMatrix();
     }
@@ -178,7 +188,7 @@ void Agent::handleAttraction() {
     // Pick a new target.
     auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
     attractTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
-    attractWeight = ofRandom(0.2, 0.4);
+    attractWeight = ofRandom(0.1, 0.3);
     attractTarget = true;
   }
 }
