@@ -44,11 +44,13 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         // Extract Agent pointers.
         Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
         Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
-        
+
         // Really long routine to evaluate if two vertices belonging to two different agents
         // can actually bond with each other or not. Take a look at the conditions under which
         // this bonding actually happens.
-        evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+        if (agentA != agentB) {
+          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+        }
       }
     }
   }
@@ -66,7 +68,7 @@ void ofApp::update(){
   
   // Update agents.
   for (auto &a : agents) {
-    a.update();
+    a -> update();
   }
   
   // Create super agents based on collision bodies.
@@ -81,7 +83,7 @@ void ofApp::draw(){
   }
   
   for (auto a: agents) {
-    a.draw(debug);
+    a -> draw(debug);
   }
   
   // Health parameters
@@ -100,8 +102,8 @@ void ofApp::updateAgentProps() {
 }
 
 void ofApp::createAgent() {
-  Agent a;
-  a.setup(box2d, agentProps);
+  Agent *a = new Agent();
+  a->setup(box2d, agentProps);
   agents.push_back(a);
 }
 
@@ -194,8 +196,10 @@ void ofApp::keyPressed(int key){
     collidingBodies.clear();
     cleanInterAgentJoints();
     for (auto &a : agents) {
-      a.clean(box2d);
+      a -> clean(box2d);
+      delete a;
     }
+    
     agents.clear();
     
     box2d.enableEvents();
@@ -214,7 +218,7 @@ void ofApp::keyPressed(int key){
   if (key == 'f') {
     // Apply a random force
     for (auto &a: agents) {
-      a.setRandomForce();
+      a -> setRandomForce();
     }
   }
   
@@ -225,7 +229,7 @@ void ofApp::keyPressed(int key){
 
 void ofApp::mousePressed(int x, int y, int button) {
    for (auto &a: agents) {
-    a.setAttractionTarget(glm::vec2(x, y));
+    a -> setAttractionTarget(glm::vec2(x, y));
   }
 }
 
@@ -258,22 +262,23 @@ void ofApp::handleSerial() {
 
 // Massive important function that determines when the 2 bodies actually bond.
 void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *agentB) {
-  if (agentA != agentB) {
-    // Visual similarly
-    bool isSimilar = hasVisualSimilarities(agentA, agentB);
-    if (isSimilar) {
-      // Is AgentA's partner AgentB
-      // Is AgentB's partner AgentA
-      if (agentA -> getPartner() == agentB && agentB -> getPartner() == agentA) {
-        // Vertex level checks. Is this vertex bonded to
-        // anything except itself?
-        bool a = canVertexBond(bodyA, agentA);
-        bool b = canVertexBond(bodyB, agentB);
-        if (a && b) {
-          // Prepare for bond.
-          collidingBodies.push_back(bodyA);
-          collidingBodies.push_back(bodyB);
-        }
+  collidingBodies.clear();
+  
+  // Visual similarly
+  bool isSimilar = hasVisualSimilarities(agentA, agentB);
+  if (isSimilar) {
+    // Is AgentA's partner AgentB
+    // Is AgentB's partner AgentA
+    if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
+          && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
+      // Vertex level checks. Is this vertex bonded to
+      // anything except itself?
+      bool a = canVertexBond(bodyA, agentA);
+      bool b = canVertexBond(bodyB, agentB);
+      if (a && b) {
+        // Prepare for bond.
+        collidingBodies.push_back(bodyA);
+        collidingBodies.push_back(bodyB);
       }
     }
   }
@@ -302,7 +307,7 @@ bool ofApp::hasVisualSimilarities(Agent *agentA, Agent *agentB) {
   }
 
   // Should be some common and some uncommon colors.
-  return commonColorsNum >= 2 && uncommonColorsNum >=1;
+  return commonColorsNum >= 1 && uncommonColorsNum >= 0;
 }
 
 bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
@@ -327,21 +332,34 @@ void ofApp::createSuperAgents() {
   // Joint creation based on when two bodies collide at certain vertices.
   if (collidingBodies.size()>0) {
     auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
-    auto agentB = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
-    
-    SuperAgent superAgent;
+    auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
+
+    SuperAgent superAgent; bool found = false;
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-        sa.joints.push_back(j);
-        return; // Return because I've created a joint.
+        superAgent = sa;
+        found = true; 
       }
     }
     
-    // Super Agent doesn't exist. Create a new one.
+    // Create a joint. 
     auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-    superAgent.setup(agentA, agentB, j); // Create a new super agent.
+    
+    // Update the agent data structures.
+    
+    if (found) {
+      superAgent.joints.push_back(j);
+      cout << "Found an existing Super Agent: " << endl;
+    } else {
+      superAgent.setup(agentA, agentB, j); // Create a new super agent.
+      superAgents.push_back(superAgent);
+      
+      agentA -> setPartner(agentB);
+      agentB -> setPartner(agentA);
+      cout << "Super Agent Created: " << endl;
+    }
+    
     collidingBodies.clear();
   }
 }

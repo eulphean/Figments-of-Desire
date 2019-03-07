@@ -37,7 +37,7 @@ class ofApp : public ofBaseApp{
     ofxBox2d box2d;
   
     // Agents
-    std::vector<Agent> agents;
+    std::vector<Agent *> agents;
     AgentProperties agentProps;
   
     // GUI
