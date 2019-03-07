@@ -1,6 +1,8 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxBox2d.h"
+#include "ofxFilterLibrary.h"
+#include "ofxKsmrFragmentFx.h"
 
 struct AgentProperties {
   ofPoint meshSize; // w, h of the mesh.
@@ -32,6 +34,9 @@ class Agent {
     void setRandomForce();
     void setRepulsionTarget(Agent *target, int targetAgentId);
   
+    // Filters
+    void nextFilter();
+  
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
@@ -40,7 +45,8 @@ class Agent {
     // Color dimension of this agent.
     std::vector<ofColor> colorSlots;
     // Core colors.
-    std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
+    std::array<ofColor, 8> colors = { ofColor::fromHex(0x5D3DFF), ofColor::fromHex(0xF48327), ofColor::fromHex(0xF72E57), ofColor::fromHex(0x7CC934),
+            ofColor::fromHex(0x2D3D30), ofColor::fromHex(0xFF6B6C), ofColor::fromHex(0xFFC145), ofColor::fromHex(0x064789) };
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
   
     // Partners
@@ -85,11 +91,15 @@ class Agent {
     // Perception
     int targetPerceptionRad;
   
-    const int maxSlots = 5; // Number of slots.
+    const int maxSlots = 8; // Number of slots.
     ofFbo fbo;
   
     // Partner agent
     Agent *partner = NULL;
+  
+    // Texture
+    vector<AbstractFilter *>  _filters;
+    int _currentFilter = 0;
 };
 
 // Data Structure to hold a pointer to the agent instance 

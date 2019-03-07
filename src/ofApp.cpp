@@ -5,6 +5,8 @@ void ofApp::setup(){
   ofBackground(0);
   ofSetCircleResolution(20);
   ofDisableArbTex();
+  ofEnableSmoothing();
+  ofEnableAlphaBlending();
   
   box2d.init();
   box2d.setGravity(0, 0.7);
@@ -177,6 +179,12 @@ void ofApp::enableRepulsion() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+  if (key == ' ') {
+    for (auto &a : agents) {
+      a->nextFilter();
+    }
+  }
+  
   if (key == 'd') {
     debug = !debug;
   }
@@ -292,7 +300,7 @@ bool ofApp::hasVisualSimilarities(Agent *agentA, Agent *agentB) {
   }
 
   // Should be some common and some uncommon colors.
-  return commonColorsNum >= 1 && uncommonColorsNum >= 0;
+  return commonColorsNum >= 3 && uncommonColorsNum >= 2;
 }
 
 bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {

@@ -1,6 +1,12 @@
 #include "Agent.h"
 
 void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
+  // Post-process
+  _filters.push_back(new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y));
+  _filters.push_back(new PixelateFilter(agentProps.meshSize.x, agentProps.meshSize.y));
+  
+  attractTargetPos = glm::vec2(ofRandom(50, ofGetWidth() - 200), ofRandom(0, 200));
+  
   // Populate color slots.
   populateSlots();
   createTexture(agentProps.meshSize); // Design the look of this creature.
@@ -23,8 +29,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   applyRandomForce = false;
   attractTarget = true;
   repelTarget = false;
-  
-  attractTargetPos = glm::vec2(ofRandom(50, ofGetWidth() - 200), ofRandom(0, 200));
 }
 
 void Agent::update() {
@@ -49,9 +53,11 @@ void Agent::draw(bool debug) {
   ofPopStyle();
   
   // Bind the fbo.
+  _filters[_currentFilter]->begin();
   fbo.getTexture().bind();
   mesh.draw();
   fbo.getTexture().unbind();
+  _filters[_currentFilter]->end();
 
   if (debug) {
     auto centroid = mesh.getCentroid();
@@ -92,14 +98,19 @@ void Agent::createTexture(ofPoint meshSize) {
   // Create a simple fbo. 
   fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
   fbo.begin();
-    ofClear(255, 255, 255, 0);
-    ofBackground(ofColor::green);
-    int gap = meshSize.x / maxSlots;
-  
-    // Create the slots in the fbo. 
-    for (int i = 0, x = 0; i < maxSlots; i++, x+=gap) {
+    ofClear(0, 0, 0, 0);
+    ofBackground(colorSlots.at(0));
+    const int firstRecs = 10;
+    // Create the slots in the fbo.
+    for (int i = 0; i < maxSlots; i++) {
+      int numRecs = firstRecs * (i+1);
       ofSetColor(colorSlots.at(i));
-      ofDrawRectangle(x, 0, gap, ofGetHeight());
+      for (int j = 0; j < numRecs; j++) {
+        auto x = ofRandom(0, fbo.getWidth());
+        auto y = ofRandom(0, fbo.getHeight());
+        //ofDrawRectangle(x, y, x+ofRandom(10, 15), y+ofRandom(10, 15));
+        ofDrawCircle(x, y, 5);
+      }
     }
   fbo.end();
 }
@@ -160,11 +171,9 @@ void Agent::handleAttraction() {
     // Pick a new target.
     auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
     attractTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
-    attractWeight = ofRandom(0.1, 0.3);
+    attractWeight = ofRandom(0.2, 0.4);
     attractTarget = true;
   }
-  
-  cout << "Velocity of 0th: " << avgVel.g << endl;
 }
 
 void Agent::handleRepulsion() {
@@ -228,7 +237,7 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
 
 void Agent::createMesh(AgentProperties agentProps) {
   //auto a = ofRandom(50, ofGetWidth() - 50); auto b = ofRandom(50, ofGetHeight() - 50);
-  auto a = ofPoint(50, ofGetHeight() - agentProps.meshSize.y * 1.5);
+  auto a = ofPoint(ofRandom(50), ofGetHeight() - agentProps.meshSize.y * ofRandom(2, 5));
   auto meshOrigin = glm::vec2(a.x, a.y);
   
   mesh.clear();
@@ -350,4 +359,9 @@ void Agent::setPartner(Agent *a) {
 
 Agent *Agent::getPartner() {
   return partner;
+}
+
+void Agent::nextFilter() {
+  _currentFilter ++;
+  if (_currentFilter>=_filters.size()) _currentFilter = 0;
 }
