@@ -2,7 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-  ofBackground(0);
+  //ofBackground(ofColor::fromHex(0x293241, 1.0));
+  ofBackground(ofColor::fromHex(0x2E2F2D));
   ofSetCircleResolution(20);
   ofDisableArbTex();
   ofEnableSmoothing();
@@ -24,9 +25,8 @@ void ofApp::setup(){
   debug = false;
   
   // Boundaries
-  ofRectangle bounds;
-  bounds.x = 0; bounds.y = 0;
-  bounds.width = ofGetWidth(); bounds.height = ofGetHeight();
+  bounds.x = 20; bounds.y = -100;
+  bounds.width = ofGetWidth() - bounds.x * 2; bounds.height = ofGetHeight() - 20 + (-1) * bounds.y;
   box2d.createBounds(bounds);
   
   // Load sounds
@@ -126,17 +126,28 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   if (debug) {
-    fft.drawBars();
-    fft.drawDebug();
-    fft.drawHistoryGraph(ofPoint(824,0), LOW);
-    fft.drawHistoryGraph(ofPoint(824,200),MID );
-    fft.drawHistoryGraph(ofPoint(824,400),HIGH );
-    fft.drawHistoryGraph(ofPoint(824,600),MAXSOUND );
-    ofDrawBitmapString("LOW",850,20);
-    ofDrawBitmapString("HIGH",850,420);
-    ofDrawBitmapString("MID",850,220);
-    ofDrawBitmapString("MAX VOLUME",850,620);
+    ofPushStyle();
+      fft.drawBars();
+      fft.drawDebug();
+      fft.drawHistoryGraph(ofPoint(824,0), LOW);
+      fft.drawHistoryGraph(ofPoint(824,200),MID );
+      fft.drawHistoryGraph(ofPoint(824,400),HIGH );
+      fft.drawHistoryGraph(ofPoint(824,600),MAXSOUND );
+      ofDrawBitmapString("LOW",850,20);
+      ofDrawBitmapString("HIGH",850,420);
+      ofDrawBitmapString("MID",850,220);
+      ofDrawBitmapString("MAX VOLUME",850,620);
+    ofPopStyle();
   }
+  
+  // Draw the bounds
+  ofPushStyle();
+    ofSetColor(ofColor::fromHex(0x171817));
+    ofFill();
+    ofDrawRectangle(0, 0, bounds.x, ofGetHeight());
+    ofDrawRectangle(0, ofGetHeight() - bounds.x, ofGetWidth(), bounds.x);
+    ofDrawRectangle(ofGetWidth()-bounds.x, 0, bounds.x, ofGetHeight());
+  ofPopStyle();
   
   for (auto j : newJoints) {
     ofPushStyle();

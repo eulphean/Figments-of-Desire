@@ -97,4 +97,7 @@ class ofApp : public ofBaseApp{
   
     // Audio analysis.
     ProcessFFT fft;
+  
+    // Bounds
+    ofRectangle bounds; 
 };
