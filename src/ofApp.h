@@ -18,9 +18,6 @@ class ofApp : public ofBaseApp{
     void clearAgents();
     void updateAgentProps();
   
-    // InterAgentJoints
-    void cleanInterAgentJoints();
-  
     // Contact listening callbacks.
     void contactStart(ofxBox2dContactArgs &e);
     void contactEnd(ofxBox2dContactArgs &e);
@@ -95,4 +92,5 @@ class ofApp : public ofBaseApp{
   
     // SuperAgents => These are abstract agents that have a bond with each other. 
     std::vector<SuperAgent> superAgents;
+    std::vector<std::shared_ptr<ofxBox2dJoint>> newJoints; 
 };

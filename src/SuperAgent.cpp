@@ -36,3 +36,11 @@ bool SuperAgent::contains(Agent *agent1, Agent *agent2) {
     }
   }
 }
+
+void SuperAgent::clean(ofxBox2d &box2d) {
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+    box2d.getWorld()->DestroyJoint(j->joint);
+    return true;
+  });
+  joints.clear();
+}

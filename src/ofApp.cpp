@@ -77,6 +77,14 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+   for (auto j : newJoints) {
+    ofPushStyle();
+      ofSetColor(ofColor::red);
+      ofSetLineWidth(3);
+      j->draw();
+    ofPopStyle();
+  }
+
   // Draw all what's inside the super agents.
   for (auto sa: superAgents) {
     sa.draw();
@@ -145,17 +153,6 @@ void ofApp::setupGui() {
     gui.loadFromFile("InterMesh.xml");
 }
 
-void ofApp::cleanInterAgentJoints() {
-  // Actually destroy the joint... Else, the joint disappears but it still sit between the bodies.
-  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> j){
-      box2d.getWorld()->DestroyJoint(j->joint);
-      return true;
-  });
-  
-  interAgentJoints.clear();
-  collidingBodies.clear();
-}
-
 void ofApp::enableRepulsion() {
 //    // Enable repelling on the agent.
 //    for (auto &j: interAgentJoints) {
@@ -192,14 +189,18 @@ void ofApp::keyPressed(int key){
     // [WARNING] For some reason, these events are still fired when trying to clean things as one could be in the
     // middle of a step function. Disabling and renabling the events work as a good solution for now.
     box2d.disableEvents();
-    
     collidingBodies.clear();
-    cleanInterAgentJoints();
+    
+    // Clear SuperAgents
+    for (auto &sa : superAgents) {
+      sa.clean(box2d);
+    }
+    superAgents.clear();
+    
+    // Clean agents
     for (auto &a : agents) {
       a -> clean(box2d);
-      delete a;
     }
-    
     agents.clear();
     
     box2d.enableEvents();
@@ -207,7 +208,14 @@ void ofApp::keyPressed(int key){
   
   if (key == 'j') {
     box2d.disableEvents();
-    cleanInterAgentJoints();
+    
+    // Clear superAgents only
+    for (auto &sa : superAgents) {
+      sa.clean(box2d);
+    }
+    superAgents.clear();
+    
+    superAgents.clear();
     box2d.enableEvents();
   }
   
@@ -238,28 +246,6 @@ void ofApp::exit() {
   gui.saveToFile("InterMesh.xml");
 }
 
-void ofApp::handleSerial() {
-  while (serial.available() > 0)
-    {
-        // Read the byte.
-        char b = serial.readByte();
-      
-        // End of line character.
-        if (b == '\n')
-        {
-            // Skip
-            cout<< "New line" << "\n";
-        }
-        else
-        {
-            // If it's not the line feed character, add it to the buffer.
-            cout << "Received: " << b << "\n";
-            startRepelling = b - '0';
-            cout << "Replling: " << startRepelling << "\n";
-        }
-    }
-}
-
 // Massive important function that determines when the 2 bodies actually bond.
 void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *agentB) {
   collidingBodies.clear();
@@ -271,8 +257,7 @@ void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *
     // Is AgentB's partner AgentA
     if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
           && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
-      // Vertex level checks. Is this vertex bonded to
-      // anything except itself?
+      // Vertex level checks. Is this vertex bonded to anything except itself?
       bool a = canVertexBond(bodyA, agentA);
       bool b = canVertexBond(bodyB, agentB);
       if (a && b) {
@@ -314,14 +299,16 @@ bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
   // If it joins anything except itself, then it cannot join.
   auto curEdge = body -> GetJointList();
   // Traverse the joint doubly linked list.
-  while (curEdge && curEdge != curEdge -> next) {
-    // Other agent that this joint might be joined to
-    auto otherAgent = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agent;
-
-    // It's not the same body? That means it's bonded with someone else already. 
-    if (otherAgent != curAgent) {
-      return false;
+  while (curEdge) {
+    // Other agent that this joint is joined to.
+    auto data = reinterpret_cast<VertexData*>(curEdge->other->GetUserData());
+    if (data != NULL) {
+      auto otherAgent = data->agent;
+      if (otherAgent != curAgent) {
+        return false;
+      }
     }
+    
     curEdge = curEdge -> next;
   }
 
@@ -338,26 +325,22 @@ void ofApp::createSuperAgents() {
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        superAgent = sa;
-        found = true; 
+        if (sa.joints.size() <= 5) {
+          auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+          sa.joints.push_back(j);
+          found = true;
+        } else {
+          found = true;
+        }
       }
     }
     
-    // Create a joint. 
-    auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-    
-    // Update the agent data structures.
-    
-    if (found) {
-      superAgent.joints.push_back(j);
-      cout << "Found an existing Super Agent: " << endl;
-    } else {
+    if (!found) {
+      auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
       superAgent.setup(agentA, agentB, j); // Create a new super agent.
       superAgents.push_back(superAgent);
-      
       agentA -> setPartner(agentB);
       agentB -> setPartner(agentA);
-      cout << "Super Agent Created: " << endl;
     }
     
     collidingBodies.clear();
@@ -371,67 +354,6 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     return j;
 }
 
-
-
-//
-//int ofApp::findOtherAgent(b2Body *body, int curAgentId) {
-////  if (body == NULL) {
-////    return -1;
-////  }
-////
-////  auto curEdge = body -> GetJointList();
-////  // Traverse the joint doubly linked list.
-////  while (curEdge && curEdge != curEdge -> next) {
-////    // Get the other body and check if its agentId is same as
-////    // bodyBAgentId
-////    if (curEdge->other == NULL) {
-////      ofLogWarning("A Null Pointer came around");
-////    }
-////
-////    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
-////    // It's not the same body? That means it's jointed with someone else.
-////    if (otherAgentId != curAgentId) {
-////      return otherAgentId;
-////    }
-////
-////    curEdge = curEdge -> next;
-////  }
-////
-////  return curAgentId;
-//}
-//
-//
-////  if (agentA != agentB) { // Hope it's not the same agent
-////    // Agent instances
-////    auto agent1 = agents.at(agentA);
-////    auto agent2 = agents.at(agentB);
-////
-////
-////    // These two for loops ensure that A doesn't bond with anybody except B
-////    // And B doesn't bond with anybody except A
-////    for (auto v : agent1.vertices) {
-////      int otherAgentId = findOtherAgent(v->body, agentA);
-////      if (otherAgentId == agentA || otherAgentId == agentB) {
-////        // Cool. Keep going through each other.
-////      } else {
-////        // No bonding.
-////        return;
-////      }
-////    }
-////
-////    for (auto v : agent2.vertices) {
-////      int otherAgentId = findOtherAgent(v->body, agentB);
-////      if (otherAgentId == agentB || otherAgentId == agentA) {
-////        // Cool. Keep going through each other.
-////      } else {
-////        // No bonding.
-////        return;
-////      }
-////    }
-////
-////  }
-////
-////  return false;
 
 
   // Agent Level Checks

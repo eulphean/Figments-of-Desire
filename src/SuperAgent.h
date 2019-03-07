@@ -11,6 +11,7 @@ class SuperAgent {
     void update();
     void draw();
     bool contains(Agent *agentA, Agent *agentB);
+    void clean(ofxBox2d &box2d);
   
     Agent *agentA;
     Agent *agentB;
