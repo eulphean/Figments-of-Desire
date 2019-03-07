@@ -52,6 +52,9 @@ class Agent {
     // Partners
     Agent *getPartner();
     void setPartner(Agent *partner);
+  
+    // Texture mutation
+    void mutateTexture();
     
   private:
     void createMesh(AgentProperties softBodyProperties);

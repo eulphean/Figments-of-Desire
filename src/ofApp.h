@@ -67,8 +67,7 @@ class ofApp : public ofBaseApp{
     ofParameter<int> maxJointForce; 
   
   private:
-    // Body repel timer. 
-    bool startRepelling; 
+    bool mutateColors; 
   
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;

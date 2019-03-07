@@ -21,7 +21,6 @@ void ofApp::setup(){
   setupGui();
   
   hideGui = false;
-  startRepelling = false;
   debug = false;
   
   // Boundaries
@@ -64,6 +63,16 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 void ofApp::update(){
   box2d.update();
   //handleSerial();
+  
+  if (mutateColors) {
+    for (auto &a: agents) {
+      if (a->getPartner() == NULL) {
+        a->mutateTexture();
+      }
+    }
+    
+    mutateColors = false;
+  }
   
   // GUI props.
   updateAgentProps();
@@ -178,13 +187,7 @@ void ofApp::enableRepulsion() {
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-  if (key == ' ') {
-    for (auto &a : agents) {
-      a->nextFilter();
-    }
-  }
-  
+void ofApp::keyPressed(int key){  
   if (key == 'd') {
     debug = !debug;
   }
@@ -240,6 +243,10 @@ void ofApp::keyPressed(int key){
   
   if (key == 'r') {
     enableRepulsion();
+  }
+  
+  if (key == 'm') { // Mutate
+    mutateColors = true;
   }
 }
 
@@ -333,7 +340,7 @@ void ofApp::createSuperAgents() {
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        if (sa.joints.size() <= 5) {
+        if (sa.joints.size() <= 7) {
           auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);
           found = true;
@@ -358,7 +365,7 @@ void ofApp::createSuperAgents() {
 std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Body *bodyB) {
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), bodyA, bodyB, frequency, damping); // Use the interAgentJoint props.
-    j->setLength(ofRandom(100, 150));
+    j->setLength(ofRandom(50, 150));
     return j;
 }
 

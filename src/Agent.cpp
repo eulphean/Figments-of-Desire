@@ -17,7 +17,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Calculate a targetPerceptionRad based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
-  targetPerceptionRad = sqrt(area/PI) * 1.5;
+  targetPerceptionRad = sqrt(area/PI) * 2.5;
   
   // Force weights for various body activities. 
   attractWeight = 0.1;
@@ -65,7 +65,7 @@ void Agent::draw(bool debug) {
       ofTranslate(centroid);
       ofNoFill();
       ofSetColor(ofColor::white);
-      ofDrawCircle(0, 0, targetPerceptionRad * 1.5);
+      ofDrawCircle(0, 0, targetPerceptionRad);
     ofPopMatrix();
   }
   
@@ -113,6 +113,13 @@ void Agent::createTexture(ofPoint meshSize) {
       }
     }
   fbo.end();
+}
+
+void Agent::mutateTexture() {
+  // Populate slots again
+  populateSlots();
+  ofPoint p = ofPoint(fbo.getWidth(), fbo.getHeight());
+  createTexture(p);
 }
 
 void Agent::populateSlots() {
