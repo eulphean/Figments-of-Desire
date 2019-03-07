@@ -3,8 +3,8 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxGui.h"
-#include "World.h"
 #include "Agent.h"
+#include "SuperAgent.h"
 
 class ofApp : public ofBaseApp{
 
@@ -78,13 +78,17 @@ class ofApp : public ofBaseApp{
     std::vector<b2Body *> collidingBodies;
   
     // Helper methods
-    bool canJoin(b2Body* body, int curAgentId);
     void handleSerial();
     void interAgentJointCreateDestroy();
     void enableRepulsion();
-    bool shouldBond(int agentA, int agentB);
+    void evaluateBonding(b2Body* bodyA, b2Body* bodyB, Agent *agentA, Agent *agentB);
+    bool hasVisualSimilarities(Agent *agentA, Agent *agentB);
     int findOtherAgent(b2Body* body, int curAgentId);
+    bool canVertexBond(b2Body* body, Agent *curAgent);
   
     // Serial
     ofSerial serial;
+  
+    // SuperAgents => These are abstract agents that bond with each other.
+    std::vector<SuperAgent> superAgents; 
 };

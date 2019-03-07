@@ -74,7 +74,7 @@
 		F2FF2F9D6699B4B328CB6BE3 /* ofxBox2dBaseShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2388BEE23F8A1DD0AADBC6 /* ofxBox2dBaseShape.cpp */; };
 		F32187D344F58022DFD48C0F /* b2ContactSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0470D1543962FEC83BB4973 /* b2ContactSolver.cpp */; };
 		F387370DB571155BC1282B7D /* b2CollideEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB5229C686C3BB08137BA36D /* b2CollideEdge.cpp */; };
-		F90920C9222E78F500E0FB4C /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F90920C7222E78F400E0FB4C /* World.cpp */; };
+		F90920CD2230883E00E0FB4C /* SuperAgent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F90920CC2230883E00E0FB4C /* SuperAgent.cpp */; };
 		FA7300BAC71DAC1ABAF6EE15 /* b2Fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 774DDD1B3F05D3FDF0D37794 /* b2Fixture.cpp */; };
 /* End PBXBuildFile section */
 
@@ -413,8 +413,8 @@
 		F4B51E6F303E7CFF1C9150FA /* b2FrictionJoint.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = b2FrictionJoint.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Joints/b2FrictionJoint.cpp; sourceTree = SOURCE_ROOT; };
 		F672EBFCB4887C08BBB23527 /* b2Math.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = b2Math.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Common/b2Math.cpp; sourceTree = SOURCE_ROOT; };
 		F7D2102660E69CDA6D15B64A /* ofxBox2d.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxBox2d.h; path = ../../../addons/ofxBox2d/src/ofxBox2d.h; sourceTree = SOURCE_ROOT; };
-		F90920C7222E78F400E0FB4C /* World.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = World.cpp; sourceTree = "<group>"; };
-		F90920C8222E78F500E0FB4C /* World.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = World.h; sourceTree = "<group>"; };
+		F90920CB2230883E00E0FB4C /* SuperAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperAgent.h; sourceTree = "<group>"; };
+		F90920CC2230883E00E0FB4C /* SuperAgent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SuperAgent.cpp; sourceTree = "<group>"; };
 		FA784162B6A8E3A77BBE4D6C /* b2TimeStep.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = b2TimeStep.h; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/b2TimeStep.h; sourceTree = SOURCE_ROOT; };
 		FD20B1FFE795860DB1C68BF2 /* b2ChainAndCircleContact.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = b2ChainAndCircleContact.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -975,8 +975,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				F90920C7222E78F400E0FB4C /* World.cpp */,
-				F90920C8222E78F500E0FB4C /* World.h */,
+				F90920CC2230883E00E0FB4C /* SuperAgent.cpp */,
+				F90920CB2230883E00E0FB4C /* SuperAgent.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -1106,6 +1106,7 @@
 			files = (
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
+				F90920CD2230883E00E0FB4C /* SuperAgent.cpp in Sources */,
 				24F8C56D1B5B291AE4930340 /* Agent.cpp in Sources */,
 				453D704CD216672147B2EEC2 /* b2ChainShape.cpp in Sources */,
 				DA846513DA696B1E8921BBC3 /* b2CircleShape.cpp in Sources */,
@@ -1148,7 +1149,6 @@
 				684CFB2E4AC045640B3A61F8 /* b2WheelJoint.cpp in Sources */,
 				3E76A164B41BCEB11B15C175 /* b2Body.cpp in Sources */,
 				C3D8EF14A387EA959014AD91 /* b2ContactManager.cpp in Sources */,
-				F90920C9222E78F500E0FB4C /* World.cpp in Sources */,
 				FA7300BAC71DAC1ABAF6EE15 /* b2Fixture.cpp in Sources */,
 				6FCE95D2EF10ACCEC2724688 /* b2Island.cpp in Sources */,
 				AC527216645D66921FB3E36F /* b2World.cpp in Sources */,

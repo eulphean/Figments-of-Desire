@@ -32,18 +32,43 @@ void ofApp::setup(){
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
+void ofApp::contactStart(ofxBox2dContactArgs &e) {
+  
+}
+
+// Joint creation sequence.
+void ofApp::contactEnd(ofxBox2dContactArgs &e) {
+  if (agents.size() > 0) {
+    if(e.a != NULL && e.b != NULL) {
+      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
+          && e.a->GetBody() && e.b->GetBody()) {
+        // Extract Agent pointers.
+        Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
+        Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
+        
+        // Really long routine to evaluate if two vertices belonging to two different agents
+        // can actually bond with each other or not. Take a look at the conditions under which
+        // this bonding actually happens.
+        evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+      }
+    }
+  }
+}
+
+
 
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
+  //handleSerial();
   
+  // GUI props.
+  updateAgentProps();
+  
+  // Update agents.
   for (auto &a : agents) {
     a.update();
   }
-
-  updateAgentProps();
-  
-//  handleSerial();
 
   // Should create/destroy interAgentJoints?
   interAgentJointCreateDestroy();
@@ -57,8 +82,6 @@ void ofApp::draw(){
       ofSetColor(ofColor::red);
       ofSetLineWidth(3);
       j->draw();
-//      auto a = j->joint->GetAnchorA(); auto b = j->joint->GetAnchorB();
-//      ofDrawLine(a.x,a.y, b.x, b.y);
     }
   ofPopStyle();
   
@@ -73,36 +96,36 @@ void ofApp::draw(){
 }
 
 void ofApp::interAgentJointCreateDestroy() {
-  // Joint creation based on when two bodies collide at certain vertices. 
-  if (collidingBodies.size()>0) {
-    // We have pending bodies to create a joint with.
-    auto jointList = collidingBodies[0]->GetJointList();
-    auto j = std::make_shared<ofxBox2dJoint>();
-    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-    j->setLength(ofRandom(100, 150));
-    interAgentJoints.push_back(j);
-    
-    // Get agent IDs and set the repulsion targets.
-    auto id1 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
-    auto id2 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
-    auto &agent1 = agents.at(id1);
-    auto &agent2 = agents.at(id2);
-    agent1.setRepulsionTarget(&agent2, id2);
-    agent2.setRepulsionTarget(&agent1, id1);
-    
-    collidingBodies.clear();
-  }
-  
-  // Joint destruction based on a predetermined force between agents.
-  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
-      auto f = c->getReactionForce(ofGetElapsedTimef());
-      if (f.length() > maxJointForce) {
-        box2d.getWorld()->DestroyJoint(c->joint);
-        return true;
-      }
-
-      return false;
-  });
+//  // Joint creation based on when two bodies collide at certain vertices.
+//  if (collidingBodies.size()>0) {
+//    // We have pending bodies to create a joint with.
+//    auto jointList = collidingBodies[0]->GetJointList();
+//    auto j = std::make_shared<ofxBox2dJoint>();
+//    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
+//    j->setLength(ofRandom(100, 150));
+//    interAgentJoints.push_back(j);
+//
+//    // Get agent IDs and set the repulsion targets.
+//    auto id1 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
+//    auto id2 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
+//    auto &agent1 = agents.at(id1);
+//    auto &agent2 = agents.at(id2);
+//    agent1.setRepulsionTarget(&agent2, id2);
+//    agent2.setRepulsionTarget(&agent1, id1);
+//
+//    collidingBodies.clear();
+//  }
+//
+//  // Joint destruction based on a predetermined force between agents.
+//  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
+//      auto f = c->getReactionForce(ofGetElapsedTimef());
+//      if (f.length() > maxJointForce) {
+//        box2d.getWorld()->DestroyJoint(c->joint);
+//        return true;
+//      }
+//
+//      return false;
+//  });
 }
 
 void ofApp::updateAgentProps() {
@@ -160,158 +183,6 @@ void ofApp::setupGui() {
     gui.loadFromFile("InterMesh.xml");
 }
 
-void ofApp::contactStart(ofxBox2dContactArgs &e) {
-  
-}
-
-// Joint creation sequence. 
-void ofApp::contactEnd(ofxBox2dContactArgs &e) {
-  if (agents.size() > 0) {
-    if(e.a != NULL && e.b != NULL) {
-      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
-        // Extract vertex data.
-        VertexData* aData = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
-        VertexData* bData = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
-        
-        if (e.a->GetBody() && e.b->GetBody()) {
-          // Should these 2 bodies bond???
-          // [WARNING] Assuming both agentNum is the agent's index in the array. Bad Assumption
-          // Figure out a better solution.
-          // Evaluate color slots of both these agents.
-          if (shouldBond(aData->agentId, bData->agentId)) {
-              collidingBodies.clear();
-              auto bodyA = e.a->GetBody();
-              auto bodyB = e.b->GetBody();
-            
-              // Condense this in a function
-              // Ensures that this vertex doesn't join to more than one vertex
-              // no matter what.
-              bool a = canJoin(bodyA, aData->agentId);
-              bool b = canJoin(bodyB, bData->agentId);
-            
-              if (a && b) {
-                // Reached here?
-                collidingBodies.push_back(bodyA);
-                collidingBodies.push_back(bodyB);
-                
-                // Maybe tell AgentA and AgentB instance that they
-                // are bonded to each other.
-              }
-            }
-          }
-        }
-      }
-    }
-}
-
-//
-bool ofApp::shouldBond(int agentA, int agentB) {
-  if (agentA != agentB) { // Hope it's not the same agent
-    // Agent instances
-    auto agent1 = agents.at(agentA);
-    auto agent2 = agents.at(agentB);
-    
-    
-    // These two for loops ensure that A doesn't bond with anybody except B
-    // And B doesn't bond with anybody except A
-    for (auto v : agent1.vertices) {
-      int otherAgentId = findOtherAgent(v->body, agentA);
-      if (otherAgentId == agentA || otherAgentId == agentB) {
-        // Cool. Keep going through each other.
-      } else {
-        // No bonding.
-        return;
-      }
-    }
-    
-    for (auto v : agent2.vertices) {
-      int otherAgentId = findOtherAgent(v->body, agentB);
-      if (otherAgentId == agentB || otherAgentId == agentA) {
-        // Cool. Keep going through each other.
-      } else {
-        // No bonding.
-        return;
-      }
-    }
-
-    // How many common colors are between the two arrays?
-    int commonColorsNum = 0;
-    int uncommonColorsNum = 0;
-    bool a; bool b;
-    
-    // Obviously the condition to bond should be met still even if there
-    // have been bonds between these bodies before.
-    
-    // Agent 1
-    auto colors = agent1.colors;
-    for (int i = 0; i < colors.size(); i++) {
-      a = ofContains(agent1.colorSlots, colors.at(i));
-      b = ofContains(agent2.colorSlots, colors.at(i));
-      if (a & b) {
-        commonColorsNum++;
-      }
-      
-      if (!a && !b) {
-        // Color isn't in a and b.
-      } else {
-        // It's in one but not the other.
-        uncommonColorsNum++;
-      }
-    }
-    
-    // Should be some common and some uncommon colors.
-    return commonColorsNum >= 2 && uncommonColorsNum >=1;
-  }
-  
-  return false;
-}
-
-bool ofApp::canJoin(b2Body* body, int curAgentId) {
-  // If it joins anything except itself, then it cannot join.
-  auto curEdge = body -> GetJointList();
-  // Traverse the joint doubly linked list.
-  while (curEdge && curEdge != curEdge -> next) {
-    // Get the other body and check if its agentId is same as
-    // bodyBAgentId
-    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
-    
-    // It's not the same body? That means it's jointed with someone else.
-    if (otherAgentId != curAgentId) {
-      return false;
-    }
-    
-    curEdge = curEdge -> next;
-  }
-  
-  return true;
-}
-
-int ofApp::findOtherAgent(b2Body *body, int curAgentId) {
-  if (body == NULL) {
-    return -1;
-  }
-  
-  auto curEdge = body -> GetJointList();
-  // Traverse the joint doubly linked list.
-  while (curEdge && curEdge != curEdge -> next) {
-    // Get the other body and check if its agentId is same as
-    // bodyBAgentId
-    if (curEdge->other == NULL) {
-      ofLogWarning("A Null Pointer came around");
-    }
-    
-    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
-    // It's not the same body? That means it's jointed with someone else.
-    if (otherAgentId != curAgentId) {
-      return otherAgentId;
-    }
-    
-    curEdge = curEdge -> next;
-  }
-  
-  return curAgentId;
-}
-
 void ofApp::cleanInterAgentJoints() {
   // Actually destroy the joint... Else, the joint disappears but it still sit between the bodies.
   ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> j){
@@ -324,25 +195,25 @@ void ofApp::cleanInterAgentJoints() {
 }
 
 void ofApp::enableRepulsion() {
-    // Enable repelling on the agent.
-    for (auto &j: interAgentJoints) {
-      auto bodyA = j->joint->GetBodyA();
-      auto bodyB = j->joint->GetBodyB();
-      
-      // Agent A (centroid will be the repulsion point)
-      auto agentIdA = reinterpret_cast<VertexData*>(bodyA -> GetUserData()) -> agentId;
-      auto &agentA = agents.at(agentIdA);
-      auto centroidA = agentA.getCentroid();
-      
-      // Agent B (centroid will be the repulsion point)
-      auto agentIdB = reinterpret_cast<VertexData*>(bodyB -> GetUserData()) -> agentId;
-      auto &agentB = agents.at(agentIdB);
-      auto centroidB = agentB.getCentroid();
-      
-      // Set a repulsion target for agent A
-      //agentA.setRepulsionTarget(&agentB, agentIdB);
-      agentB.setRepulsionTarget(&agentA, agentIdA);
-    }
+//    // Enable repelling on the agent.
+//    for (auto &j: interAgentJoints) {
+//      auto bodyA = j->joint->GetBodyA();
+//      auto bodyB = j->joint->GetBodyB();
+//      
+//      // Agent A (centroid will be the repulsion point)
+//      auto agentIdA = reinterpret_cast<VertexData*>(bodyA -> GetUserData()) -> agentId;
+//      auto &agentA = agents.at(agentIdA);
+//      auto centroidA = agentA.getCentroid();
+//      
+//      // Agent B (centroid will be the repulsion point)
+//      auto agentIdB = reinterpret_cast<VertexData*>(bodyB -> GetUserData()) -> agentId;
+//      auto &agentB = agents.at(agentIdB);
+//      auto centroidB = agentB.getCentroid();
+//      
+//      // Set a repulsion target for agent A
+//      //agentA.setRepulsionTarget(&agentB, agentIdB);
+//      agentB.setRepulsionTarget(&agentA, agentIdA);
+//    }
 }
 
 //--------------------------------------------------------------
@@ -425,3 +296,151 @@ void ofApp::handleSerial() {
         }
     }
 }
+
+// Massive important function that determines when the 2 bodies actually bond.
+void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *agentB) {
+  if (agentA != agentB) {
+    // Visual similarly
+    bool isSimilar = hasVisualSimilarities(agentA, agentB);
+    if (isSimilar) {
+      // Is AgentA's partner AgentB
+      // Is AgentB's partner AgentA
+      if (agentA -> getPartner() == agentB && agentB -> getPartner() == agentA) {
+        // Vertex level checks. Is this vertex bonded to
+        // anything except itself?
+        bool a = canVertexBond(bodyA, agentA);
+        bool b = canVertexBond(bodyB, agentB);
+        if (a && b) {
+          // Prepare for bond.
+          collidingBodies.push_back(bodyA);
+          collidingBodies.push_back(bodyB);
+        }
+      }
+    }
+  }
+}
+
+bool ofApp::hasVisualSimilarities(Agent *agentA, Agent *agentB) {
+  // How many common colors are between the two arrays?
+  int commonColorsNum = 0;
+  int uncommonColorsNum = 0;
+  bool a; bool b;
+
+  auto colors = agentA -> colors;
+  for (int i = 0; i < colors.size(); i++) {
+    a = ofContains(agentA -> colorSlots, colors.at(i));
+    b = ofContains(agentB -> colorSlots, colors.at(i));
+    if (a & b) {
+      commonColorsNum++;
+    }
+
+    if (!a && !b) {
+      // Color isn't in a and b.
+    } else {
+      // It's in one but not the other.
+      uncommonColorsNum++;
+    }
+  }
+
+  // Should be some common and some uncommon colors.
+  return commonColorsNum >= 2 && uncommonColorsNum >=1;
+}
+
+bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
+  // If it joins anything except itself, then it cannot join.
+  auto curEdge = body -> GetJointList();
+  // Traverse the joint doubly linked list.
+  while (curEdge && curEdge != curEdge -> next) {
+    // Other agent that this joint might be joined to
+    auto otherAgent = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agent;
+
+    // It's not the same body? That means it's bonded with someone else already. 
+    if (otherAgent != curAgent) {
+      return false;
+    }
+    curEdge = curEdge -> next;
+  }
+
+  return true;
+}
+
+
+
+//
+//int ofApp::findOtherAgent(b2Body *body, int curAgentId) {
+////  if (body == NULL) {
+////    return -1;
+////  }
+////
+////  auto curEdge = body -> GetJointList();
+////  // Traverse the joint doubly linked list.
+////  while (curEdge && curEdge != curEdge -> next) {
+////    // Get the other body and check if its agentId is same as
+////    // bodyBAgentId
+////    if (curEdge->other == NULL) {
+////      ofLogWarning("A Null Pointer came around");
+////    }
+////
+////    auto otherAgentId = reinterpret_cast<VertexData*>(curEdge->other->GetUserData())->agentId;
+////    // It's not the same body? That means it's jointed with someone else.
+////    if (otherAgentId != curAgentId) {
+////      return otherAgentId;
+////    }
+////
+////    curEdge = curEdge -> next;
+////  }
+////
+////  return curAgentId;
+//}
+//
+//
+////  if (agentA != agentB) { // Hope it's not the same agent
+////    // Agent instances
+////    auto agent1 = agents.at(agentA);
+////    auto agent2 = agents.at(agentB);
+////
+////
+////    // These two for loops ensure that A doesn't bond with anybody except B
+////    // And B doesn't bond with anybody except A
+////    for (auto v : agent1.vertices) {
+////      int otherAgentId = findOtherAgent(v->body, agentA);
+////      if (otherAgentId == agentA || otherAgentId == agentB) {
+////        // Cool. Keep going through each other.
+////      } else {
+////        // No bonding.
+////        return;
+////      }
+////    }
+////
+////    for (auto v : agent2.vertices) {
+////      int otherAgentId = findOtherAgent(v->body, agentB);
+////      if (otherAgentId == agentB || otherAgentId == agentA) {
+////        // Cool. Keep going through each other.
+////      } else {
+////        // No bonding.
+////        return;
+////      }
+////    }
+////
+////  }
+////
+////  return false;
+
+
+  // Agent Level Checks
+  // 0
+  // Both the agents should be different.
+
+  // 1
+  // Does AgentA's colors match with AgentB's colors. Does the visual appearance match
+  // for both the agents to bond?
+
+  // 2
+  // Is AgentA bonded with anybody? If it's bonded with AgentB and itself, then keep going
+  // Is AgentB bonded with anybody? If it's bonded with AgentA and itself, then keep going
+
+  // Vertex level check
+  // 3
+  // If it's bonded to anything else except itself
+  // then it cannot bond.
+  // Two agents are not the same

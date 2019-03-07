@@ -12,18 +12,6 @@ struct AgentProperties {
   int agentId;
 };
 
-class VertexData {
-  public:
-    VertexData(int idx, int vId) {
-      agentId = idx;
-      vertexId = std::to_string(idx) + '_' + std::to_string(vId);
-    }
-  
-    int agentId;
-    string vertexId;
-};
-
-
 // Subsection body that is torn apart from the actual texture and falls on the ground. 
 class Agent {
   public:
@@ -55,6 +43,10 @@ class Agent {
     // Core colors.
     std::array<ofColor, 5> colors = { ofColor::maroon, ofColor::red, ofColor::green, ofColor::yellow, ofColor::white};
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
+  
+    // Partners
+    Agent *getPartner();
+    void setPartner(Agent *partner);
     
   private:
     void createMesh(AgentProperties softBodyProperties);
@@ -96,4 +88,20 @@ class Agent {
   
     const int maxSlots = 5; // Number of slots.
     ofFbo fbo;
+  
+    // Partner agent
+    Agent *partner = NULL;
 };
+
+// Data Structure to hold a pointer to the agent instance 
+// to which this vertex
+// belongs to.
+class VertexData {
+  public:
+    VertexData(Agent *ptr) {
+      agent = ptr;
+    }
+  
+    Agent * agent;
+};
+

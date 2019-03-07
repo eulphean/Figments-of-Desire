@@ -278,16 +278,14 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
   vertices.clear();
   joints.clear();
 
-  int vId = 0;
   // Create mesh vertices as Box2D elements.
   for (int i = 0; i < meshVertices.size(); i++) {
     auto vertex = std::make_shared<ofxBox2dCircle>();
     vertex -> setPhysics(agentProps.vertexPhysics.x, agentProps.vertexPhysics.y, agentProps.vertexPhysics.z); // bounce, density, friction
     vertex -> setup(box2d.getWorld(), meshVertices[i].x, meshVertices[i].y, ofRandom(3, agentProps.vertexRadius));
     vertex -> setFixedRotation(true);
-    vertex -> setData(new VertexData(agentProps.agentId, vId)); // Data to identify current agent.
+    vertex -> setData(new VertexData(this)); // Data is passed with current Agent's pointer
     vertices.push_back(vertex);
-    vId++; 
   }
   
   int meshRows = agentProps.meshDimensions.x;
@@ -334,4 +332,13 @@ void Agent::updateMesh() {
     meshPoint.y = pos.y;
     mesh.setVertex(j, meshPoint);
   }
+}
+
+// Agent partners. 
+void Agent::setPartner(Agent *a) {
+  partner = a;
+}
+
+Agent *Agent::getPartner() {
+  return partner;
 }
