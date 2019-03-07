@@ -28,7 +28,6 @@ void ofApp::setup(){
   bounds.width = ofGetWidth(); bounds.height = ofGetHeight();
   box2d.createBounds(bounds);
   
-  agentNum = 0;
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
@@ -69,21 +68,17 @@ void ofApp::update(){
   for (auto &a : agents) {
     a.update();
   }
-
-  // Should create/destroy interAgentJoints?
-  interAgentJointCreateDestroy();
+  
+  // Create super agents based on collision bodies.
+  createSuperAgents();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  ofPushStyle();
-    // Draw InterAgentJoints
-    for (auto j: interAgentJoints) {
-      ofSetColor(ofColor::red);
-      ofSetLineWidth(3);
-      j->draw();
-    }
-  ofPopStyle();
+  // Draw all what's inside the super agents.
+  for (auto sa: superAgents) {
+    sa.draw();
+  }
   
   for (auto a: agents) {
     a.draw(debug);
@@ -95,39 +90,6 @@ void ofApp::draw(){
   }
 }
 
-void ofApp::interAgentJointCreateDestroy() {
-//  // Joint creation based on when two bodies collide at certain vertices.
-//  if (collidingBodies.size()>0) {
-//    // We have pending bodies to create a joint with.
-//    auto jointList = collidingBodies[0]->GetJointList();
-//    auto j = std::make_shared<ofxBox2dJoint>();
-//    j->setup(box2d.getWorld(), collidingBodies[0], collidingBodies[1], frequency, damping); // Use the interAgentJoint props.
-//    j->setLength(ofRandom(100, 150));
-//    interAgentJoints.push_back(j);
-//
-//    // Get agent IDs and set the repulsion targets.
-//    auto id1 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
-//    auto id2 = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agentId;
-//    auto &agent1 = agents.at(id1);
-//    auto &agent2 = agents.at(id2);
-//    agent1.setRepulsionTarget(&agent2, id2);
-//    agent2.setRepulsionTarget(&agent1, id1);
-//
-//    collidingBodies.clear();
-//  }
-//
-//  // Joint destruction based on a predetermined force between agents.
-//  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
-//      auto f = c->getReactionForce(ofGetElapsedTimef());
-//      if (f.length() > maxJointForce) {
-//        box2d.getWorld()->DestroyJoint(c->joint);
-//        return true;
-//      }
-//
-//      return false;
-//  });
-}
-
 void ofApp::updateAgentProps() {
     // Create Soft Body payload to create objects.
   agentProps.meshDimensions = ofPoint(meshRows, meshColumns);
@@ -135,14 +97,12 @@ void ofApp::updateAgentProps() {
   agentProps.vertexRadius = vertexRadius;
   agentProps.vertexPhysics = ofPoint(vertexBounce, vertexDensity, vertexFriction); // x (bounce), y (density), z (friction)
   agentProps.jointPhysics = ofPoint(jointFrequency, jointDamping); // x (frequency), y (damping)
-  agentProps.agentId = agentNum; 
 }
 
 void ofApp::createAgent() {
   Agent a;
   a.setup(box2d, agentProps);
   agents.push_back(a);
-  agentNum = agents.size();
 }
 
 void ofApp::setupGui() {
@@ -237,7 +197,6 @@ void ofApp::keyPressed(int key){
       a.clean(box2d);
     }
     agents.clear();
-    agentNum = 0;
     
     box2d.enableEvents();
   }
@@ -362,6 +321,36 @@ bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
   }
 
   return true;
+}
+
+void ofApp::createSuperAgents() {
+  // Joint creation based on when two bodies collide at certain vertices.
+  if (collidingBodies.size()>0) {
+    auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
+    auto agentB = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
+    
+    SuperAgent superAgent;
+    // Check for existing joints.
+    for (auto &sa : superAgents) {
+      if (sa.contains(agentA, agentB)) {
+        auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+        sa.joints.push_back(j);
+        return; // Return because I've created a joint.
+      }
+    }
+    
+    // Super Agent doesn't exist. Create a new one.
+    auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+    superAgent.setup(agentA, agentB, j); // Create a new super agent.
+    collidingBodies.clear();
+  }
+}
+
+std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Body *bodyB) {
+    auto j = std::make_shared<ofxBox2dJoint>();
+    j->setup(box2d.getWorld(), bodyA, bodyB, frequency, damping); // Use the interAgentJoint props.
+    j->setLength(ofRandom(100, 150));
+    return j;
 }
 
 

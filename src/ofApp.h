@@ -73,22 +73,26 @@ class ofApp : public ofBaseApp{
     // Body repel timer. 
     bool startRepelling; 
   
-    int agentNum;
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
   
-    // Helper methods
+    // Helper methods.
     void handleSerial();
-    void interAgentJointCreateDestroy();
-    void enableRepulsion();
+  
+    // Super Agents (Inter Agent Bonding Logic)
+    void createSuperAgents();
+    std::shared_ptr<ofxBox2dJoint> createInterAgentJoint(b2Body *bodyA, b2Body *bodyB);
     void evaluateBonding(b2Body* bodyA, b2Body* bodyB, Agent *agentA, Agent *agentB);
     bool hasVisualSimilarities(Agent *agentA, Agent *agentB);
-    int findOtherAgent(b2Body* body, int curAgentId);
     bool canVertexBond(b2Body* body, Agent *curAgent);
+  
+    // Unused for now.
+    void enableRepulsion();
+    int findOtherAgent(b2Body* body, int curAgentId);
   
     // Serial
     ofSerial serial;
   
-    // SuperAgents => These are abstract agents that bond with each other.
-    std::vector<SuperAgent> superAgents; 
+    // SuperAgents => These are abstract agents that have a bond with each other. 
+    std::vector<SuperAgent> superAgents;
 };

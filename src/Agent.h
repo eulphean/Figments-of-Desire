@@ -9,7 +9,6 @@ struct AgentProperties {
   ofPoint jointPhysics;
   ofPoint textureDimensions; // Use it when we have a texture. 
   float vertexRadius;
-  int agentId;
 };
 
 // Subsection body that is torn apart from the actual texture and falls on the ground. 
