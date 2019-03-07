@@ -116,4 +116,3 @@ class VertexData {
   
     Agent * agent;
 };
-

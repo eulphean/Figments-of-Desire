@@ -29,6 +29,18 @@ void ofApp::setup(){
   bounds.width = ofGetWidth(); bounds.height = ofGetHeight();
   box2d.createBounds(bounds);
   
+  // Load sounds
+  ofDirectory directory("sfx/");
+  directory.allowExt("mp3");
+  for (auto file: directory)
+  {
+      auto sound = std::make_shared<ofSoundPlayer>();
+      sound->load(file);
+      sound->setMultiPlay(true);
+      sound->setLoop(false);
+      sounds.push_back(sound);
+  }
+  
   //serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
@@ -57,18 +69,13 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
   }
 }
 
-
-
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
   //handleSerial();
   
   ofRemove(superAgents, [&](SuperAgent &sa){
-    sa.update(box2d, maxJointForce);
-    if (sa.shouldRemove) {
-      cout << "Removing SuperAgent" << endl;
-    }
+    sa.update(box2d, sounds, maxJointForce);
     return sa.shouldRemove;
   });
   
@@ -345,14 +352,16 @@ void ofApp::createSuperAgents() {
     auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
     auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
 
-    SuperAgent superAgent; bool found = false;
+    SuperAgent superAgent; bool found = false; bool triggerSound = false;
+    std::shared_ptr<ofxBox2dJoint> j;
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
         if (sa.joints.size() <= 7) {
-          auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+          j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);
           found = true;
+          triggerSound = true;
         } else {
           found = true;
         }
@@ -360,11 +369,17 @@ void ofApp::createSuperAgents() {
     }
     
     if (!found) {
-      auto j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+      j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
       superAgent.setup(agentA, agentB, j); // Create a new super agent.
       superAgents.push_back(superAgent);
       agentA -> setPartner(agentB);
       agentB -> setPartner(agentA);
+      triggerSound = true;
+    }
+    
+    if (triggerSound) {
+      auto data = (SoundData *) j -> joint -> GetUserData();
+      sounds.at(data->joinIdx) -> play();
     }
     
     collidingBodies.clear();
@@ -375,6 +390,11 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     auto j = std::make_shared<ofxBox2dJoint>();
     j->setup(box2d.getWorld(), bodyA, bodyB, frequency, damping); // Use the interAgentJoint props.
     j->setLength(ofRandom(50, 150));
+  
+    // Create User Data
+//    auto soundIdx = ofRandom(0, sounds.size()); // Choose a different make/break sound for the joint.
+    j->joint->SetUserData(new SoundData(5, 6));
+  
     return j;
 }
 

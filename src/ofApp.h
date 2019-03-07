@@ -71,6 +71,7 @@ class ofApp : public ofBaseApp{
   
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
+    std::vector<std::shared_ptr<ofSoundPlayer>> sounds;
   
     // Helper methods.
     void handleSerial();

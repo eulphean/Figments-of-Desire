@@ -8,7 +8,7 @@
 class SuperAgent {
   public:
     void setup(Agent *agentA, Agent *agentB, std::shared_ptr<ofxBox2dJoint>);
-    void update(ofxBox2d &box2d, int maxJointForce);
+    void update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlayer>> sounds, int maxJointForce);
     void draw();
     bool contains(Agent *agentA, Agent *agentB);
     void clean(ofxBox2d &box2d);
@@ -18,6 +18,21 @@ class SuperAgent {
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints;  // These are interAgent joints.
     bool shouldRemove = false;
 };
+
+// Sound data for the joint interAgentJoint.
+class SoundData
+{
+    public:
+      SoundData(int jIdx, int bIdx) {
+        joinIdx = jIdx;
+        breakIdx = bIdx;
+      }
+  
+    int joinIdx;
+    int breakIdx;
+};
+
+
 
 
 // Should come in the update function of the super agents actually. 
