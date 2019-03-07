@@ -2,6 +2,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+  // Setup OSC
+  receiver.setup(PORT);
+  
   //ofBackground(ofColor::fromHex(0x293241, 1.0));
   ofBackground(ofColor::fromHex(0x2E2F2D));
   ofSetCircleResolution(20);
@@ -77,6 +80,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 void ofApp::update(){
   box2d.update();
   fft.update();
+  processOsc();
   
   // Check for a clap.
   // Heard a clap loud enough
@@ -172,6 +176,66 @@ void ofApp::draw(){
   }
 }
 
+void ofApp::processOsc() {
+  while(receiver.hasWaitingMessages()){
+    // get the next message
+    ofxOscMessage m;
+    receiver.getNextMessage(m);
+    
+    if(m.getAddress() == "/interMesh/width"){
+      float val = m.getArgAsFloat(0);
+      cout << val << endl;
+      meshWidth = ofMap(val, 0, 1, 50, 250, true);
+      cout << meshWidth << endl;
+    }
+    
+    if(m.getAddress() == "/interMesh/height"){
+      float val = m.getArgAsFloat(0);
+      meshHeight = ofMap(val, 0, 1, 50, 250, true);
+    }
+    
+    if(m.getAddress() == "/interMesh/rows"){
+      float val = m.getArgAsFloat(0);
+      meshRows = ofMap(val, 0, 1, 5, 15, true);
+    }
+    
+    if(m.getAddress() == "/interMesh/columns"){
+      float val = m.getArgAsFloat(0);
+      meshColumns = ofMap(val, 0, 1, 5, 15, true);
+    }
+    
+    if(m.getAddress() == "/interMesh/jointForce"){
+      float val = m.getArgAsFloat(0);
+      maxJointForce = ofMap(val, 0, 1, 1, 25, true);
+    }
+    
+    if(m.getAddress() == "/interMesh/newMesh"){
+      int val = m.getArgAsInt(0);
+      createAgent();
+    }
+    
+    if(m.getAddress() == "/interMesh/clearScreen"){
+      int val = m.getArgAsInt(0);
+      clearScreen();
+    }
+    
+    if(m.getAddress() == "/interMesh/debug"){
+      int val = m.getArgAsInt(0);
+      debug = !debug;
+    }
+    
+    if(m.getAddress() == "/interMesh/removeUnbonded"){
+      int val = m.getArgAsInt(0);
+      removeUnbonded();
+    }
+    
+    if(m.getAddress() == "/interMesh/removeJoints"){
+      int val = m.getArgAsInt(0);
+      removeJoints();
+    }
+  }
+}
+
 void ofApp::updateAgentProps() {
     // Create Soft Body payload to create objects.
   agentProps.meshDimensions = ofPoint(meshRows, meshColumns);
@@ -247,6 +311,50 @@ void ofApp::enableRepulsion() {
 //    }
 }
 
+void ofApp::clearScreen() {
+  // [WARNING] For some reason, these events are still fired when trying to clean things as one could be in the
+    // middle of a step function. Disabling and renabling the events work as a good solution for now.
+  box2d.disableEvents();
+  collidingBodies.clear();
+
+  // Clear SuperAgents
+  for (auto &sa : superAgents) {
+    sa.clean(box2d);
+  }
+  superAgents.clear();
+
+  // Clean agents
+  for (auto &a : agents) {
+    a -> clean(box2d);
+    delete a;
+  }
+  agents.clear();
+
+  box2d.enableEvents();
+}
+
+void ofApp::removeUnbonded() {
+  ofRemove(agents, [&](Agent *a) {
+    if (a->getPartner() == NULL) {
+      a->clean(box2d);
+      return true;
+    }
+  });
+}
+
+void ofApp::removeJoints() {
+  box2d.disableEvents();
+
+  // Clear superAgents only
+  for (auto &sa : superAgents) {
+    sa.clean(box2d);
+  }
+  superAgents.clear();
+
+  superAgents.clear();
+  box2d.enableEvents();
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){  
   if (key == 'd') {
@@ -258,37 +366,11 @@ void ofApp::keyPressed(int key){
   }
   
   if (key == 'c') {
-    // [WARNING] For some reason, these events are still fired when trying to clean things as one could be in the
-    // middle of a step function. Disabling and renabling the events work as a good solution for now.
-    box2d.disableEvents();
-    collidingBodies.clear();
-    
-    // Clear SuperAgents
-    for (auto &sa : superAgents) {
-      sa.clean(box2d);
-    }
-    superAgents.clear();
-    
-    // Clean agents
-    for (auto &a : agents) {
-      a -> clean(box2d);
-    }
-    agents.clear();
-    
-    box2d.enableEvents();
+    clearScreen();
   }
   
   if (key == 'j') {
-    box2d.disableEvents();
-    
-    // Clear superAgents only
-    for (auto &sa : superAgents) {
-      sa.clean(box2d);
-    }
-    superAgents.clear();
-    
-    superAgents.clear();
-    box2d.enableEvents();
+    removeJoints();
   }
   
   if (key == 'h') {
@@ -413,7 +495,7 @@ void ofApp::createSuperAgents() {
       }
     }
     
-    if (!found) {
+    if (found) {
       j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
       superAgent.setup(agentA, agentB, j); // Create a new super agent.
       superAgents.push_back(superAgent);

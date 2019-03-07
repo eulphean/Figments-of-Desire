@@ -6,6 +6,10 @@
 #include "Agent.h"
 #include "SuperAgent.h"
 #include "ofxProcessFFT.h"
+#include "ofxOsc.h"
+
+
+#define PORT 12345
 
 class ofApp : public ofBaseApp{
 
@@ -76,6 +80,10 @@ class ofApp : public ofBaseApp{
   
     // Helper methods.
     void handleSerial();
+    void processOsc();
+    void clearScreen();
+    void removeJoints();
+    void removeUnbonded();
   
     // Super Agents (Inter Agent Bonding Logic)
     void createSuperAgents();
@@ -99,5 +107,7 @@ class ofApp : public ofBaseApp{
     ProcessFFT fft;
   
     // Bounds
-    ofRectangle bounds; 
+    ofRectangle bounds;
+  
+    ofxOscReceiver receiver;
 };

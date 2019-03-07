@@ -3,8 +3,8 @@
 	<Mesh_Params>
 		<Mesh_Rows>10</Mesh_Rows>
 		<Mesh_Columns>10</Mesh_Columns>
-		<Mesh_Width>200</Mesh_Width>
-		<Mesh_Height>200</Mesh_Height>
+		<Mesh_Width>50</Mesh_Width>
+		<Mesh_Height>50</Mesh_Height>
 	</Mesh_Params>
 	<Vertex_Params>
 		<Vertex_Radius>6</Vertex_Radius>
@@ -19,6 +19,6 @@
 	<InterAgentJoint_Params>
 		<Joint_Frequency>2</Joint_Frequency>
 		<Joint_Damping>4</Joint_Damping>
-		<Max_Joint_Force>4</Max_Joint_Force>
+		<Max_Joint_Force>1</Max_Joint_Force>
 	</InterAgentJoint_Params>
 </Inter_Mesh_Settings>
