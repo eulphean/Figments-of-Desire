@@ -226,7 +226,7 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/interMesh/removeUnbonded"){
       int val = m.getArgAsInt(0);
-      removeUnbonded();
+      //removeUnbonded();
     }
     
     if(m.getAddress() == "/interMesh/removeJoints"){
@@ -495,7 +495,7 @@ void ofApp::createSuperAgents() {
       }
     }
     
-    if (found) {
+    if (!found) {
       j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
       superAgent.setup(agentA, agentB, j); // Create a new super agent.
       superAgents.push_back(superAgent);
