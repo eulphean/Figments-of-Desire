@@ -19,6 +19,6 @@
 	<InterAgentJoint_Params>
 		<Joint_Frequency>2</Joint_Frequency>
 		<Joint_Damping>4</Joint_Damping>
-		<Max_Joint_Force>11</Max_Joint_Force>
+		<Max_Joint_Force>25</Max_Joint_Force>
 	</InterAgentJoint_Params>
 </Inter_Mesh_Settings>

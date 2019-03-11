@@ -11,13 +11,15 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     auto force = j->getReactionForce(ofGetElapsedTimef());
     if (abs(force.length()) > maxJointForce) {
+      cout << "Breaking this joint" << endl;
       auto data = (SoundData *) j -> joint -> GetUserData();
-      if (enableSound) {
-        sounds[data->breakIdx]->play();
-      }
+//      if (enableSound) {
+//        sounds[data->breakIdx]->play();
+//      }
       
       box2d.getWorld()->DestroyJoint(j->joint);
       // Trigger the break sound here.
+      
       return true;
     } else {
       return false;

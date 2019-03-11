@@ -27,6 +27,7 @@ void ofApp::setup(){
   
   hideGui = false;
   debug = false;
+  stopEverything = false; 
   
   // Boundaries
   bounds.x = 20; bounds.y = -100;
@@ -51,7 +52,7 @@ void ofApp::setup(){
   
   enableSound = true;
   
-  serial.setup("/dev/cu.usbmodem1411", 9600);
+  // serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -88,11 +89,11 @@ void ofApp::update(){
   // Check for a clap.
   // Heard a clap loud enough
   if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.6) {
-    // Break joints
-    for (auto &sa : superAgents) {
-      sa.clean(box2d);
-    }
-    superAgents.clear();
+//    // Break joints
+//    for (auto &sa : superAgents) {
+//      sa.clean(box2d);
+//    }
+//    superAgents.clear();
     
     // Apply some random force on the agents.
     for (auto &a : agents) {
@@ -100,14 +101,16 @@ void ofApp::update(){
     }
   }
   
-  handleSerial();
+  // handleSerial();
   
+  // The crazy routine that's broken right now. 
   ofRemove(superAgents, [&](SuperAgent &sa){
     sa.update(box2d, sounds, maxJointForce, enableSound);
+    if (sa.shouldRemove == true) {
+    }
     return sa.shouldRemove;
   });
   
-  // [TODO] Hook this boolean to a motion sensor value.
   if (mutateColors) {
     for (auto &a: agents) {
       if (a->getPartner() == NULL) {
@@ -228,7 +231,7 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/interMesh/removeUnbonded"){
       int val = m.getArgAsInt(0);
-      //removeUnbonded();
+      removeUnbonded();
     }
     
     if(m.getAddress() == "/interMesh/removeJoints"){
@@ -340,12 +343,15 @@ void ofApp::clearScreen() {
   box2d.enableEvents();
 }
 
+// Core function had the issue. All the logic was fine.
 void ofApp::removeUnbonded() {
   ofRemove(agents, [&](Agent *a) {
     if (a->getPartner() == NULL) {
       a->clean(box2d);
       return true;
     }
+    
+    return false;
   });
 }
 
@@ -401,6 +407,10 @@ void ofApp::keyPressed(int key){
   
   if (key == 's') {
     enableSound = !enableSound;
+  }
+  
+  if (key == ' ') {
+    stopEverything = !stopEverything;
   }
 }
 
