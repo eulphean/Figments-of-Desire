@@ -14,7 +14,7 @@ void ofApp::setup(){
   ofEnableAlphaBlending();
   
   box2d.init();
-  box2d.setGravity(0, 0.7);
+  box2d.setGravity(0, 0.4);
   box2d.setFPS(60);
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
@@ -211,7 +211,7 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/interMesh/jointForce"){
       float val = m.getArgAsFloat(0);
-      maxJointForce = ofMap(val, 0, 1, 1, 25, true);
+      maxJointForce = ofMap(val, 0, 1, 1, 100, true);
     }
     
     if(m.getAddress() == "/interMesh/newMesh"){
@@ -288,7 +288,7 @@ void ofApp::setupGui() {
     interAgentJointParams.setName("InterAgentJoint Params");
     interAgentJointParams.add(frequency.set("Joint Frequency", 2.0f, 0.0f, 20.0f));
     interAgentJointParams.add(damping.set("Joint Damping", 1.0f, 0.0f, 10.0f));
-    interAgentJointParams.add(maxJointForce.set("Max Joint Force", 6.f, 1.f, 20.0f));
+    interAgentJointParams.add(maxJointForce.set("Max Joint Force", 6.f, 1.f, 100.0f));
   
     settings.add(meshParams);
     settings.add(vertexParams);
@@ -505,7 +505,8 @@ void ofApp::createSuperAgents() {
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        if (sa.joints.size() <= 7) {
+        int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
+        if (sa.joints.size() <= maxJoints) {
           j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);
           found = true;

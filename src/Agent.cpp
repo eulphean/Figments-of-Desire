@@ -5,7 +5,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   _filters.push_back(new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y));
   _filters.push_back(new PixelateFilter(agentProps.meshSize.x, agentProps.meshSize.y));
   
-  attractTargetPos = glm::vec2(ofRandom(50, ofGetWidth() - 200), ofRandom(0, 200));
+  attractTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
   
   // Populate color slots.
   populateSlots();
@@ -31,6 +31,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   attractTarget = true;
   repelTarget = false;
   applyCentrifugalForce = false;
+  maxInterAgentJoints = ofRandom(1, vertices.size());
 }
 
 void Agent::update() {
@@ -80,6 +81,10 @@ void Agent::draw(bool debug) {
       ofDrawCircle(0, 0, targetPerceptionRad);
     ofPopMatrix();
   }
+}
+
+int Agent::getMaxInterAgentJoints() {
+  return maxInterAgentJoints;
 }
 
 void Agent::clean(ofxBox2d &box2d) {

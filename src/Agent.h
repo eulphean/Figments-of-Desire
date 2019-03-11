@@ -42,6 +42,7 @@ class Agent {
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
     ofMesh& getMesh();
+    int getMaxInterAgentJoints();
   
     // Color dimension of this agent.
     std::vector<ofColor> colorSlots;
@@ -56,6 +57,7 @@ class Agent {
   
     // Texture mutation
     void mutateTexture();
+
     
   private:
     void createMesh(AgentProperties softBodyProperties);
@@ -106,6 +108,9 @@ class Agent {
     // Texture
     vector<AbstractFilter *>  _filters;
     int _currentFilter = 0;
+  
+    // Max InterAgent joints for each agent
+    int maxInterAgentJoints; 
 };
 
 // Data Structure to hold a pointer to the agent instance 
