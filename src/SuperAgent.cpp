@@ -6,19 +6,18 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   joints.push_back(joint);
 }
 
-void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlayer>> sounds, int maxJointForce) {
+void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlayer>> &sounds, int maxJointForce, bool &enableSound) {
   // Max Force based on which the joint breaks.
-  
-  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
+  ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     auto force = j->getReactionForce(ofGetElapsedTimef());
-    //    cout << "Max Force Exerted: " << force.length() << endl;
     if (abs(force.length()) > maxJointForce) {
-      box2d.getWorld()->DestroyJoint(j->joint);
-     
-      // Trigger the break sound here.
       auto data = (SoundData *) j -> joint -> GetUserData();
-      //sounds[data->breakIdx]->play();
+      if (enableSound) {
+        sounds[data->breakIdx]->play();
+      }
       
+      box2d.getWorld()->DestroyJoint(j->joint);
+      // Trigger the break sound here.
       return true;
     } else {
       return false;
@@ -30,6 +29,7 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
     agentB -> setPartner(NULL);
     shouldRemove = true;
   }
+
   // Calculate the exertion force on the bonds
   // If exertion force is greater than a limit, break the bond.
   

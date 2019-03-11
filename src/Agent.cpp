@@ -20,7 +20,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   targetPerceptionRad = sqrt(area/PI) * 2.5;
   
   // Force weights for various body activities. 
-  attractWeight = 0.1;
+  attractWeight = 0.06;
   randWeight = 0.3;
   centrifugalWeight = 0.5;
   

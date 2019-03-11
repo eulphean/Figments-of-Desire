@@ -8,7 +8,7 @@
 class SuperAgent {
   public:
     void setup(Agent *agentA, Agent *agentB, std::shared_ptr<ofxBox2dJoint>);
-    void update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlayer>> sounds, int maxJointForce);
+    void update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlayer>> &sounds, int maxJointForce, bool &enableSound);
     void draw();
     bool contains(Agent *agentA, Agent *agentB);
     void clean(ofxBox2d &box2d);

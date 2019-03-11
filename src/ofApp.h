@@ -34,6 +34,7 @@ class ofApp : public ofBaseApp{
   
     bool hideGui;
     bool debug;
+    bool enableSound; 
   
     // Box2d
     ofxBox2d box2d;

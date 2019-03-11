@@ -4,6 +4,7 @@
 void ofApp::setup(){
   // Setup OSC
   receiver.setup(PORT);
+  ofHideCursor();
   
   //ofBackground(ofColor::fromHex(0x293241, 1.0));
   ofBackground(ofColor::fromHex(0x2E2F2D));
@@ -48,7 +49,9 @@ void ofApp::setup(){
   fft.setup();
   fft.setNormalize(true);
   
-  //serial.setup("/dev/cu.usbmodem1411", 9600);
+  enableSound = true;
+  
+  serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -84,7 +87,7 @@ void ofApp::update(){
   
   // Check for a clap.
   // Heard a clap loud enough
-  if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.9) {
+  if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.6) {
     // Break joints
     for (auto &sa : superAgents) {
       sa.clean(box2d);
@@ -97,10 +100,10 @@ void ofApp::update(){
     }
   }
   
-  //handleSerial();
+  handleSerial();
   
   ofRemove(superAgents, [&](SuperAgent &sa){
-    sa.update(box2d, sounds, maxJointForce);
+    sa.update(box2d, sounds, maxJointForce, enableSound);
     return sa.shouldRemove;
   });
   
@@ -111,7 +114,6 @@ void ofApp::update(){
         a->mutateTexture();
       }
     }
-    
     mutateColors = false;
   }
   
@@ -146,7 +148,7 @@ void ofApp::draw(){
   
   // Draw the bounds
   ofPushStyle();
-    ofSetColor(ofColor::fromHex(0x171817));
+    ofSetColor(ofColor::fromHex(0x341517));
     ofFill();
     ofDrawRectangle(0, 0, bounds.x, ofGetHeight());
     ofDrawRectangle(0, ofGetHeight() - bounds.x, ofGetWidth(), bounds.x);
@@ -232,6 +234,11 @@ void ofApp::processOsc() {
     if(m.getAddress() == "/interMesh/removeJoints"){
       int val = m.getArgAsInt(0);
       removeJoints();
+    }
+    
+    if(m.getAddress() == "/interMesh/sound"){
+      int val = m.getArgAsInt(0);
+      enableSound = !enableSound;
     }
   }
 }
@@ -391,6 +398,10 @@ void ofApp::keyPressed(int key){
   if (key == 'm') { // Mutate
     mutateColors = true;
   }
+  
+  if (key == 's') {
+    enableSound = !enableSound;
+  }
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
@@ -506,7 +517,9 @@ void ofApp::createSuperAgents() {
     
     if (triggerSound) {
       auto data = (SoundData *) j -> joint -> GetUserData();
-      //sounds.at(data->joinIdx) -> play();
+      if (enableSound) {
+        sounds.at(data->joinIdx) -> play();
+      }
     }
     
     collidingBodies.clear();
@@ -523,6 +536,27 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     j->joint->SetUserData(new SoundData(5, 6));
   
     return j;
+}
+
+void ofApp::handleSerial() {
+  while (serial.available() > 0)
+    {
+        // Read the byte.
+        char b = serial.readByte();
+
+        // End of line character.
+        if (b == '\n')
+        {
+            // Skip
+            cout<< "New line" << "\n";
+        }
+        else
+        {
+            // If it's not the line feed character, add it to the buffer.
+            mutateColors = b - '0';
+            cout << "Replling: " << mutateColors << "\n";
+        }
+    }
 }
 
 
