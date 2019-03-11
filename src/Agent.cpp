@@ -80,14 +80,6 @@ void Agent::draw(bool debug) {
       ofDrawCircle(0, 0, targetPerceptionRad);
     ofPopMatrix();
   }
-  
-  // Draw the targetMesh's centroid
-//  if (repelTargetAgent != NULL) {
-//    ofPushStyle();
-//      ofSetColor(ofColor::cyan);
-//      ofDrawCircle(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y, 20);
-//    ofPopStyle();
-//  }
 }
 
 void Agent::clean(ofxBox2d &box2d) {

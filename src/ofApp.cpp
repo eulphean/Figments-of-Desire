@@ -500,7 +500,7 @@ void ofApp::createSuperAgents() {
     auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
     auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
 
-    SuperAgent superAgent; bool found = false; bool triggerSound = false;
+    SuperAgent superAgent; bool found = false;
     std::shared_ptr<ofxBox2dJoint> j;
     // Check for existing joints.
     for (auto &sa : superAgents) {
@@ -509,7 +509,6 @@ void ofApp::createSuperAgents() {
           j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);
           found = true;
-          triggerSound = true;
         } else {
           found = true;
         }
@@ -522,14 +521,6 @@ void ofApp::createSuperAgents() {
       superAgents.push_back(superAgent);
       agentA -> setPartner(agentB);
       agentB -> setPartner(agentA);
-      triggerSound = true;
-    }
-    
-    if (triggerSound) {
-      auto data = (SoundData *) j -> joint -> GetUserData();
-      if (enableSound) {
-        sounds.at(data->joinIdx) -> play();
-      }
     }
     
     collidingBodies.clear();
@@ -542,8 +533,15 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     j->setLength(ofRandom(50, 150));
   
     // Create User Data
-//    auto soundIdx = ofRandom(0, sounds.size()); // Choose a different make/break sound for the joint.
     j->joint->SetUserData(new SoundData(5, 6));
+  
+    // Play the sound. New joint made.
+    if (enableSound) {
+      auto data = (SoundData *) j -> joint -> GetUserData();
+      if (enableSound) {
+        sounds.at(data->joinIdx) -> play();
+      }
+    }
   
     return j;
 }

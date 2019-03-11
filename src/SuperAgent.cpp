@@ -11,8 +11,8 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     auto force = j->getReactionForce(ofGetElapsedTimef());
     if (abs(force.length()) > maxJointForce) {
-      cout << "Breaking this joint" << endl;
       auto data = (SoundData *) j -> joint -> GetUserData();
+      // Disable breaking sound for a bit,
 //      if (enableSound) {
 //        sounds[data->breakIdx]->play();
 //      }
@@ -31,14 +31,6 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
     agentB -> setPartner(NULL);
     shouldRemove = true;
   }
-
-  // Calculate the exertion force on the bonds
-  // If exertion force is greater than a limit, break the bond.
-  
-  // Update partner conditions after every bond that breaks. Is it
-  // still a partner? If not, set the pointer to null
-  
-  // Then come to behaviors when they are bonded.. Exert those behaviors on both AgentA and AgentB.
 }
 
 void SuperAgent::draw() {
