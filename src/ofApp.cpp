@@ -30,8 +30,8 @@ void ofApp::setup(){
   stopEverything = false; 
   
   // Boundaries
-  bounds.x = 20; bounds.y = -100;
-  bounds.width = ofGetWidth() - bounds.x * 2; bounds.height = ofGetHeight() - 20 + (-1) * bounds.y;
+  bounds.x = -50; bounds.y = -50;
+  bounds.width = ofGetWidth() + (-1) * bounds.x * 2; bounds.height = ofGetHeight() + (-1) * 2 * bounds.y;
   box2d.createBounds(bounds);
   
   // Load sounds
