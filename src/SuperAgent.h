@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "Agent.h"
+#include "Midi.h"
 
 // Subsection body that is torn apart from the actual texture and falls on the ground.
 // The entire thing acts like one unique bond now. 

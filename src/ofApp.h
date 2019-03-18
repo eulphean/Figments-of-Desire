@@ -7,6 +7,7 @@
 #include "SuperAgent.h"
 #include "ofxProcessFFT.h"
 #include "ofxOsc.h"
+#include "Midi.h"
 
 
 #define PORT 12345
@@ -111,5 +112,6 @@ class ofApp : public ofBaseApp{
     // Bounds
     ofRectangle bounds;
   
+    // OSC remote.
     ofxOscReceiver receiver;
 };

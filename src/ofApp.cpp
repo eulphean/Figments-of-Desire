@@ -52,6 +52,9 @@ void ofApp::setup(){
   
   enableSound = true;
   
+  // Instantiate Midi.
+  Midi::instance().setup();
+  
   // serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
@@ -540,7 +543,11 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     if (enableSound) {
       auto data = (SoundData *) j -> joint -> GetUserData();
       if (enableSound) {
-        sounds.at(data->joinIdx) -> play();
+        // sounds.at(data->joinIdx) -> play();
+        // Send a midi note.
+        // Select a midi note
+        int note = ofRandom(0, 127);
+        Midi::instance().sendBondMakeMidi(note);
       }
     }
   

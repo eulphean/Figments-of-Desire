@@ -13,9 +13,12 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
     if (abs(force.length()) > maxJointForce) {
       auto data = (SoundData *) j -> joint -> GetUserData();
       // Disable breaking sound for a bit,
-//      if (enableSound) {
+      if (enableSound) {
 //        sounds[data->breakIdx]->play();
-//      }
+        // Trigger a Midi note (Instance is the same)
+        int note = ofRandom(0, 127);
+        Midi::instance().sendBondBreakMidi(note);
+      }
       
       box2d.getWorld()->DestroyJoint(j->joint);
       // Trigger the break sound here.
