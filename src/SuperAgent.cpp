@@ -16,7 +16,7 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<std::shared_ptr<ofSoundPlay
       if (enableSound) {
 //        sounds[data->breakIdx]->play();
         // Trigger a Midi note (Instance is the same)
-        int note = ofRandom(0, 127);
+        int note = data->midiNote; 
         Midi::instance().sendBondBreakMidi(note);
       }
       

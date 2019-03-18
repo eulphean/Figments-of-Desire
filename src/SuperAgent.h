@@ -24,13 +24,11 @@ class SuperAgent {
 class SoundData
 {
     public:
-      SoundData(int jIdx, int bIdx) {
-        joinIdx = jIdx;
-        breakIdx = bIdx;
+      SoundData() {
+        midiNote = ofRandom(60, 72);
       }
   
-    int joinIdx;
-    int breakIdx;
+    int midiNote;
 };
 
 

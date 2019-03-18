@@ -276,7 +276,8 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
 
 void Agent::createMesh(AgentProperties agentProps) {
   //auto a = ofRandom(50, ofGetWidth() - 50); auto b = ofRandom(50, ofGetHeight() - 50);
-  auto a = ofPoint(ofRandom(60, 100), ofGetHeight() - agentProps.meshSize.y * ofRandom(2, 5));
+  //auto a = ofPoint(ofRandom(60, 100), ofGetHeight() - agentProps.meshSize.y * ofRandom(2, 5));
+  auto a = ofPoint(150, ofGetHeight()/3);
   auto meshOrigin = glm::vec2(a.x, a.y);
   
   mesh.clear();

@@ -4,7 +4,7 @@
 void ofApp::setup(){
   // Setup OSC
   receiver.setup(PORT);
-  ofHideCursor();
+  //ofHideCursor();
   
   //ofBackground(ofColor::fromHex(0x293241, 1.0));
   ofBackground(ofColor::fromHex(0x2E2F2D));
@@ -14,7 +14,7 @@ void ofApp::setup(){
   ofEnableAlphaBlending();
   
   box2d.init();
-  box2d.setGravity(0, 0.4);
+  box2d.setGravity(0, 0.0);
   box2d.setFPS(60);
   box2d.enableEvents();
   box2d.registerGrabbing(); // Enable grabbing the circles.
@@ -508,8 +508,10 @@ void ofApp::createSuperAgents() {
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
-        if (sa.joints.size() <= maxJoints) {
+        //int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
+        
+        int maxJoints = 4;
+        if (sa.joints.size() < maxJoints) {
           j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);
           found = true;
@@ -533,11 +535,16 @@ void ofApp::createSuperAgents() {
 
 std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Body *bodyB) {
     auto j = std::make_shared<ofxBox2dJoint>();
-    j->setup(box2d.getWorld(), bodyA, bodyB, frequency, damping); // Use the interAgentJoint props.
-    j->setLength(ofRandom(50, 150));
+    float f = ofRandom(0.3, frequency);
+    float d = ofRandom(1, damping);
+    j->setup(box2d.getWorld(), bodyA, bodyB, f, d); // Use the interAgentJoint props.
+  
+    // Joint length
+    int jointLength = ofRandom(250, 300);
+    j->setLength(jointLength);
   
     // Create User Data
-    j->joint->SetUserData(new SoundData(5, 6));
+    j->joint->SetUserData(new SoundData());
   
     // Play the sound. New joint made.
     if (enableSound) {
@@ -546,7 +553,7 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
         // sounds.at(data->joinIdx) -> play();
         // Send a midi note.
         // Select a midi note
-        int note = ofRandom(0, 127);
+        int note = data->midiNote;
         Midi::instance().sendBondMakeMidi(note);
       }
     }

@@ -13,12 +13,12 @@
 		<Vertex_Friction>1</Vertex_Friction>
 	</Vertex_Params>
 	<Joint_Params>
-		<Joint_Frequency>2</Joint_Frequency>
+		<Joint_Frequency>4.28571</Joint_Frequency>
 		<Joint_Damping>1</Joint_Damping>
 	</Joint_Params>
 	<InterAgentJoint_Params>
-		<Joint_Frequency>2</Joint_Frequency>
+		<Joint_Frequency>4</Joint_Frequency>
 		<Joint_Damping>4</Joint_Damping>
-		<Max_Joint_Force>100</Max_Joint_Force>
+		<Max_Joint_Force>10</Max_Joint_Force>
 	</InterAgentJoint_Params>
 </Inter_Mesh_Settings>

@@ -23,6 +23,7 @@ void Midi::sendBondMakeMidi(int midiNote) {
 void Midi::sendBondBreakMidi(int midiNote) {
   // Constant velocity
   midiOut.sendNoteOn(bondBreakChannel, midiNote, 64);
+  //midiOut.sendNoteOff(bondMakeChannel, midiNote, 64);
 }
 
 
