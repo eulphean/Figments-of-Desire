@@ -55,7 +55,7 @@ void ofApp::setup(){
   // Instantiate Midi.
   Midi::instance().setup();
   
-  // serial.setup("/dev/cu.usbmodem1411", 9600);
+  serial.setup("/dev/cu.usbmodem1411", 9600);
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -100,11 +100,11 @@ void ofApp::update(){
     
     // Apply some random force on the agents.
     for (auto &a : agents) {
-      a -> setCentrifugalForce(0.2);
+      a -> setCentrifugalForce(1.0);
     }
   }
   
-  // handleSerial();
+  handleSerial();
   
   // The crazy routine that's broken right now. 
   ofRemove(superAgents, [&](SuperAgent &sa){
