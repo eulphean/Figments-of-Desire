@@ -114,4 +114,6 @@ class ofApp : public ofBaseApp{
   
     // OSC remote.
     ofxOscReceiver receiver;
+  
+    ofImage bgImage; 
 };

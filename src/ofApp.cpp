@@ -2,6 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+
+  bgImage.load("bg.jpg");
   // Setup OSC
   receiver.setup(PORT);
   //ofHideCursor();
@@ -104,7 +106,7 @@ void ofApp::update(){
     }
   }
   
-  handleSerial();
+  //handleSerial();
   
   // The crazy routine that's broken right now. 
   ofRemove(superAgents, [&](SuperAgent &sa){
@@ -137,6 +139,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+  //bgImage.draw(0, 0, ofGetWidth(), ofGetHeight());
+  
   if (debug) {
     ofPushStyle();
       fft.drawBars();
