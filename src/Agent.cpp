@@ -51,7 +51,7 @@ void Agent::update() {
   applyBehaviors();
 }
 
-void Agent::draw(bool debug) {
+void Agent::draw(bool debug, bool showTexture) {
   // Draw the meshes.
   // Draw the soft bodies.
   ofPushStyle();
@@ -65,12 +65,23 @@ void Agent::draw(bool debug) {
     }
   ofPopStyle();
   
+  if (showTexture) {
   // Bind the fbo.
-  _filters[_currentFilter]->begin();
-  fbo.getTexture().bind();
-  mesh.draw();
-  fbo.getTexture().unbind();
-  _filters[_currentFilter]->end();
+    _filters[_currentFilter]->begin();
+    fbo.getTexture().bind();
+    mesh.draw();
+    fbo.getTexture().unbind();
+    _filters[_currentFilter]->end();
+  } else {
+    ofPushStyle();
+    for(auto j: joints) {
+      ofPushMatrix();
+        ofSetColor(ofColor::green);
+        j->draw();
+      ofPopMatrix();
+    }
+    ofPopStyle();
+  }
 
   if (debug) {
     auto centroid = mesh.getCentroid();

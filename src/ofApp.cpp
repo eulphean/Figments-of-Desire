@@ -30,6 +30,7 @@ void ofApp::setup(){
   hideGui = false;
   debug = false;
   stopEverything = false; 
+  showTexture = true;
   
   // Boundaries
   bounds.x = -50; bounds.y = -50;
@@ -179,7 +180,7 @@ void ofApp::draw(){
   }
   
   for (auto a: agents) {
-    a -> draw(debug);
+    a -> draw(debug, showTexture);
   }
   
   // Health parameters
@@ -418,6 +419,10 @@ void ofApp::keyPressed(int key){
   
   if (key == ' ') {
     stopEverything = !stopEverything;
+  }
+  
+  if (key == 't') {
+    showTexture = !showTexture; 
   }
 }
 
