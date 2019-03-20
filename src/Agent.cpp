@@ -5,8 +5,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   _filters.push_back(new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y));
   _filters.push_back(new PixelateFilter(agentProps.meshSize.x, agentProps.meshSize.y));
   
-  attractTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
-  
   // Populate color slots.
   populateSlots();
   createTexture(agentProps.meshSize); // Design the look of this creature.
@@ -18,26 +16,24 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
   targetPerceptionRad = sqrt(area/PI);
   
+  // Target position
+  seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
+  
   // Force weights for various body activities. 
-  attractWeight = 0.06;
-  randWeight = 1.5;
-  centrifugalWeight = 1.0;
+  seekWeight = 0.3;
+  tickleWeight = 1.5;
+  stretchWeight = 1.0;
   
-  // Healths to keep track when to execute something again.
-  tickleHealth = 50;
+  // Agent desires.
+  // How often does this agent express these desires?
+  applyTickle = false;
+  applySeek = true;
+  applyStretch = true;
   
-  applyRandomForce = false;
-  attractTarget = true;
-  repelTarget = false;
-  applyCentrifugalForce = true;
   maxInterAgentJoints = ofRandom(1, vertices.size());
 }
 
 void Agent::update() {
-  if (partner != NULL) {
-    attractWeight = ofRandom(0.2, 0.4);
-  }
-  
   // Use box2d circle to update the mesh.
   updateMesh();
   
@@ -86,10 +82,6 @@ void Agent::draw(bool debug, bool showTexture) {
       ofDrawCircle(0, 0, targetPerceptionRad);
     ofPopMatrix();
   }
-}
-
-int Agent::getMaxInterAgentJoints() {
-  return maxInterAgentJoints;
 }
 
 void Agent::clean(ofxBox2d &box2d) {
@@ -150,7 +142,7 @@ void Agent::applyBehaviors() {
   // Random movement.
   // Attraction to a target position.
   // Stretching out.
-  handleTickle();
+  handleRandomForce();
   handleAttraction();
   handleCentrifugalForce();
   
@@ -158,53 +150,16 @@ void Agent::applyBehaviors() {
   handleRepulsion();
 }
 
-void Agent::handleCentrifugalForce() {
-  if (applyCentrifugalForce) {
-    cout << "Stretching.. " << endl;
-    // Apply force away from centroid on some of the vertices.
-    for (auto &v : vertices) {
-      if (ofRandom(1) < 0.4) {
-        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, centrifugalWeight);
-      } else {
-        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, centrifugalWeight);
-      }
-      v->setRotation(ofRandom(150));
-    }
-    applyCentrifugalForce = false;
-  }
-}
-
-void Agent::handleTickle() {
-  // Check for tickle health.
-  if (tickleHealth == 0) {
-    cout << "Random movement.." << endl;
-    applyRandomForce = true;
-    tickleHealth = 100;
-  } else {
-    tickleHealth -= 0.5;
-  }
-  
-  // Random force/ Force all vertices.
-  if (applyRandomForce) {
-    // force()
-    for (auto &v: vertices) {
-      glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
-      v -> addForce(force, randWeight);
-    }
-    applyRandomForce = false;
-  }
-}
-
 void Agent::handleAttraction() {
   // New target? Add an impulse in that direction.
-  if (attractTarget) {
-    cout << "Seeking target." << endl;
+  if (applySeek) {
+    cout << "Picked a new target.." << endl;
     // seek()
     for (auto &v: vertices) {
-        v->addAttractionPoint(attractTargetPos.x, attractTargetPos.y, attractWeight);
+        v->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
         v->setRotation(ofRandom(180, 360));
     }
-    attractTarget = false;
+    applySeek = false;
   }
   
   // Pick a new target location once it starts slowing down.
@@ -213,17 +168,59 @@ void Agent::handleAttraction() {
     avgVel += glm::vec2(v->getVelocity().x, v->getVelocity().y);
   }
   avgVel = avgVel/vertices.size();
-  if (abs(avgVel.g) < ofRandom(0.1, 0.3)) {
-    // Pick a new target.
+  
+  // Pick a new target when the agent has really slowed down. Is this really what I want?
+  if (abs(avgVel.g) < 0.05 && !applySeek) {
+    // Calculate a new target position.
     auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
-    attractTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
-    attractWeight = ofRandom(0.1, 0.3);
-    attractTarget = true;
+    seekTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
+    applySeek = true;
+  }
+}
+
+void Agent::handleCentrifugalForce() {
+  if (applyStretch) {
+    cout << "Stretching.. " << endl;
+    // Apply force away from centroid on some of the vertices.
+    for (auto &v : vertices) {
+      if (ofRandom(1) < 0.4) {
+        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
+      } else {
+        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
+      }
+      v->setRotation(ofRandom(150));
+    }
+    applyStretch = false;
+  }
+}
+
+void Agent::handleRandomForce() {
+//  // Check for tickle health.
+//  if (tickleHealth == 0) {
+//    cout << "Random force on the vertices.." << endl;
+//    applyRandomForce = true;
+//    tickleHealth = 100;
+//  } else {
+//    tickleHealth -= 0.5;
+//  }
+//
+  // Random force/ Force all vertices.
+  if (applyTickle) {
+    // force()
+    for (auto &v: vertices) {
+      glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
+      v -> addForce(force, tickleWeight);
+    }
+    applyTickle = false;
   }
 }
 
 void Agent::handleRepulsion() {
   // TO BE IMPLEMENTED>
+}
+
+int Agent::getMaxInterAgentJoints() {
+  return maxInterAgentJoints;
 }
 
 glm::vec2 Agent::getCentroid() {
@@ -234,24 +231,23 @@ ofMesh& Agent::getMesh() {
   return mesh;
 }
 
-void Agent::setAttractionTarget(glm::vec2 target) {
-  attractTargetPos = target;
-  attractTarget = true;
+void Agent::setSeekTarget(glm::vec2 target) {
+  seekTargetPos = target;
+  applySeek = true;
 }
 
 void Agent::setRepulsionTarget(Agent *targetAgent, int newTargetAgentId) {
   // TO BE IMPLEMENTED> 
 }
 
-void Agent::setRandomForce(float avgForceWeight) {
-  applyRandomForce = true;
-  randWeight = avgForceWeight;
-  tickleHealth = 0; 
+void Agent::setTickle(float avgForceWeight) {
+  applyTickle = true;
+  tickleWeight = avgForceWeight;
 }
 
-void Agent::setCentrifugalForce(float avgWeight) {
-  applyCentrifugalForce = true;
-  centrifugalWeight = avgWeight;
+void Agent::setStretch(float avgWeight) {
+  applyStretch = true;
+  stretchWeight = avgWeight;
 }
 
 std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {

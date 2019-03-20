@@ -27,14 +27,14 @@ class Agent {
     void handleAttraction();
     void handleRepulsion();
     void handleCentrifugalForce();
-    void handleTickle();
+    void handleRandomForce();
   
     // Enabling behaviors
-    void setAttractionTarget(glm::vec2 target);
-    void setRandomForce(float weight);
+    void setSeekTarget(glm::vec2 target);
+    void setTickle(float weight);
+    void setStretch(float weight);
     void setRepulsionTarget(Agent *target, int targetAgentId);
-    void setCentrifugalForce(float weight);
-  
+    
     // Filters
     void nextFilter();
   
@@ -68,49 +68,48 @@ class Agent {
     void populateSlots();
     void createTexture(ofPoint meshSize);
   
+    // ----------------- Data members -------------------
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
   
-    // Attraction
-    glm::vec2 attractTargetPos;
-    bool attractTarget;
+    // Agent texture.
+    const int maxSlots = 8; // Number of slots.
+    ofFbo fbo;
+    vector<AbstractFilter *>  _filters;
+    int _currentFilter = 0;
+  
+    // Partner agent
+    Agent *partner = NULL;
+  
+    // Seek
+    glm::vec2 seekTargetPos;
+    float seekWeight;
+  
+    // Tickle
+    float tickleWeight;
+    float curTickleCounter;
+  
+    // Stretch out
+    float stretchWeight;
   
     // Repulsion.
     bool repelTarget;
     Agent *repelTargetAgent = NULL;
   
-    // Forces. 
-    bool applyRandomForce;
-    bool applyCentrifugalForce;
-  
-    // Weights
-    float attractWeight;
-    float randWeight;
-    float centrifugalWeight;
-  
-    // Health
-    float tickleHealth;
-  
     // Perception
     int targetPerceptionRad;
   
-    const int maxSlots = 8; // Number of slots.
-    ofFbo fbo;
-  
-    // Partner agent
-    Agent *partner = NULL;
-  
-    // Texture
-    vector<AbstractFilter *>  _filters;
-    int _currentFilter = 0;
-  
     // Max InterAgent joints for each agent
-    int maxInterAgentJoints; 
+    int maxInterAgentJoints;
+  
+    // ------------------- Desires ----------------------
+    bool applySeek;
+    bool applyTickle;
+    bool applyStretch;
 };
 
-// Data Structure to hold a pointer to the agent instance 
-// to which this vertex
-// belongs to.
+// Data Structure to hold a pointer to the agent instance
+// to which this vertex belongs to.
 class VertexData {
   public:
     VertexData(Agent *ptr) {

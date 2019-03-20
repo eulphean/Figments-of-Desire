@@ -92,9 +92,11 @@ void ofApp::update(){
   fft.update();
   processOsc();
   
+  // [NOTE] Disabling interaction briefly.
   // Check for a clap.
   // Heard a clap loud enough
   if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.6) {
+//    cout << "Really loud. Start stretching." << endl;
 //    // Break joints
 //    for (auto &sa : superAgents) {
 //      sa.clean(box2d);
@@ -102,9 +104,9 @@ void ofApp::update(){
 //    superAgents.clear();
     
     // Apply some random force on the agents.
-    for (auto &a : agents) {
-      a -> setCentrifugalForce(1.0);
-    }
+//    for (auto &a : agents) {
+//      a -> setStretch(1.0);
+//    }
   }
   
   //handleSerial();
@@ -401,7 +403,7 @@ void ofApp::keyPressed(int key){
   if (key == 'f') {
     // Apply a random force
     for (auto &a: agents) {
-      a -> setRandomForce(1.0);
+      a -> setTickle(1.0);
     }
   }
   
@@ -427,9 +429,9 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::mousePressed(int x, int y, int button) {
-   for (auto &a: agents) {
-    a -> setAttractionTarget(glm::vec2(x, y));
-  }
+//   for (auto &a: agents) {
+//    a -> setAttractionTarget(glm::vec2(x, y));
+//  }
 }
 
 void ofApp::exit() {
