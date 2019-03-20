@@ -4,7 +4,7 @@
 		<Mesh_Rows>20</Mesh_Rows>
 		<Mesh_Columns>20</Mesh_Columns>
 		<Mesh_Width>960</Mesh_Width>
-		<Mesh_Height>500</Mesh_Height>
+		<Mesh_Height>540</Mesh_Height>
 	</Mesh_Params>
 	<Vertex_Params>
 		<Vertex_Radius>6</Vertex_Radius>

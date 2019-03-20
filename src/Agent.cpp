@@ -17,7 +17,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Calculate a targetPerceptionRad based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
-  targetPerceptionRad = sqrt(area/PI) * 2.5;
+  targetPerceptionRad = sqrt(area/PI);
   
   // Force weights for various body activities. 
   attractWeight = 0.06;
@@ -36,12 +36,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
 
 void Agent::update() {
   if (partner != NULL) {
-    auto area = fbo.getWidth() * fbo.getHeight();
-    targetPerceptionRad = sqrt(area/PI) * 0.75;
-    attractWeight = ofRandom(0.4, 0.6);
-  } else {
-    auto area = fbo.getWidth() * fbo.getHeight();
-    targetPerceptionRad = sqrt(area/PI) * 2.5;
+    attractWeight = ofRandom(0.2, 0.4);
   }
   
   // Use box2d circle to update the mesh.
