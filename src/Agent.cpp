@@ -19,16 +19,24 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   // Target position
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
   
-  // Force weights for various body activities. 
-  seekWeight = 0.3;
-  tickleWeight = 1.5;
-  stretchWeight = 1.0;
+  // Force weights for various body actions..
+  seekWeight = 0.2;
+  tickleWeight = 2.0;
+  stretchWeight = 2.0;
+  repulsionWeight = 0.5;
   
-  // Agent desires.
-  // How often does this agent express these desires?
-  applyTickle = false;
-  applySeek = true;
+  // These are actions. But, what are the desires?
   applyStretch = true;
+  applySeek = false;
+  applyTickle = false;
+  applyRepulsion = false;
+  
+  // Set counters. Every agent must have different counters, thus they are
+  // assigned randomly. These could be in the DNA, so the agent mutates
+  // based on some interval (TODO, think).
+  maxTickleCounter = ofRandom(50, 100);
+  maxStretchCounter = ofRandom(100, 200);
+  maxRepulsionCounter = ofRandom(200, 300);
   
   maxInterAgentJoints = ofRandom(1, vertices.size());
 }
@@ -138,19 +146,19 @@ void Agent::populateSlots() {
 }
 
 void Agent::applyBehaviors() {
-  // ----Current behaviors----
-  // Random movement.
-  // Attraction to a target position.
-  // Stretching out.
-  handleRandomForce();
-  handleAttraction();
-  handleCentrifugalForce();
-  
-  // No repulsion currently.
+  // ----Current actions/behaviors---
+  handleTickle();
+  handleSeek();
+  handleStretch();
   handleRepulsion();
 }
 
-void Agent::handleAttraction() {
+void Agent::handleSeek() {
+  // Don't seek if this agent has a partner.
+  if (partner != NULL) {
+    return;
+  }
+  
   // New target? Add an impulse in that direction.
   if (applySeek) {
     cout << "Picked a new target.." << endl;
@@ -178,12 +186,20 @@ void Agent::handleAttraction() {
   }
 }
 
-void Agent::handleCentrifugalForce() {
+void Agent::handleStretch() {
+  // Check for stretch counter
+  if (curStretchCounter <= 0) { // Time to apply a stretch.
+    applyStretch = true;
+    curStretchCounter = maxStretchCounter;
+  } else {
+    curStretchCounter -= 0.5;
+  }
+  
   if (applyStretch) {
-    cout << "Stretching.. " << endl;
+    cout << "Stretching.." << endl;
     // Apply force away from centroid on some of the vertices.
     for (auto &v : vertices) {
-      if (ofRandom(1) < 0.4) {
+      if (ofRandom(1) < 0.2) {
         v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
       } else {
         v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
@@ -194,18 +210,23 @@ void Agent::handleCentrifugalForce() {
   }
 }
 
-void Agent::handleRandomForce() {
-//  // Check for tickle health.
-//  if (tickleHealth == 0) {
-//    cout << "Random force on the vertices.." << endl;
-//    applyRandomForce = true;
-//    tickleHealth = 100;
-//  } else {
-//    tickleHealth -= 0.5;
-//  }
-//
+void Agent::handleTickle() {
+  // No tickling if the agent has a partner.
+  if (partner == NULL) {
+    return;
+  }
+  
+  // Check for tickle counter.
+  if (curTickleCounter <= 0) {
+    applyTickle = true;
+    curTickleCounter = maxTickleCounter;
+  } else {
+    curTickleCounter -= 0.5;
+  }
+
   // Random force/ Force all vertices.
   if (applyTickle) {
+    cout << "Tickling.." << endl;
     // force()
     for (auto &v: vertices) {
       glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
@@ -216,7 +237,26 @@ void Agent::handleRandomForce() {
 }
 
 void Agent::handleRepulsion() {
-  // TO BE IMPLEMENTED>
+  // No repulsion if the agent has a partner.
+  if (partner == NULL) {
+      return;
+  }
+  
+  if (curRepulsionCounter <= 0) {
+    applyRepulsion = true;
+    curRepulsionCounter = maxRepulsionCounter;
+  } else {
+    curRepulsionCounter -= 0.5;
+  }
+  
+   if (applyRepulsion) {
+    cout << "Repulsing.." << endl;
+    for (auto &v: vertices) {
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+    }
+    applyRepulsion = false;
+   }
 }
 
 int Agent::getMaxInterAgentJoints() {
@@ -234,10 +274,6 @@ ofMesh& Agent::getMesh() {
 void Agent::setSeekTarget(glm::vec2 target) {
   seekTargetPos = target;
   applySeek = true;
-}
-
-void Agent::setRepulsionTarget(Agent *targetAgent, int newTargetAgentId) {
-  // TO BE IMPLEMENTED> 
 }
 
 void Agent::setTickle(float avgForceWeight) {

@@ -309,28 +309,6 @@ void ofApp::setupGui() {
     gui.loadFromFile("InterMesh.xml");
 }
 
-void ofApp::enableRepulsion() {
-//    // Enable repelling on the agent.
-//    for (auto &j: interAgentJoints) {
-//      auto bodyA = j->joint->GetBodyA();
-//      auto bodyB = j->joint->GetBodyB();
-//      
-//      // Agent A (centroid will be the repulsion point)
-//      auto agentIdA = reinterpret_cast<VertexData*>(bodyA -> GetUserData()) -> agentId;
-//      auto &agentA = agents.at(agentIdA);
-//      auto centroidA = agentA.getCentroid();
-//      
-//      // Agent B (centroid will be the repulsion point)
-//      auto agentIdB = reinterpret_cast<VertexData*>(bodyB -> GetUserData()) -> agentId;
-//      auto &agentB = agents.at(agentIdB);
-//      auto centroidB = agentB.getCentroid();
-//      
-//      // Set a repulsion target for agent A
-//      //agentA.setRepulsionTarget(&agentB, agentIdB);
-//      agentB.setRepulsionTarget(&agentA, agentIdA);
-//    }
-}
-
 void ofApp::clearScreen() {
   // [WARNING] For some reason, these events are still fired when trying to clean things as one could be in the
     // middle of a step function. Disabling and renabling the events work as a good solution for now.
@@ -405,10 +383,6 @@ void ofApp::keyPressed(int key){
     for (auto &a: agents) {
       a -> setTickle(1.0);
     }
-  }
-  
-  if (key == 'r') {
-    enableRepulsion();
   }
   
   if (key == 'm') { // Mutate
@@ -519,9 +493,9 @@ void ofApp::createSuperAgents() {
     // Check for existing joints.
     for (auto &sa : superAgents) {
       if (sa.contains(agentA, agentB)) {
-        //int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
+        int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
         
-        int maxJoints = 4;
+        //int maxJoints = 4;
         if (sa.joints.size() < maxJoints) {
           j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
           sa.joints.push_back(j);

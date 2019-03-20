@@ -24,10 +24,10 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void handleAttraction();
+    void handleSeek();
     void handleRepulsion();
-    void handleCentrifugalForce();
-    void handleRandomForce();
+    void handleStretch();
+    void handleTickle();
   
     // Enabling behaviors
     void setSeekTarget(glm::vec2 target);
@@ -84,28 +84,33 @@ class Agent {
     // Seek
     glm::vec2 seekTargetPos;
     float seekWeight;
+    bool applySeek;
   
-    // Tickle
+    // Tickle.
     float tickleWeight;
+    bool applyTickle;
     float curTickleCounter;
+    float maxTickleCounter;
   
-    // Stretch out
+    // Stretch out.
     float stretchWeight;
+    bool applyStretch;
+    float curStretchCounter;
+    float maxStretchCounter;
   
     // Repulsion.
-    bool repelTarget;
-    Agent *repelTargetAgent = NULL;
+    bool applyRepulsion;
+    float repulsionWeight;
+    float curRepulsionCounter;
+    float maxRepulsionCounter;
   
     // Perception
     int targetPerceptionRad;
-  
     // Max InterAgent joints for each agent
     int maxInterAgentJoints;
   
     // ------------------- Desires ----------------------
-    bool applySeek;
-    bool applyTickle;
-    bool applyStretch;
+    // THINK WHAT THE DESIRES ARE
 };
 
 // Data Structure to hold a pointer to the agent instance

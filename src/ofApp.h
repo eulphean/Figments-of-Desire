@@ -96,10 +96,6 @@ class ofApp : public ofBaseApp{
     bool hasVisualSimilarities(Agent *agentA, Agent *agentB);
     bool canVertexBond(b2Body* body, Agent *curAgent);
   
-    // Unused for now.
-    void enableRepulsion();
-    int findOtherAgent(b2Body* body, int curAgentId);
-  
     // Serial
     ofSerial serial;
   
