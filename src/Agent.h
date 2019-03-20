@@ -71,21 +71,17 @@ class Agent {
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     ofMesh mesh;
   
-    // Target position
+    // Attraction
     glm::vec2 attractTargetPos;
+    bool attractTarget;
   
+    // Repulsion.
     bool repelTarget;
     Agent *repelTargetAgent = NULL;
-    long repelIntervalTimer;
-    long repelTotalTimer;
   
+    // Forces. 
     bool applyRandomForce;
-    bool attractTarget;
     bool applyCentrifugalForce;
-  
-  
-    // Agent Id that you are repelling from. 
-    int repelTargetAgentId = -1;
   
     // Weights
     float attractWeight;
@@ -94,7 +90,6 @@ class Agent {
   
     // Health
     float tickleHealth;
-    float targetHealth;
   
     // Perception
     int targetPerceptionRad;

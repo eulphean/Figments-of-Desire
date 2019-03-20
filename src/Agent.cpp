@@ -14,15 +14,14 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
-  
   // Calculate a targetPerceptionRad based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
   targetPerceptionRad = sqrt(area/PI);
   
   // Force weights for various body activities. 
   attractWeight = 0.06;
-  randWeight = 0.3;
-  centrifugalWeight = 0.5;
+  randWeight = 1.5;
+  centrifugalWeight = 1.0;
   
   // Healths to keep track when to execute something again.
   tickleHealth = 50;
@@ -30,7 +29,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   applyRandomForce = false;
   attractTarget = true;
   repelTarget = false;
-  applyCentrifugalForce = false;
+  applyCentrifugalForce = true;
   maxInterAgentJoints = ofRandom(1, vertices.size());
 }
 
@@ -61,7 +60,7 @@ void Agent::draw(bool debug, bool showTexture) {
   ofPopStyle();
   
   if (showTexture) {
-  // Bind the fbo.
+    // Bind the fbo.
     _filters[_currentFilter]->begin();
     fbo.getTexture().bind();
     mesh.draw();
@@ -105,6 +104,7 @@ void Agent::clean(ofxBox2d &box2d) {
     return true;
   });
 
+  // Clear all.
   joints.clear();
   vertices.clear();
 }
@@ -146,18 +146,25 @@ void Agent::populateSlots() {
 }
 
 void Agent::applyBehaviors() {
+  // ----Current behaviors----
+  // Random movement.
+  // Attraction to a target position.
+  // Stretching out.
   handleTickle();
   handleAttraction();
-  handleRepulsion();
   handleCentrifugalForce();
+  
+  // No repulsion currently.
+  handleRepulsion();
 }
 
 void Agent::handleCentrifugalForce() {
   if (applyCentrifugalForce) {
-    // Apply force away from centroid
+    cout << "Stretching.. " << endl;
+    // Apply force away from centroid on some of the vertices.
     for (auto &v : vertices) {
       if (ofRandom(1) < 0.4) {
-         v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, centrifugalWeight);
+        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, centrifugalWeight);
       } else {
         v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, centrifugalWeight);
       }
@@ -170,11 +177,11 @@ void Agent::handleCentrifugalForce() {
 void Agent::handleTickle() {
   // Check for tickle health.
   if (tickleHealth == 0) {
+    cout << "Random movement.." << endl;
     applyRandomForce = true;
     tickleHealth = 100;
-    randWeight = 0.3;
   } else {
-    tickleHealth -= 0.1;
+    tickleHealth -= 0.5;
   }
   
   // Random force/ Force all vertices.
@@ -191,6 +198,7 @@ void Agent::handleTickle() {
 void Agent::handleAttraction() {
   // New target? Add an impulse in that direction.
   if (attractTarget) {
+    cout << "Seeking target." << endl;
     // seek()
     for (auto &v: vertices) {
         v->addAttractionPoint(attractTargetPos.x, attractTargetPos.y, attractWeight);
@@ -215,26 +223,7 @@ void Agent::handleAttraction() {
 }
 
 void Agent::handleRepulsion() {
-  // Initiate a repel on all the vertices and then stop.
-  // Repulsion impulse and then stop.
-  if (repelTarget) {
-    if (ofGetElapsedTimeMillis() - repelTotalTimer < 20000) {
-      if (ofGetElapsedTimeMillis() - repelIntervalTimer > 2000) {
-        // Repel and reset time
-        cout << "Repulsion";
-        for (auto &v: vertices) {
-          auto pos = glm::vec2(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y);
-          v->addRepulsionForce(pos.x, pos.y, 2.0);
-        }
-        repelIntervalTimer = ofGetElapsedTimeMillis(); // Reset timer
-      }
-    } else {
-      repelTarget = false;
-      // Check if we are still connected???
-      // Need to do that check somewhere..
-      repelTotalTimer = ofGetElapsedTimeMillis();
-    }
-  }
+  // TO BE IMPLEMENTED>
 }
 
 glm::vec2 Agent::getCentroid() {
@@ -251,16 +240,7 @@ void Agent::setAttractionTarget(glm::vec2 target) {
 }
 
 void Agent::setRepulsionTarget(Agent *targetAgent, int newTargetAgentId) {
-  if (newTargetAgentId == repelTargetAgentId) {
-    // Don't do anything
-  } else {
-    repelTargetAgentId = newTargetAgentId;
-    repelTargetAgent = targetAgent;
-    repelTarget = true;
-    repelTotalTimer = ofGetElapsedTimeMillis();
-    repelIntervalTimer = ofGetElapsedTimeMillis();
-    // Start the timer as well.
-  }
+  // TO BE IMPLEMENTED> 
 }
 
 void Agent::setRandomForce(float avgForceWeight) {
@@ -278,6 +258,20 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
   int randV = ofRandom(vertices.size());
   auto v = vertices[randV];
   return v;
+}
+
+// Agent partners. 
+void Agent::setPartner(Agent *a) {
+  partner = a;
+}
+
+Agent *Agent::getPartner() {
+  return partner;
+}
+
+void Agent::nextFilter() {
+  _currentFilter ++;
+  if (_currentFilter>=_filters.size()) _currentFilter = 0;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {
@@ -398,16 +392,24 @@ void Agent::updateMesh() {
   }
 }
 
-// Agent partners. 
-void Agent::setPartner(Agent *a) {
-  partner = a;
-}
 
-Agent *Agent::getPartner() {
-  return partner;
-}
-
-void Agent::nextFilter() {
-  _currentFilter ++;
-  if (_currentFilter>=_filters.size()) _currentFilter = 0;
-}
+//  // Initiate a repel on all the vertices and then stop.
+//  // Repulsion impulse and then stop.
+//  if (repelTarget) {
+//    if (ofGetElapsedTimeMillis() - repelTotalTimer < 20000) {
+//      if (ofGetElapsedTimeMillis() - repelIntervalTimer > 2000) {
+//        // Repel and reset time
+//        cout << "Repulsion" << endl;
+//        for (auto &v: vertices) {
+//          auto pos = glm::vec2(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y);
+//          v->addRepulsionForce(pos.x, pos.y, 2.0);
+//        }
+//        repelIntervalTimer = ofGetElapsedTimeMillis(); // Reset timer
+//      }
+//    } else {
+//      repelTarget = false;
+//      // Check if we are still connected???
+//      // Need to do that check somewhere..
+//      repelTotalTimer = ofGetElapsedTimeMillis();
+//    }
+//  }
