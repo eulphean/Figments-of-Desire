@@ -134,11 +134,11 @@ void ofApp::update(){
     // Apply some random force on the agents.
     //int idx = ofRandom(0, 1);
     //agents.at(idx) -> setStretch(1.0);
-    for (auto &a : agents) {
-      if (ofRandom(1) < 0.5) {
-        a -> setStretch(1.0);
-      }
-    }
+//    for (auto &a : agents) {
+//      if (ofRandom(1) < 0.5) {
+//        a -> setStretch(1.0);
+//      }
+//    }
   }
   
   //handleSerial();
