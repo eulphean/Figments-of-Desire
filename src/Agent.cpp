@@ -23,7 +23,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   seekWeight = 0.2;
   tickleWeight = 2.5;
   stretchWeight = 1.5;
-  repulsionWeight = 2.0;
+  repulsionWeight = 1.0;
   
   // These are actions. But, what are the desires?
   applyStretch = true;
@@ -50,7 +50,7 @@ void Agent::update() {
   
   // Update the weights.
   if (partner != NULL) {
-    stretchWeight = 5.0;
+    stretchWeight = 3.0;
   } else {
     stretchWeight = 1.5;
   }
@@ -121,7 +121,8 @@ void Agent::createTexture(ofPoint meshSize) {
   fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
   fbo.begin();
     ofClear(0, 0, 0, 0);
-    ofBackground(colorSlots.at(0));
+    ofColor c = ofColor(colorSlots.at(0), 200);
+    ofBackground(c);
     const int firstRecs = 1; // Biased towards later colors
     // Create the slots in the fbo.
     for (int i = 0; i < maxSlots; i++) {
