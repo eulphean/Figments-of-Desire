@@ -8,7 +8,7 @@
 #include "ofxProcessFFT.h"
 #include "ofxOsc.h"
 #include "Midi.h"
-
+#include "BgMesh.h"
 
 #define PORT 12345
 
@@ -112,5 +112,6 @@ class ofApp : public ofBaseApp{
     // OSC remote.
     ofxOscReceiver receiver;
   
-    ofFbo bgImage; 
+//    ofFbo bgImage;
+    BgMesh bg; 
 };

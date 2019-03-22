@@ -58,35 +58,37 @@ void ofApp::setup(){
   
   serial.setup("/dev/cu.usbmodem1411", 9600);
   
-  bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
-  bgImage.begin();
-    ofClear(0, 0, 0, 0);
-    int numRows = 30;
-    int numCols = 30;
+  bg.setup();
   
-    int rectW = bgImage.getWidth()/numCols;
-    int rectH = bgImage.getHeight()/numRows;
-  
-    int a = 0;
-    for (int y = 0; y < numCols; y++) {
-      for (int x = 0; x < numRows; x++) {
-        if (a % 2 == 0) {
-          ofSetColor(ofColor::fromHex(0xDBDBDB));
-        } else {
-          ofSetColor(ofColor::fromHex(0x706F6F));
-        }
-        ofPushMatrix();
-        ofTranslate(x * rectW, y * rectH);
-          ofDrawRectangle(0, 0, rectW, rectH);
-        ofPopMatrix();
-        a++;
-      }
-
-    a++;
-  }
-  
-  
-  bgImage.end();
+//  bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
+//  bgImage.begin();
+//    ofClear(0, 0, 0, 0);
+//    int numRows = 30;
+//    int numCols = 30;
+//
+//    int rectW = bgImage.getWidth()/numCols;
+//    int rectH = bgImage.getHeight()/numRows;
+//
+//    int a = 0;
+//    for (int y = 0; y < numCols; y++) {
+//      for (int x = 0; x < numRows; x++) {
+//        if (a % 2 == 0) {
+//          ofSetColor(ofColor::fromHex(0xDBDBDB));
+//        } else {
+//          ofSetColor(ofColor::fromHex(0x706F6F));
+//        }
+//        ofPushMatrix();
+//        ofTranslate(x * rectW, y * rectH);
+//          ofDrawRectangle(0, 0, rectW, rectH);
+//        ofPopMatrix();
+//        a++;
+//      }
+//
+//    a++;
+//  }
+//
+//
+//  bgImage.end();
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -175,7 +177,8 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   //bgImage.draw(0, 0, ofGetWidth(), ofGetHeight());
-  bgImage.draw(0, 0);
+//  bgImage.draw(0, 0);
+  bg.draw();
 
   if (debug) {
     ofPushStyle();
