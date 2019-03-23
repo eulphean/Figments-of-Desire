@@ -1,26 +1,24 @@
 #include "BgMesh.h"
 
-void BgMesh::setup() {
+// Setup background
+void BgMesh::createBg(int rectWidth, int rectHeight) {
   bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
   bgImage.begin();
     ofClear(0, 0, 0, 0);
-    int numRows = 30;
-    int numCols = 30;
-  
-    int rectW = bgImage.getWidth()/numCols;
-    int rectH = bgImage.getHeight()/numRows;
+  int numRows = bgImage.getHeight()/rectHeight;
+  int numCols = bgImage.getWidth()/rectWidth;
   
     int a = 0;
-    for (int y = 0; y < numCols; y++) {
-      for (int x = 0; x < numRows; x++) {
+    for (int y = 0; y < numRows; y++) {
+      for (int x = 0; x < numCols; x++) {
         if (a % 2 == 0) {
           ofSetColor(ofColor::fromHex(0xDBDBDB));
         } else {
           ofSetColor(ofColor::fromHex(0x706F6F));
         }
         ofPushMatrix();
-        ofTranslate(x * rectW, y * rectH);
-          ofDrawRectangle(0, 0, rectW, rectH);
+        ofTranslate(x * rectWidth, y * rectHeight);
+          ofDrawRectangle(0, 0, rectWidth, rectHeight);
         ofPopMatrix();
         a++;
       }

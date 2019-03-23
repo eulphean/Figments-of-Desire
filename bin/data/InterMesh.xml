@@ -21,4 +21,8 @@
 		<Joint_Damping>4</Joint_Damping>
 		<Max_Joint_Force>35</Max_Joint_Force>
 	</InterAgentJoint_Params>
+	<Background_Params>
+		<Width>15</Width>
+		<Height>15</Height>
+	</Background_Params>
 </Inter_Mesh_Settings>

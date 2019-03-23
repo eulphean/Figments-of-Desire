@@ -73,7 +73,17 @@ class ofApp : public ofBaseApp{
     ofParameterGroup interAgentJointParams;
     ofParameter<float> frequency;
     ofParameter<float> damping;
-    ofParameter<int> maxJointForce; 
+    ofParameter<int> maxJointForce;
+  
+    // Background group.
+    ofParameterGroup bgParams;
+    ofParameter<int> rectWidth;
+    ofParameter<int> rectHeight;
+    // Callbacks to create new background. 
+    void widthChanged(int & newWidth);
+    void heightChanged(int & newHeight);
+    // Attraction
+    // Repulsion for the mesh. 
   
   private:
     bool mutateColors; 
@@ -112,6 +122,6 @@ class ofApp : public ofBaseApp{
     // OSC remote.
     ofxOscReceiver receiver;
   
-//    ofFbo bgImage;
+    // Background
     BgMesh bg; 
 };

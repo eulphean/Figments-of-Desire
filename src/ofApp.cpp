@@ -6,7 +6,6 @@ void ofApp::setup(){
   receiver.setup(PORT);
   //ofHideCursor();
   
-  //ofBackground(ofColor::fromHex(0x293241, 1.0));
   ofBackground(ofColor::fromHex(0x2E2F2D));
   ofSetCircleResolution(20);
   ofDisableArbTex();
@@ -58,37 +57,7 @@ void ofApp::setup(){
   
   serial.setup("/dev/cu.usbmodem1411", 9600);
   
-  bg.setup();
-  
-//  bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
-//  bgImage.begin();
-//    ofClear(0, 0, 0, 0);
-//    int numRows = 30;
-//    int numCols = 30;
-//
-//    int rectW = bgImage.getWidth()/numCols;
-//    int rectH = bgImage.getHeight()/numRows;
-//
-//    int a = 0;
-//    for (int y = 0; y < numCols; y++) {
-//      for (int x = 0; x < numRows; x++) {
-//        if (a % 2 == 0) {
-//          ofSetColor(ofColor::fromHex(0xDBDBDB));
-//        } else {
-//          ofSetColor(ofColor::fromHex(0x706F6F));
-//        }
-//        ofPushMatrix();
-//        ofTranslate(x * rectW, y * rectH);
-//          ofDrawRectangle(0, 0, rectW, rectH);
-//        ofPopMatrix();
-//        a++;
-//      }
-//
-//    a++;
-//  }
-//
-//
-//  bgImage.end();
+  bg.createBg(rectWidth, rectHeight);
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -176,8 +145,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  //bgImage.draw(0, 0, ofGetWidth(), ofGetHeight());
-//  bgImage.draw(0, 0);
+  // Draw background. 
   bg.draw();
 
   if (debug) {
@@ -336,10 +304,18 @@ void ofApp::setupGui() {
     interAgentJointParams.add(damping.set("Joint Damping", 1.0f, 0.0f, 10.0f));
     interAgentJointParams.add(maxJointForce.set("Max Joint Force", 6.f, 1.f, 100.0f));
   
+    // Background group
+    bgParams.setName("Background Params");
+    bgParams.add(rectWidth.set("Width", 20, 10, 50));
+    bgParams.add(rectHeight.set("Height", 20, 10, 50));
+    rectWidth.addListener(this, &ofApp::widthChanged);
+    rectHeight.addListener(this, &ofApp::heightChanged);
+  
     settings.add(meshParams);
     settings.add(vertexParams);
     settings.add(jointParams);
     settings.add(interAgentJointParams);
+    settings.add(bgParams);
   
     gui.setup(settings);
     gui.loadFromFile("InterMesh.xml");
@@ -516,6 +492,16 @@ bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
   }
 
   return true;
+}
+
+void ofApp::widthChanged (int & newWidth) {
+  // New background
+  bg.createBg(newWidth, rectHeight);
+}
+
+void ofApp::heightChanged(int & newHeight) {
+  // New background
+  bg.createBg(rectWidth, newHeight);
 }
 
 void ofApp::createSuperAgents() {

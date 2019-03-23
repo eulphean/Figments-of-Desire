@@ -3,7 +3,7 @@
 
 class BgMesh {
   public:
-    void setup();
+    void createBg(int rectWidth, int rectHeight);
     void update();
     void draw();
   
