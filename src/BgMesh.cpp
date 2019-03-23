@@ -1,7 +1,14 @@
 #include "BgMesh.h"
 
+void BgMesh::setParams(ofParameterGroup params) {
+    bgParams = params;
+}
+
 // Setup background
-void BgMesh::createBg(int rectWidth, int rectHeight) {
+void BgMesh::createBg() {
+  auto rectWidth = bgParams.getInt("Width");
+  auto rectHeight = bgParams.getInt("Height");
+  
   bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
   bgImage.begin();
     ofClear(0, 0, 0, 0);
@@ -28,12 +35,104 @@ void BgMesh::createBg(int rectWidth, int rectHeight) {
   
   // Create a mesh and texture map the fbo to it.
   bgImage.end();
+  
+  // Create mesh for this background
+  createMesh();
 }
 
-void BgMesh::update() {
-  // Pass the centroid of two organisms into
+void BgMesh::update(std::vector<glm::vec2> centroids) {
+  for (int i = 0; i < mesh.getVertices().size(); i++) {
+    // Pass the centroid of two organisms into
+    for (auto &c : centroids) {
+      // For each centroid, update each mesh vertex.
+      auto meshVertex = meshCopy.getVertices()[i]; // Use original mesh to pass the vertex.
+      interact(meshVertex, c, i);
+    }
+  }
+}
+
+void BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
+  // Get distanceVector of this vertex from the position.
+  glm::vec2 distance = centroid - meshVertex;
+
+  // Normalize distance vector.
+  glm::vec2 normal = glm::normalize(distance);
+
+  // Calculate length of distance vector.
+  int distanceToCentroid = glm::length(distance);
+
+  // Closer the vertex is, more distortion. Farther the vertex, less is the distortion.
+  int displacement = ofMap(distanceToCentroid, 0, 400, 20, -20, true);
+
+  // Move the new vertex in the direction of the normal.
+  glm::vec2 newVertex = meshVertex + displacement * normal;
+
+  // Update the mesh vertex.
+  mesh.setVertex(vIdx, {newVertex.x, newVertex.y, 0});
 }
 
 void BgMesh::draw() {
-  bgImage.draw(0, 0);
+  bgImage.getTexture().bind();
+  mesh.draw();
+  bgImage.getTexture().unbind();
+}
+
+void BgMesh::createMesh() {
+  // NOTE: Important to clear the mesh or else extra vertices
+  // appear.
+  mesh.clear();
+  meshCopy.clear();
+  mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+  
+  int rectWidth = bgParams.getInt("Width");
+  int rectHeight = bgParams.getInt("Height");
+  
+  // Rows/Columns
+  int numRows = bgImage.getHeight()/rectHeight;
+  int numCols = bgImage.getWidth()/rectWidth;
+
+  // Mesh size.
+  int w = bgImage.getWidth();
+  int h = bgImage.getHeight();
+  
+  // Mesh vertices and texture mapping.
+  for (int y = 0; y < numRows; y++) {
+    for (int x = 0; x < numCols; x++) {
+      float ix = w * x / (numCols - 1);
+      float iy = h * y / (numRows - 1);
+      mesh.addVertex({ix, iy, 0});
+      
+      // Texture vertices (0 - 1) since textures are normalized.
+      float texX = ofMap(ix, 0, bgImage.getTexture().getWidth(), 0, 1, true); // Map the calculated x coordinate from 0 - 1
+      float texY = ofMap(iy, 0, bgImage.getTexture().getHeight(), 0, 1, true); // Map the calculated y coordinate from 0 - 1
+      mesh.addTexCoord(glm::vec2(texX, texY));
+    }
+  }
+  
+  // We don't draw the last row / col (nRows - 1 and nCols - 1) because it was
+  // taken care of by the row above and column to the left.
+  for (int y = 0; y < numRows - 1; y++)
+  {
+      for (int x = 0; x < numCols - 1; x++)
+      {
+          // Draw T0
+          // P0
+          mesh.addIndex((y + 0) * numCols + (x + 0));
+          // P1
+          mesh.addIndex((y + 0) * numCols + (x + 1));
+          // P2
+          mesh.addIndex((y + 1) * numCols + (x + 0));
+
+          // Draw T1
+          // P1
+          mesh.addIndex((y + 0) * numCols + (x + 1));
+          // P3
+          mesh.addIndex((y + 1) * numCols + (x + 1));
+          // P2
+          mesh.addIndex((y + 1) * numCols + (x + 0));
+      }
+  }
+  
+  // Deep mesh copy.
+  meshCopy = mesh; 
 }

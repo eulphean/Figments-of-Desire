@@ -57,7 +57,9 @@ void ofApp::setup(){
   
   serial.setup("/dev/cu.usbmodem1411", 9600);
   
-  bg.createBg(rectWidth, rectHeight);
+  // Store params and create background. 
+  bg.setParams(bgParams);
+  bg.createBg();
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -134,13 +136,18 @@ void ofApp::update(){
   // GUI props.
   updateAgentProps();
   
-  // Update agents.
+  std::vector<glm::vec2> centroids;
+  // Update agents
   for (auto &a : agents) {
     a -> update();
+    centroids.push_back(a->getCentroid());
   }
   
   // Create super agents based on collision bodies.
   createSuperAgents();
+  
+  // Update background
+  bg.update(centroids);
 }
 
 //--------------------------------------------------------------
@@ -308,8 +315,12 @@ void ofApp::setupGui() {
     bgParams.setName("Background Params");
     bgParams.add(rectWidth.set("Width", 20, 10, 50));
     bgParams.add(rectHeight.set("Height", 20, 10, 50));
+    bgParams.add(attraction.set("Attraction", 20, -50, 50));
+    bgParams.add(repulsion.set("Repulsion", -20, -50, 50));
     rectWidth.addListener(this, &ofApp::widthChanged);
     rectHeight.addListener(this, &ofApp::heightChanged);
+    attraction.addListener(this, &ofApp::attractionChanged);
+    repulsion.addListener(this, &ofApp::repulsionChanged);
   
     settings.add(meshParams);
     settings.add(vertexParams);
@@ -496,12 +507,22 @@ bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
 
 void ofApp::widthChanged (int & newWidth) {
   // New background
-  bg.createBg(newWidth, rectHeight);
+  bg.setParams(bgParams);
+  bg.createBg();
 }
 
-void ofApp::heightChanged(int & newHeight) {
+void ofApp::heightChanged (int & newHeight) {
   // New background
-  bg.createBg(rectWidth, newHeight);
+  bg.setParams(bgParams);
+  bg.createBg();
+}
+
+void ofApp::attractionChanged (int & newAttraction) {
+  bg.setParams(bgParams);
+}
+
+void ofApp:: repulsionChanged (int & newRepulsion) {
+  bg.setParams(bgParams);
 }
 
 void ofApp::createSuperAgents() {

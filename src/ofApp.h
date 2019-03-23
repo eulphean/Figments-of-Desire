@@ -82,9 +82,11 @@ class ofApp : public ofBaseApp{
     // Callbacks to create new background. 
     void widthChanged(int & newWidth);
     void heightChanged(int & newHeight);
-    // Attraction
-    // Repulsion for the mesh. 
-  
+    void attractionChanged(int & newAttraction);
+    void repulsionChanged(int & newRepulsion);
+    ofParameter<int> attraction;
+    ofParameter<int> repulsion; 
+
   private:
     bool mutateColors; 
   
