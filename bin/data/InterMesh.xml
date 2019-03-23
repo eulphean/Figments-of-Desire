@@ -24,7 +24,7 @@
 	<Background_Params>
 		<Width>20</Width>
 		<Height>20</Height>
-		<Attraction>-5</Attraction>
-		<Repulsion>5</Repulsion>
+		<Attraction>-200</Attraction>
+		<Repulsion>200</Repulsion>
 	</Background_Params>
 </Inter_Mesh_Settings>

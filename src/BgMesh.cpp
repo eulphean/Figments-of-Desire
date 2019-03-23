@@ -71,7 +71,7 @@ glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
   auto attraction = bgParams.getInt("Attraction");
   auto repulsion = bgParams.getInt("Repulsion");
   // Closer the vertex is, more distortion. Farther the vertex, less is the distortion.
-  int displacement = ofMap(distanceToCentroid, 0, 400, attraction, -repulsion, true);
+  int displacement = ofMap(distanceToCentroid, 0, 800, attraction, -repulsion, true);
   
   return displacement * normal;
 

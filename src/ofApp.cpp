@@ -315,8 +315,8 @@ void ofApp::setupGui() {
     bgParams.setName("Background Params");
     bgParams.add(rectWidth.set("Width", 20, 10, 50));
     bgParams.add(rectHeight.set("Height", 20, 10, 50));
-    bgParams.add(attraction.set("Attraction", 20, -50, 50));
-    bgParams.add(repulsion.set("Repulsion", -20, -50, 50));
+    bgParams.add(attraction.set("Attraction", 20, -200, 200));
+    bgParams.add(repulsion.set("Repulsion", -20, -200, 200));
     rectWidth.addListener(this, &ofApp::widthChanged);
     rectHeight.addListener(this, &ofApp::heightChanged);
     attraction.addListener(this, &ofApp::attractionChanged);
