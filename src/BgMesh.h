@@ -10,7 +10,7 @@ class BgMesh {
   
   private:
     void createMesh();
-    void interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx);
+    glm::vec2 interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx);
     
     ofFbo bgImage;
     ofMesh mesh;

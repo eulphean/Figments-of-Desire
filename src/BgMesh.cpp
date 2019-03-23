@@ -41,17 +41,24 @@ void BgMesh::createBg() {
 }
 
 void BgMesh::update(std::vector<glm::vec2> centroids) {
-  for (int i = 0; i < mesh.getVertices().size(); i++) {
-    // Pass the centroid of two organisms into
-    for (auto &c : centroids) {
-      // For each centroid, update each mesh vertex.
-      auto meshVertex = meshCopy.getVertices()[i]; // Use original mesh to pass the vertex.
-      interact(meshVertex, c, i);
+  // Calculate net displacement due to each centroid and store in offsets.
+  std::vector<glm::vec2> offsets;
+  offsets.assign(mesh.getVertices().size(), glm::vec2(0, 0));
+  for (auto &c : centroids) {
+    for (int i = 0; i < mesh.getVertices().size(); i++) {
+      auto meshVertex = meshCopy.getVertices()[i];
+      offsets[i] = offsets.at(i) + interact(meshVertex, c, i);
     }
+  }
+  
+  // Update each mesh vertex with a displacement.
+  for (int i = 0; i < mesh.getVertices().size(); i++) {
+    auto newVertex = meshCopy.getVertices()[i] + offsets.at(i);
+    mesh.setVertex(i, {newVertex.x, newVertex.y, 0});
   }
 }
 
-void BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
+glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
   // Get distanceVector of this vertex from the position.
   glm::vec2 distance = centroid - meshVertex;
 
@@ -61,14 +68,18 @@ void BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
   // Calculate length of distance vector.
   int distanceToCentroid = glm::length(distance);
 
+  auto attraction = bgParams.getInt("Attraction");
+  auto repulsion = bgParams.getInt("Repulsion");
   // Closer the vertex is, more distortion. Farther the vertex, less is the distortion.
-  int displacement = ofMap(distanceToCentroid, 0, 400, 20, -20, true);
+  int displacement = ofMap(distanceToCentroid, 0, 400, attraction, -repulsion, true);
+  
+  return displacement * normal;
 
-  // Move the new vertex in the direction of the normal.
-  glm::vec2 newVertex = meshVertex + displacement * normal;
-
-  // Update the mesh vertex.
-  mesh.setVertex(vIdx, {newVertex.x, newVertex.y, 0});
+//  // Move the new vertex in the direction of the normal.
+//  glm::vec2 newVertex = meshVertex + displacement * normal;
+//
+//  // Update the mesh vertex.
+//  mesh.setVertex(vIdx, {newVertex.x, newVertex.y, 0});
 }
 
 void BgMesh::draw() {
