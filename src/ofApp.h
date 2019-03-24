@@ -82,10 +82,11 @@ class ofApp : public ofBaseApp{
     // Callbacks to create new background. 
     void widthChanged(int & newWidth);
     void heightChanged(int & newHeight);
-    void attractionChanged(int & newAttraction);
-    void repulsionChanged(int & newRepulsion);
+    void updateForce(int & newVal);
+    void updateParams(float & newVal);
     ofParameter<int> attraction;
-    ofParameter<int> repulsion; 
+    ofParameter<int> repulsion;
+    ofParameter<float> shaderScale;
 
   private:
     bool mutateColors; 

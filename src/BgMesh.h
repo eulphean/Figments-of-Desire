@@ -1,11 +1,20 @@
 #pragma once
 #include "ofMain.h"
+#include "ofxFilterLibrary.h"
 
 class BgMesh {
   public:
+    BgMesh() {
+      filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(), 1.f);
+      filter->updateParameter("scale", 2.f);
+      //filter = new PixelateFilter(ofGetWidth(), ofGetHeight());
+
+    }
+  
     void setParams(ofParameterGroup params);
     void createBg();
     void update(std::vector<glm::vec2> centroids);
+    void updateWithVertices(std::vector<ofMesh> meshes);
     void draw();
   
   private:
@@ -15,5 +24,7 @@ class BgMesh {
     ofFbo bgImage;
     ofMesh mesh;
     ofMesh meshCopy;
-    ofParameterGroup bgParams; 
+    ofParameterGroup bgParams;
+  
+    AbstractFilter * filter; 
 };

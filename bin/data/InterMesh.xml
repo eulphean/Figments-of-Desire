@@ -22,9 +22,10 @@
 		<Max_Joint_Force>35</Max_Joint_Force>
 	</InterAgentJoint_Params>
 	<Background_Params>
-		<Width>20</Width>
-		<Height>20</Height>
-		<Attraction>-200</Attraction>
-		<Repulsion>200</Repulsion>
+		<Width>50</Width>
+		<Height>50</Height>
+		<Attraction>8</Attraction>
+		<Repulsion>30</Repulsion>
+		<Scale>8.36735</Scale>
 	</Background_Params>
 </Inter_Mesh_Settings>

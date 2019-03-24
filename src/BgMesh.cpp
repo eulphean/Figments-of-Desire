@@ -40,6 +40,35 @@ void BgMesh::createBg() {
   createMesh();
 }
 
+// Receive agent mesh
+void BgMesh::updateWithVertices(std::vector<ofMesh> agentMeshes) {
+  // Empty vector as size of background mesh's vertices.
+  std::vector<glm::vec2> offsets;
+  offsets.assign(mesh.getVertices().size(), glm::vec2(0, 0));
+  for (auto m : agentMeshes) {
+    auto vertices = m.getVertices();
+    std::vector<glm::vec2> randVertices;
+//    randVertices.push_back(vertices[0]);
+////    randVertices.push_back(vertices[vertices.size() - 1]);
+   randVertices.push_back(vertices[vertices.size()/2 -1]);
+    for (auto v : randVertices) {
+      for (int i = 0; i < mesh.getVertices().size(); i++) {
+        auto meshVertex = meshCopy.getVertices()[i];
+        offsets[i] = offsets.at(i) + interact(meshVertex, v, i);
+      }
+    }
+  }
+  
+  // Update each mesh vertex with a displacement.
+  for (int i = 0; i < mesh.getVertices().size(); i++) {
+    auto newVertex = meshCopy.getVertices()[i] + offsets.at(i);
+    mesh.setVertex(i, {newVertex.x, newVertex.y, 0});
+  }
+  
+//    auto s = bgParams.getFloat("Scale");
+//  filter->updateParameter("scale", s);
+}
+
 void BgMesh::update(std::vector<glm::vec2> centroids) {
   // Calculate net displacement due to each centroid and store in offsets.
   std::vector<glm::vec2> offsets;
@@ -56,6 +85,8 @@ void BgMesh::update(std::vector<glm::vec2> centroids) {
     auto newVertex = meshCopy.getVertices()[i] + offsets.at(i);
     mesh.setVertex(i, {newVertex.x, newVertex.y, 0});
   }
+  
+  // Set filter parameter
 }
 
 glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
@@ -83,9 +114,11 @@ glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
 }
 
 void BgMesh::draw() {
+  filter->begin();
   bgImage.getTexture().bind();
   mesh.draw();
   bgImage.getTexture().unbind();
+  filter->end();
 }
 
 void BgMesh::createMesh() {

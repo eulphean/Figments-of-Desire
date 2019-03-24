@@ -136,18 +136,21 @@ void ofApp::update(){
   // GUI props.
   updateAgentProps();
   
+  std::vector<ofMesh> meshes;
   std::vector<glm::vec2> centroids;
   // Update agents
   for (auto &a : agents) {
     a -> update();
     centroids.push_back(a->getCentroid());
+    meshes.push_back(a->getMesh());
   }
   
   // Create super agents based on collision bodies.
   createSuperAgents();
   
   // Update background
-  bg.update(centroids);
+  //bg.update(centroids);
+  bg.updateWithVertices(meshes);
 }
 
 //--------------------------------------------------------------
@@ -317,10 +320,12 @@ void ofApp::setupGui() {
     bgParams.add(rectHeight.set("Height", 20, 10, 50));
     bgParams.add(attraction.set("Attraction", 20, -200, 200));
     bgParams.add(repulsion.set("Repulsion", -20, -200, 200));
+    bgParams.add(shaderScale.set("Scale", 1.f, 0.f, 10.f));
     rectWidth.addListener(this, &ofApp::widthChanged);
     rectHeight.addListener(this, &ofApp::heightChanged);
-    attraction.addListener(this, &ofApp::attractionChanged);
-    repulsion.addListener(this, &ofApp::repulsionChanged);
+    attraction.addListener(this, &ofApp::updateForce);
+    repulsion.addListener(this, &ofApp::updateForce);
+    shaderScale.addListener(this, &ofApp::updateParams);
   
     settings.add(meshParams);
     settings.add(vertexParams);
@@ -517,13 +522,14 @@ void ofApp::heightChanged (int & newHeight) {
   bg.createBg();
 }
 
-void ofApp::attractionChanged (int & newAttraction) {
+void ofApp::updateParams(float & newVal) {
   bg.setParams(bgParams);
 }
 
-void ofApp:: repulsionChanged (int & newRepulsion) {
+void ofApp::updateForce(int & newVal) {
   bg.setParams(bgParams);
 }
+
 
 void ofApp::createSuperAgents() {
   // Joint creation based on when two bodies collide at certain vertices.
