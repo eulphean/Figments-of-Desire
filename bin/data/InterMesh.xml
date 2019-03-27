@@ -14,17 +14,17 @@
 	</Vertex_Params>
 	<Joint_Params>
 		<Joint_Frequency>4.28571</Joint_Frequency>
-		<Joint_Damping>1</Joint_Damping>
+		<Joint_Damping>5</Joint_Damping>
 	</Joint_Params>
 	<InterAgentJoint_Params>
 		<Joint_Frequency>3</Joint_Frequency>
 		<Joint_Damping>4</Joint_Damping>
-		<Max_Joint_Force>72</Max_Joint_Force>
+		<Max_Joint_Force>48</Max_Joint_Force>
 	</InterAgentJoint_Params>
 	<Background_Params>
 		<Width>50</Width>
 		<Height>50</Height>
-		<Attraction>8</Attraction>
+		<Attraction>-14</Attraction>
 		<Repulsion>30</Repulsion>
 		<Scale>8.36735</Scale>
 	</Background_Params>

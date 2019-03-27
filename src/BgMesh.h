@@ -7,8 +7,6 @@ class BgMesh {
     BgMesh() {
       filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(),11.f);
 //      filter->updateParameter("scale", 9.f);
-      //filter = new PixelateFilter(ofGetWidth(), ofGetHeight());
-
     }
   
     void setParams(ofParameterGroup params);

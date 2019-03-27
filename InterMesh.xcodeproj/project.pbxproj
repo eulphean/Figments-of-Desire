@@ -171,6 +171,8 @@
 		F9CBD8332244BEBA00C98CBB /* SuperAgent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9CBD8312244BEBA00C98CBB /* SuperAgent.cpp */; };
 		F9CBD8342244BEBA00C98CBB /* Agent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9CBD8322244BEBA00C98CBB /* Agent.cpp */; };
 		F9D73FAB2244C8560004B176 /* BgMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAA2244C8560004B176 /* BgMesh.cpp */; };
+		F9D73FB0224B57770004B176 /* Amay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAC224B57770004B176 /* Amay.cpp */; };
+		F9D73FB1224B57770004B176 /* Azra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAE224B57770004B176 /* Azra.cpp */; };
 		FA0BBE176778E31F22416E56 /* CGAColorspaceFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB3299330EDA105F196B9FAB /* CGAColorspaceFilter.cpp */; };
 		FA7300BAC71DAC1ABAF6EE15 /* b2Fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 774DDD1B3F05D3FDF0D37794 /* b2Fixture.cpp */; };
 		FB0C5E9247855598AD76F101 /* ThresholdedNonMaximumSuppressionFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C769559240676D67F72858CE /* ThresholdedNonMaximumSuppressionFilter.cpp */; };
@@ -742,6 +744,10 @@
 		F9CBD8322244BEBA00C98CBB /* Agent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Agent.cpp; path = src/Agent.cpp; sourceTree = SOURCE_ROOT; };
 		F9CBD8352244BEC900C98CBB /* BgMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BgMesh.h; sourceTree = "<group>"; };
 		F9D73FAA2244C8560004B176 /* BgMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BgMesh.cpp; sourceTree = "<group>"; };
+		F9D73FAC224B57770004B176 /* Amay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Amay.cpp; sourceTree = "<group>"; };
+		F9D73FAD224B57770004B176 /* Amay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Amay.h; sourceTree = "<group>"; };
+		F9D73FAE224B57770004B176 /* Azra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Azra.cpp; sourceTree = "<group>"; };
+		F9D73FAF224B57770004B176 /* Azra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Azra.h; sourceTree = "<group>"; };
 		FA784162B6A8E3A77BBE4D6C /* b2TimeStep.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = b2TimeStep.h; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/b2TimeStep.h; sourceTree = SOURCE_ROOT; };
 		FD20B1FFE795860DB1C68BF2 /* b2ChainAndCircleContact.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = b2ChainAndCircleContact.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1686,6 +1692,10 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F9D73FAC224B57770004B176 /* Amay.cpp */,
+				F9D73FAD224B57770004B176 /* Amay.h */,
+				F9D73FAE224B57770004B176 /* Azra.cpp */,
+				F9D73FAF224B57770004B176 /* Azra.h */,
 				F9D73FAA2244C8560004B176 /* BgMesh.cpp */,
 				F9CBD8352244BEC900C98CBB /* BgMesh.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
@@ -1919,6 +1929,7 @@
 				77B79458F10CC9539300668F /* Abstract3x3PingPongFilter.cpp in Sources */,
 				66F3DD5768F62B538CEE7C2D /* Abstract3x3TextureSamplingFilter.cpp in Sources */,
 				615B4710EEA77B066672D13F /* AbstractDoGFilter.cpp in Sources */,
+				F9D73FB0224B57770004B176 /* Amay.cpp in Sources */,
 				679029994B9F1C57D7DC1B1B /* AbstractFilter.cpp in Sources */,
 				9C571D7376DD6A28422A1E0B /* AbstractPingPongRenderer.cpp in Sources */,
 				7340A6F6E553CDCF424FE447 /* AbstractTwoInputCrossTextureSamplingFilter.cpp in Sources */,
@@ -1993,6 +2004,7 @@
 				5CBB2AB3A60F65431D7B555D /* ofxButton.cpp in Sources */,
 				853E0BA2F448076739446874 /* ofxColorPicker.cpp in Sources */,
 				B266578FC55D23BFEBC042E7 /* ofxGuiGroup.cpp in Sources */,
+				F9D73FB1224B57770004B176 /* Azra.cpp in Sources */,
 				852E0891794923EE7583C621 /* ofxInputField.cpp in Sources */,
 				483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */,
 				F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */,

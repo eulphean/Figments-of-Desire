@@ -34,18 +34,6 @@ void ofApp::setup(){
   bounds.width = ofGetWidth() + (-1) * bounds.x * 2; bounds.height = ofGetHeight() + (-1) * 2 * bounds.y;
   box2d.createBounds(bounds);
   
-  // Load sounds
-  ofDirectory directory("sfx/");
-  directory.allowExt("mp3");
-  for (auto file: directory)
-  {
-      auto sound = std::make_shared<ofSoundPlayer>();
-      sound->load(file);
-      sound->setMultiPlay(true);
-      sound->setLoop(false);
-      sounds.push_back(sound);
-  }
-  
   // Setup fft.
   fft.setup();
   fft.setNormalize(true);
@@ -97,28 +85,14 @@ void ofApp::update(){
   // Check for a clap.
   // Heard a clap loud enough
   if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.6) {
-//    cout << "Really loud. Start stretching." << endl;
-//    // Break joints
-//    for (auto &sa : superAgents) {
-//      sa.clean(box2d);
-//    }
-//    superAgents.clear();
-    
-    // Apply some random force on the agents.
-    //int idx = ofRandom(0, 1);
-    //agents.at(idx) -> setStretch(1.0);
-//    for (auto &a : agents) {
-//      if (ofRandom(1) < 0.5) {
-//        a -> setStretch(1.0);
-//      }
-//    }
+    // If the sound is really high.... 
   }
   
   //handleSerial();
   
   // The crazy routine that's broken right now. 
   ofRemove(superAgents, [&](SuperAgent &sa){
-    sa.update(box2d, sounds, maxJointForce, enableSound);
+    sa.update(box2d, maxJointForce);
     if (sa.shouldRemove == true) {
     }
     return sa.shouldRemove;
@@ -211,6 +185,12 @@ void ofApp::processOsc() {
     ofxOscMessage m;
     receiver.getNextMessage(m);
     
+    // ABLETON messages.
+    // Process these messages.
+    
+    
+    
+    // UI messages.
     if(m.getAddress() == "/interMesh/width"){
       float val = m.getArgAsFloat(0);
       cout << val << endl;
@@ -580,18 +560,6 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     // Create User Data
     j->joint->SetUserData(new SoundData());
   
-    // Play the sound. New joint made.
-    if (enableSound) {
-      auto data = (SoundData *) j -> joint -> GetUserData();
-      if (enableSound) {
-        // sounds.at(data->joinIdx) -> play();
-        // Send a midi note.
-        // Select a midi note
-        int note = data->midiNote;
-        Midi::instance().sendBondMakeMidi(note);
-      }
-    }
-  
     return j;
 }
 
@@ -615,23 +583,3 @@ void ofApp::handleSerial() {
         }
     }
 }
-
-
-
-  // Agent Level Checks
-  // 0
-  // Both the agents should be different.
-
-  // 1
-  // Does AgentA's colors match with AgentB's colors. Does the visual appearance match
-  // for both the agents to bond?
-
-  // 2
-  // Is AgentA bonded with anybody? If it's bonded with AgentB and itself, then keep going
-  // Is AgentB bonded with anybody? If it's bonded with AgentA and itself, then keep going
-
-  // Vertex level check
-  // 3
-  // If it's bonded to anything else except itself
-  // then it cannot bond.
-  // Two agents are not the same

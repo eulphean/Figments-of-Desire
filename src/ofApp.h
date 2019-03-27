@@ -10,7 +10,7 @@
 #include "Midi.h"
 #include "BgMesh.h"
 
-#define PORT 12345
+#define PORT 8000
 
 class ofApp : public ofBaseApp{
 
@@ -93,8 +93,6 @@ class ofApp : public ofBaseApp{
   
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
-    std::vector<std::shared_ptr<ofSoundPlayer>> sounds;
-  
     // Helper methods.
     void handleSerial();
     void processOsc();
