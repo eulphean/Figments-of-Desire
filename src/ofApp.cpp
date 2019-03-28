@@ -34,10 +34,6 @@ void ofApp::setup(){
   bounds.width = ofGetWidth() + (-1) * bounds.x * 2; bounds.height = ofGetHeight() + (-1) * 2 * bounds.y;
   box2d.createBounds(bounds);
   
-  // Setup fft.
-  fft.setup();
-  fft.setNormalize(true);
-  
   enableSound = true;
   
   // Instantiate Midi.
@@ -78,15 +74,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 //--------------------------------------------------------------
 void ofApp::update(){
   box2d.update();
-  fft.update();
   processOsc();
-  
-  // [NOTE] Disabling interaction briefly.
-  // Check for a clap.
-  // Heard a clap loud enough
-  if (fft.getMidVal() > 1.0 && fft.getHighVal() > 0.6) {
-    // If the sound is really high.... 
-  }
   
   //handleSerial();
   
@@ -97,15 +85,6 @@ void ofApp::update(){
     }
     return sa.shouldRemove;
   });
-  
-  if (mutateColors) {
-    for (auto &a: agents) {
-      if (a->getPartner() == NULL) {
-        a->mutateTexture();
-      }
-    }
-    mutateColors = false;
-  }
   
   // GUI props.
   updateAgentProps();
@@ -123,7 +102,6 @@ void ofApp::update(){
   createSuperAgents();
   
   // Update background
-  //bg.update(centroids);
   bg.updateWithVertices(meshes);
 }
 
@@ -131,23 +109,8 @@ void ofApp::update(){
 void ofApp::draw(){
   // Draw background. 
   bg.draw();
-
-  if (debug) {
-    ofPushStyle();
-      fft.drawBars();
-      fft.drawDebug();
-      fft.drawHistoryGraph(ofPoint(824,0), LOW);
-      fft.drawHistoryGraph(ofPoint(824,200),MID );
-      fft.drawHistoryGraph(ofPoint(824,400),HIGH );
-      fft.drawHistoryGraph(ofPoint(824,600),MAXSOUND );
-      ofDrawBitmapString("LOW",850,20);
-      ofDrawBitmapString("HIGH",850,420);
-      ofDrawBitmapString("MID",850,220);
-      ofDrawBitmapString("MAX VOLUME",850,620);
-    ofPopStyle();
-  }
   
-  // Draw the bounds
+  // Draw box2d bounds.
   ofPushStyle();
     ofSetColor(ofColor::fromHex(0x341517));
     ofFill();
@@ -155,22 +118,15 @@ void ofApp::draw(){
     ofDrawRectangle(0, ofGetHeight() - bounds.x, ofGetWidth(), bounds.x);
     ofDrawRectangle(ofGetWidth()-bounds.x, 0, bounds.x, ofGetHeight());
   ofPopStyle();
-  
-  for (auto j : newJoints) {
-    ofPushStyle();
-      ofSetColor(ofColor::red);
-      ofSetLineWidth(3);
-      j->draw();
-    ofPopStyle();
-  }
 
   // Draw all what's inside the super agents.
   for (auto sa: superAgents) {
     sa.draw();
   }
   
+  // Draw Agent is the virtual method for derived class. 
   for (auto a: agents) {
-    a -> draw(debug, showTexture);
+    a -> drawAgent(debug, showTexture);
   }
   
   // Health parameters
@@ -186,9 +142,8 @@ void ofApp::processOsc() {
     receiver.getNextMessage(m);
     
     // ABLETON messages.
-    // Process these messages.
-    
-    
+    // Process these OSC messages and based on which agent this needs to be delivered,
+    // we send the messages to that agent.
     
     // UI messages.
     if(m.getAddress() == "/interMesh/width"){
@@ -220,7 +175,7 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/interMesh/newMesh"){
       int val = m.getArgAsInt(0);
-      createAgent();
+      createAgents();
     }
     
     if(m.getAddress() == "/interMesh/clearScreen"){
@@ -259,10 +214,14 @@ void ofApp::updateAgentProps() {
   agentProps.jointPhysics = ofPoint(jointFrequency, jointDamping); // x (frequency), y (damping)
 }
 
-void ofApp::createAgent() {
-  Agent *a = new Agent();
-  a->setup(box2d, agentProps);
+void ofApp::createAgents() {
+  // Create Amay (0th index is Amay)
+  Amay *a = new Amay(box2d, agentProps);
   agents.push_back(a);
+  
+  // Create Azra (1st index is Azra)
+  Azra *b = new Azra(box2d, agentProps);
+  agents.push_back(b);
 }
 
 void ofApp::setupGui() {
@@ -371,7 +330,7 @@ void ofApp::keyPressed(int key){
   }
   
   if (key == 'n') {
-    createAgent(); 
+    createAgents(); 
   }
   
   if (key == 'c') {
@@ -393,10 +352,6 @@ void ofApp::keyPressed(int key){
     }
   }
   
-  if (key == 'm') { // Mutate
-    mutateColors = true;
-  }
-  
   if (key == 's') {
     enableSound = !enableSound;
   }
@@ -410,12 +365,6 @@ void ofApp::keyPressed(int key){
   }
 }
 
-void ofApp::mousePressed(int x, int y, int button) {
-//   for (auto &a: agents) {
-//    a -> setAttractionTarget(glm::vec2(x, y));
-//  }
-}
-
 void ofApp::exit() {
   box2d.disableEvents();
   gui.saveToFile("InterMesh.xml");
@@ -425,49 +374,19 @@ void ofApp::exit() {
 void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *agentB) {
   collidingBodies.clear();
   
-  // Visual similarly
-  bool isSimilar = hasVisualSimilarities(agentA, agentB);
-  if (isSimilar) {
-    // Is AgentA's partner AgentB
-    // Is AgentB's partner AgentA
-    if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
-          && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
-      // Vertex level checks. Is this vertex bonded to anything except itself?
-      bool a = canVertexBond(bodyA, agentA);
-      bool b = canVertexBond(bodyB, agentB);
-      if (a && b) {
-        // Prepare for bond.
-        collidingBodies.push_back(bodyA);
-        collidingBodies.push_back(bodyB);
-      }
+  // Is AgentA's partner AgentB
+  // Is AgentB's partner AgentA
+  if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
+        && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
+    // Vertex level checks. Is this vertex bonded to anything except itself?
+    bool a = canVertexBond(bodyA, agentA);
+    bool b = canVertexBond(bodyB, agentB);
+    if (a && b) {
+      // Prepare for bond.
+      collidingBodies.push_back(bodyA);
+      collidingBodies.push_back(bodyB);
     }
   }
-}
-
-bool ofApp::hasVisualSimilarities(Agent *agentA, Agent *agentB) {
-  // How many common colors are between the two arrays?
-  int commonColorsNum = 0;
-  int uncommonColorsNum = 0;
-  bool a; bool b;
-
-  auto colors = agentA -> colors;
-  for (int i = 0; i < colors.size(); i++) {
-    a = ofContains(agentA -> colorSlots, colors.at(i));
-    b = ofContains(agentB -> colorSlots, colors.at(i));
-    if (a & b) {
-      commonColorsNum++;
-    }
-
-    if (!a && !b) {
-      // Color isn't in a and b.
-    } else {
-      // It's in one but not the other.
-      uncommonColorsNum++;
-    }
-  }
-
-  // Should be some common and some uncommon colors.
-  return commonColorsNum >= 3 && uncommonColorsNum >= 2;
 }
 
 bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
@@ -577,9 +496,7 @@ void ofApp::handleSerial() {
         }
         else
         {
-            // If it's not the line feed character, add it to the buffer.
-            mutateColors = b - '0';
-            cout << "Replling: " << mutateColors << "\n";
+        
         }
     }
 }

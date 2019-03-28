@@ -4,8 +4,9 @@
 #include "ofxBox2d.h"
 #include "ofxGui.h"
 #include "Agent.h"
+#include "Amay.h"
+#include "Azra.h"
 #include "SuperAgent.h"
-#include "ofxProcessFFT.h"
 #include "ofxOsc.h"
 #include "Midi.h"
 #include "BgMesh.h"
@@ -20,7 +21,7 @@ class ofApp : public ofBaseApp{
 		void draw();
   
     void setupGui();
-    void createAgent();
+    void createAgents();
     void clearAgents();
     void updateAgentProps();
   
@@ -30,7 +31,6 @@ class ofApp : public ofBaseApp{
   
     // Interactive elements
 		void keyPressed(int key);
-    void mousePressed(int x, int y, int button); 
     void exit();
   
     bool hideGui;
@@ -89,10 +89,9 @@ class ofApp : public ofBaseApp{
     ofParameter<float> shaderScale;
 
   private:
-    bool mutateColors; 
-  
     std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
     std::vector<b2Body *> collidingBodies;
+  
     // Helper methods.
     void handleSerial();
     void processOsc();
@@ -104,7 +103,6 @@ class ofApp : public ofBaseApp{
     void createSuperAgents();
     std::shared_ptr<ofxBox2dJoint> createInterAgentJoint(b2Body *bodyA, b2Body *bodyB);
     void evaluateBonding(b2Body* bodyA, b2Body* bodyB, Agent *agentA, Agent *agentB);
-    bool hasVisualSimilarities(Agent *agentA, Agent *agentB);
     bool canVertexBond(b2Body* body, Agent *curAgent);
   
     // Serial
@@ -112,10 +110,6 @@ class ofApp : public ofBaseApp{
   
     // SuperAgents => These are abstract agents that have a bond with each other. 
     std::vector<SuperAgent> superAgents;
-    std::vector<std::shared_ptr<ofxBox2dJoint>> newJoints;
-  
-    // Audio analysis.
-    ProcessFFT fft;
   
     // Bounds
     ofRectangle bounds;

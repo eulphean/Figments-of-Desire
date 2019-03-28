@@ -8,7 +8,8 @@ struct AgentProperties {
   ofPoint meshDimensions; // row, columns of the mesh.
   ofPoint vertexPhysics;
   ofPoint jointPhysics;
-  ofPoint textureDimensions; // Use it when we have a texture. 
+  ofPoint textureDimensions; // Use it when we have a texture.
+  ofPoint meshOrigin; // Derived class populates this. 
   float vertexRadius;
 };
 
@@ -17,7 +18,11 @@ class Agent {
   public:
     void setup(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void update();
-    void draw(bool debug, bool showTexture);
+  
+    // Each agent must override this method to be able to draw itself.
+    virtual void drawAgent(bool debug, bool showTexture) {
+      cout << "Base class.. Should never be called." << endl;
+    }
   
     // Clean the agent
     void clean(ofxBox2d &box2d);
@@ -44,40 +49,25 @@ class Agent {
     ofMesh& getMesh();
     int getMaxInterAgentJoints();
   
-    // Color dimension of this agent.
-    std::vector<ofColor> colorSlots;
-    // Core colors.
-    std::array<ofColor, 8> colors = { ofColor::fromHex(0x5D3DFF), ofColor::fromHex(0xF48327), ofColor::fromHex(0xF72E57), ofColor::fromHex(0x7CC934),
-            ofColor::fromHex(0x2D3D30), ofColor::fromHex(0xFF6B6C), ofColor::fromHex(0xFFC145), ofColor::fromHex(0x064789) };
+    // Vertices
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
   
     // Partners
     Agent *getPartner();
     void setPartner(Agent *partner);
   
-    // Texture mutation
-    void mutateTexture();
-
+  protected:
+    ofMesh mesh;
+    void draw(bool debug, bool showTexture);
     
   private:
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void updateMesh();
   
-    // Colors
-    void populateSlots();
-    void createTexture(ofPoint meshSize);
-  
     // ----------------- Data members -------------------
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
-    ofMesh mesh;
-  
-    // Agent texture.
-    const int maxSlots = 8; // Number of slots.
-    ofFbo fbo;
-    vector<AbstractFilter *>  _filters;
-    int _currentFilter = 0;
-  
+    
     // Partner agent
     Agent *partner = NULL;
   

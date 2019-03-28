@@ -1,14 +1,6 @@
 #include "Agent.h"
 
-void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
-  // Post-process
-  _filters.push_back(new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y));
-  _filters.push_back(new PixelateFilter(agentProps.meshSize.x, agentProps.meshSize.y));
-  
-  // Populate color slots.
-  populateSlots();
-  createTexture(agentProps.meshSize); // Design the look of this creature.
-  
+void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {  
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
@@ -70,14 +62,7 @@ void Agent::draw(bool debug, bool showTexture) {
     }
   ofPopStyle();
   
-  if (showTexture) {
-    // Bind the fbo.
-    _filters[_currentFilter]->begin();
-    fbo.getTexture().bind();
-    mesh.draw();
-    fbo.getTexture().unbind();
-    _filters[_currentFilter]->end();
-  } else {
+  if (!showTexture) {
     ofPushStyle();
     for(auto j: joints) {
       ofPushMatrix();
@@ -115,44 +100,30 @@ void Agent::clean(ofxBox2d &box2d) {
   joints.clear();
   vertices.clear();
 }
+//
+//void Agent::createTexture(ofPoint meshSize) {
+////  // Create a simple fbo. 
+////  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+////  fbo.begin();
+////    ofClear(0, 0, 0, 0);
+////    ofColor c = ofColor(colorSlots.at(0), 200);
+////    ofBackground(c);
+////    const int firstRecs = 1; // Biased towards later colors
+////    // Create the slots in the fbo.
+////    for (int i = 0; i < maxSlots; i++) {
+////      //int numRecs = firstRecs * (i+1);
+////      int numRecs = 100;
+////      ofSetColor(colorSlots.at(i));
+////      for (int j = 0; j < numRecs; j++) {
+////        auto x = ofRandom(0, fbo.getWidth());
+////        auto y = ofRandom(0, fbo.getHeight());
+////        //ofDrawRectangle(x, y, x+ofRandom(10, 15), y+ofRandom(10, 15));
+////        ofDrawCircle(x, y, 10);
+////      }
+////    }
+////  fbo.end();
+//}
 
-void Agent::createTexture(ofPoint meshSize) {
-  // Create a simple fbo. 
-  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
-  fbo.begin();
-    ofClear(0, 0, 0, 0);
-    ofColor c = ofColor(colorSlots.at(0), 200);
-    ofBackground(c);
-    const int firstRecs = 1; // Biased towards later colors
-    // Create the slots in the fbo.
-    for (int i = 0; i < maxSlots; i++) {
-      //int numRecs = firstRecs * (i+1);
-      int numRecs = 100;
-      ofSetColor(colorSlots.at(i));
-      for (int j = 0; j < numRecs; j++) {
-        auto x = ofRandom(0, fbo.getWidth());
-        auto y = ofRandom(0, fbo.getHeight());
-        //ofDrawRectangle(x, y, x+ofRandom(10, 15), y+ofRandom(10, 15));
-        ofDrawCircle(x, y, 10);
-      }
-    }
-  fbo.end();
-}
-
-void Agent::mutateTexture() {
-  // Populate slots again
-  populateSlots();
-  ofPoint p = ofPoint(fbo.getWidth(), fbo.getHeight());
-  createTexture(p);
-}
-
-void Agent::populateSlots() {
-  colorSlots.clear();
-  for (int i = 0; i < maxSlots; i++) {
-    int randIdx = ofRandom(colors.size());
-    colorSlots.push_back(colors.at(randIdx));
-  }
-}
 
 void Agent::applyBehaviors() {
   // ----Current actions/behaviors---
@@ -170,7 +141,6 @@ void Agent::handleSeek() {
   
   // New target? Add an impulse in that direction.
   if (applySeek) {
-    cout << "Picked a new target.." << endl;
     // seek()
     for (auto &v: vertices) {
         v->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
@@ -205,7 +175,6 @@ void Agent::handleStretch() {
   }
   
   if (applyStretch) {
-    cout << "Stretching.." << endl;
     // Apply force away from centroid on some of the vertices.
     for (auto &v : vertices) {
       if (ofRandom(1) < 0.2) {
@@ -235,7 +204,6 @@ void Agent::handleTickle() {
 
   // Random force/ Force all vertices.
   if (applyTickle) {
-    cout << "Tickling.." << endl;
     // force()
     for (auto &v: vertices) {
       glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
@@ -259,7 +227,6 @@ void Agent::handleRepulsion() {
   }
   
    if (applyRepulsion) {
-    cout << "Repulsing.." << endl;
     for (auto &v: vertices) {
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
       v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
@@ -310,17 +277,7 @@ Agent *Agent::getPartner() {
   return partner;
 }
 
-void Agent::nextFilter() {
-  _currentFilter ++;
-  if (_currentFilter>=_filters.size()) _currentFilter = 0;
-}
-
 void Agent::createMesh(AgentProperties agentProps) {
-  //auto a = ofRandom(50, ofGetWidth() - 50); auto b = ofRandom(50, ofGetHeight() - 50);
-  //auto a = ofPoint(ofRandom(60, 100), ofGetHeight() - agentProps.meshSize.y * ofRandom(2, 5));
-  auto a = ofPoint(150, ofGetHeight()/3);
-  auto meshOrigin = glm::vec2(a.x, a.y);
-  
   mesh.clear();
   mesh.setMode(OF_PRIMITIVE_TRIANGLES);
   
@@ -332,17 +289,17 @@ void Agent::createMesh(AgentProperties agentProps) {
   int w = agentProps.meshSize.x;
   int h = agentProps.meshSize.y;
   
-  auto texture = fbo.getTexture();
   // Create the mesh.
   for (int y = 0; y < nRows; y++) {
     for (int x = 0; x < nCols; x++) {
-      float ix = meshOrigin.x + w * x / (nCols - 1);
-      float iy = meshOrigin.y + h * y / (nRows - 1);
+      float ix = agentProps.meshOrigin.x + w * x / (nCols - 1);
+      float iy = agentProps.meshOrigin.y + h * y / (nRows - 1);
      
       mesh.addVertex({ix, iy, 0});
       
-      float texX = ofMap(ix - meshOrigin.x, 0, fbo.getTexture().getWidth(), 0, 1, true); // Map the calculated x coordinate from 0 - 1
-      float texY = ofMap(iy - meshOrigin.y, 0, fbo.getTexture().getHeight(), 0, 1, true); // Map the calculated y coordinate from 0 - 1
+      // Height and Width of the texture is same as the width/height sent in via agentProps
+      float texX = ofMap(ix - agentProps.meshOrigin.x, 0, w, 0, 1, true); // Map the calculated x coordinate from 0 - 1
+      float texY = ofMap(iy - agentProps.meshOrigin.y, 0, h, 0, 1, true); // Map the calculated y coordinate from 0 - 1
       mesh.addTexCoord({texX, texY});
     }
   }
@@ -432,25 +389,3 @@ void Agent::updateMesh() {
     mesh.setVertex(j, meshPoint);
   }
 }
-
-
-//  // Initiate a repel on all the vertices and then stop.
-//  // Repulsion impulse and then stop.
-//  if (repelTarget) {
-//    if (ofGetElapsedTimeMillis() - repelTotalTimer < 20000) {
-//      if (ofGetElapsedTimeMillis() - repelIntervalTimer > 2000) {
-//        // Repel and reset time
-//        cout << "Repulsion" << endl;
-//        for (auto &v: vertices) {
-//          auto pos = glm::vec2(repelTargetAgent->getCentroid().x, repelTargetAgent->getCentroid().y);
-//          v->addRepulsionForce(pos.x, pos.y, 2.0);
-//        }
-//        repelIntervalTimer = ofGetElapsedTimeMillis(); // Reset timer
-//      }
-//    } else {
-//      repelTarget = false;
-//      // Check if we are still connected???
-//      // Need to do that check somewhere..
-//      repelTotalTimer = ofGetElapsedTimeMillis();
-//    }
-//  }
