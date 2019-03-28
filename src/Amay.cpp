@@ -34,10 +34,8 @@ void Amay::createTexture(ofPoint meshSize) {
     ofClear(0, 0, 0, 0);
     ofColor c = ofColor(colorSlots.at(0), 200);
     ofBackground(c);
-    const int firstRecs = 1; // Biased towards later colors
     // Create the slots in the fbo.
     for (int i = 0; i < maxSlots; i++) {
-      //int numRecs = firstRecs * (i+1);
       int numRecs = 100;
       ofSetColor(colorSlots.at(i));
       for (int j = 0; j < numRecs; j++) {
@@ -56,9 +54,11 @@ void Amay::drawAgent(bool debug, bool showTexture) {
 
   // Draw the mesh.
   // Bind the fbo.
-  _filters[_currentFilter]->begin();
-  fbo.getTexture().bind();
-  mesh.draw();
-  fbo.getTexture().unbind();
-  _filters[_currentFilter]->end();
+  if (showTexture) {
+    _filters[_currentFilter]->begin();
+    fbo.getTexture().bind();
+    mesh.draw();
+    fbo.getTexture().unbind();
+    _filters[_currentFilter]->end();
+  }
 }
