@@ -48,8 +48,6 @@ void BgMesh::updateWithVertices(std::vector<ofMesh> agentMeshes) {
   for (auto m : agentMeshes) {
     auto vertices = m.getVertices();
     std::vector<glm::vec2> randVertices;
-//    randVertices.push_back(vertices[0]);
-////    randVertices.push_back(vertices[vertices.size() - 1]);
    randVertices.push_back(vertices[vertices.size()/2 -1]);
     for (auto v : randVertices) {
       for (int i = 0; i < mesh.getVertices().size(); i++) {
@@ -64,9 +62,6 @@ void BgMesh::updateWithVertices(std::vector<ofMesh> agentMeshes) {
     auto newVertex = meshCopy.getVertices()[i] + offsets.at(i);
     mesh.setVertex(i, {newVertex.x, newVertex.y, 0});
   }
-  
-//    auto s = bgParams.getFloat("Scale");
-//  filter->updateParameter("scale", s);
 }
 
 void BgMesh::update(std::vector<glm::vec2> centroids) {
@@ -105,12 +100,6 @@ glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
   int displacement = ofMap(distanceToCentroid, 0, 800, attraction, -repulsion, true);
   
   return displacement * normal;
-
-//  // Move the new vertex in the direction of the normal.
-//  glm::vec2 newVertex = meshVertex + displacement * normal;
-//
-//  // Update the mesh vertex.
-//  mesh.setVertex(vIdx, {newVertex.x, newVertex.y, 0});
 }
 
 void BgMesh::draw() {
