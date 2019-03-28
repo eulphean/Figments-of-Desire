@@ -57,14 +57,16 @@ class Agent {
   
     // Texture
     void createTexture(ofPoint meshSize);
+    ofPoint getTextureSize();
   
-  
+    // Pubic iterator to access messages. 
+    std::vector<Message>::iterator it;
+    std::vector<Message> messages;
   
   protected:
     // Derived class needs to have access to these. 
     int numMessages;
     std::vector<ofColor> palette;
-    std::vector<Message> messages;
     AbstractFilter * filter;
     
   private:

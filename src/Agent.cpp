@@ -31,12 +31,18 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   // Set counters. Every agent must have different counters, thus they are
   // assigned randomly. These could be in the DNA, so the agent mutates
   // based on some interval (TODO, think).
-  maxTickleCounter = ofRandom(50, 100);
-  maxStretchCounter = ofRandom(150, 220);
+  maxTickleCounter = ofRandom(50, 80);
+  maxStretchCounter = ofRandom(100, 1500);
   maxRepulsionCounter = ofRandom(400, 500);
   maxBondCounter = ofRandom(700, 1000);
   
+  curRepulsionCounter = maxRepulsionCounter;
+  curStretchCounter = 0; 
+  
   maxInterAgentJoints = ofRandom(1, vertices.size());
+  
+  // Initialize the iterator.
+  it = messages.begin();
 }
 
 void Agent::update() {
@@ -96,6 +102,10 @@ void Agent::draw(bool debug, bool showTexture) {
   }
 }
 
+ofPoint Agent::getTextureSize() {
+  return ofPoint(fbo.getWidth(), fbo.getHeight());
+}
+
 void Agent::clean(ofxBox2d &box2d) {
   // Remove joints.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j){
@@ -140,7 +150,7 @@ void Agent::createTexture(ofPoint meshSize) {
     ofClear(0, 0, 0, 0);
   
     // Assign background.
-    ofColor c = ofColor(palette.at(2), 200);
+    ofColor c = ofColor(palette.at(0), 200);
     ofBackground(c);
   
     // Draw assigned messages.

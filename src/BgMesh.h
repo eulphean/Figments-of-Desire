@@ -5,7 +5,7 @@
 class BgMesh {
   public:
     BgMesh() {
-      filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(),11.f);
+      filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(), 35.f);
     }
   
     void setParams(ofParameterGroup params);

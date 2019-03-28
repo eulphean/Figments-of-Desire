@@ -9,7 +9,6 @@ class Message {
     Message(glm::vec2 loc, ofColor col, float s);
     void draw();
   
-  private:
     glm::vec2 location;
     ofColor color;
     float size;

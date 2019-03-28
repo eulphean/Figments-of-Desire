@@ -4,6 +4,8 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   agentA = agent1;
   agentB = agent2;
   joints.push_back(joint);
+  maxExchangeCounter = 50;
+  curExchangeCounter = 0;
 }
 
 void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
@@ -24,6 +26,43 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
     agentA -> setPartner(NULL);
     agentB -> setPartner(NULL);
     shouldRemove = true;
+  } else {
+    // When it's a super agent, that means it's bonded.
+    // Check if it's ready to swap messages.
+    
+    if (curExchangeCounter <= 0) {
+      auto& aMessage = agentA -> it;
+      auto& bMessage = agentB -> it;
+      Message swap = Message(aMessage->location, aMessage->color, aMessage->size);
+      
+      // Assign A message
+      aMessage->color = bMessage->color;
+      aMessage->size = bMessage->size;
+      
+      // Assign B message
+      bMessage->color = swap.color;
+      bMessage->size = swap.size;
+      
+      // Increment iterators
+      if (aMessage == agentA -> messages.end()) {
+        aMessage = agentA -> messages.begin();
+      } else {
+        aMessage++;
+      }
+      
+      if (bMessage == agentB -> messages.end()) {
+        bMessage = agentB -> messages.begin();
+      } else {
+        bMessage++;
+      }
+      
+      agentA -> createTexture(agentA -> getTextureSize());
+      agentB -> createTexture(agentB -> getTextureSize());
+      
+      curExchangeCounter = maxExchangeCounter;
+    } else {
+      curExchangeCounter -= 1;
+    }
   }
 }
 
@@ -62,6 +101,3 @@ void SuperAgent::clean(ofxBox2d &box2d) {
   
   joints.clear();
 }
-
-//
-//abs(force.length()) > maxJointForce

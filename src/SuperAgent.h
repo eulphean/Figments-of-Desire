@@ -18,6 +18,9 @@ class SuperAgent {
     Agent *agentB;
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints;  // These are interAgent joints.
     bool shouldRemove = false;
+  
+    float curExchangeCounter;
+    float maxExchangeCounter;
 };
 
 // Sound data for the joint interAgentJoint.
