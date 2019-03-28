@@ -19,7 +19,7 @@
 	<InterAgentJoint_Params>
 		<Joint_Frequency>3</Joint_Frequency>
 		<Joint_Damping>4</Joint_Damping>
-		<Max_Joint_Force>48</Max_Joint_Force>
+		<Max_Joint_Force>18</Max_Joint_Force>
 	</InterAgentJoint_Params>
 	<Background_Params>
 		<Width>50</Width>
