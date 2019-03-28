@@ -7,7 +7,7 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   agentProps.meshOrigin = ofPoint(10, 20);
   
   // Assign a color palette
-  palette = { ofColor::fromHex(0x5D3DFF), ofColor::fromHex(0xF48327), ofColor::fromHex(0xF72E57), ofColor::fromHex(0x7CC934), ofColor::fromHex(0x2D3D30), ofColor::fromHex(0xFF6B6C), ofColor::fromHex(0xFFC145), ofColor::fromHex(0x064789) };
+  palette = { ofColor::fromHex(0x141414), ofColor::fromHex(0x662121), ofColor::fromHex(0xA87300), ofColor::fromHex(0x39AA08), ofColor::fromHex(0x5AAAAA) };
   
   // Messages
   this->numMessages = 600;

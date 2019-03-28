@@ -30,9 +30,11 @@ class Agent {
     void handleRepulsion();
     void handleStretch();
     void handleTickle();
+    void handleBondState();
+    bool canBond();
   
     // Enabling behaviors
-    void setSeekTarget(glm::vec2 target);
+    void setSeekTarget();
     void setTickle(float weight);
     void setStretch(float weight);
     void setRepulsionTarget(Agent *target, int targetAgentId);
@@ -102,6 +104,10 @@ class Agent {
     float repulsionWeight;
     float curRepulsionCounter;
     float maxRepulsionCounter;
+  
+    // Bond timers.
+    float curBondCounter = 0; 
+    float maxBondCounter; 
   
     // Perception
     int targetPerceptionRad;

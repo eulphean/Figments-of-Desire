@@ -6,7 +6,7 @@ Azra::Azra(ofxBox2d &box2d, AgentProperties agentProps) {
   agentProps.meshOrigin = p;
   
   // Color palette
-  palette = { ofColor::fromHex(0x064789), ofColor::fromHex(0xF48327), ofColor::fromHex(0xF72E57), ofColor::fromHex(0x7CC934), ofColor::fromHex(0x2D3D30), ofColor::fromHex(0xFF6B6C), ofColor::fromHex(0xFFC145), ofColor::fromHex(0x5D3DFF) }; 
+  palette = { ofColor::fromHex(0xEDF67D), ofColor::fromHex(0xFC6DAB), ofColor::fromHex(0xC04CFD), ofColor::fromHex(0x724CF9), ofColor::fromHex(0x3F388C) }; 
   
   this->numMessages = 550;
   setup(box2d, agentProps);

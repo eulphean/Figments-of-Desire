@@ -39,7 +39,7 @@ void ofApp::setup(){
   // Instantiate Midi.
   Midi::instance().setup();
   
-  serial.setup("/dev/cu.usbmodem1411", 9600);
+  serial.setup("/dev/cu.usb modem1411", 9600);
   
   // Store params and create background. 
   bg.setParams(bgParams);
@@ -144,6 +144,34 @@ void ofApp::processOsc() {
     // ABLETON messages.
     // Process these OSC messages and based on which agent this needs to be delivered,
     // we send the messages to that agent.
+    // They all correspond to some behavior.
+    
+    if(m.getAddress() == "/Back1"){
+      float val = m.getArgAsFloat(0);
+      for (auto &a : agents) {
+        a -> setTickle(5.0);
+      }
+    }
+    
+    if(m.getAddress() == "/Back2"){
+      float val = m.getArgAsFloat(0);
+      for (auto &a : agents) {
+        a -> setStretch(3.0 );
+      }
+    }
+    
+    if(m.getAddress() == "/Bell"){
+      float val = m.getArgAsFloat(0);
+      for (auto &a : agents) {
+        a -> setSeekTarget();
+      }
+//      cout << "Back 2" << endl;
+    }
+    
+    if(m.getAddress() == "/Melody"){
+      float val = m.getArgAsFloat(0);
+//      cout << val << endl;
+    }
     
     // UI messages.
     if(m.getAddress() == "/interMesh/width"){
@@ -433,36 +461,37 @@ void ofApp::updateForce(int & newVal) {
 void ofApp::createSuperAgents() {
   // Joint creation based on when two bodies collide at certain vertices.
   if (collidingBodies.size()>0) {
-    auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
-    auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
-
-    SuperAgent superAgent; bool found = false;
-    std::shared_ptr<ofxBox2dJoint> j;
-    // Check for existing joints.
-    for (auto &sa : superAgents) {
-      if (sa.contains(agentA, agentB)) {
-        int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
-        
-        //int maxJoints = 4;
-        if (sa.joints.size() < maxJoints) {
-          j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-          sa.joints.push_back(j);
-          found = true;
-        } else {
-          found = true;
+      auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
+      auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
+    
+      // If both the agents have that state, then they'll bond.
+      SuperAgent superAgent; bool found = false;
+      std::shared_ptr<ofxBox2dJoint> j;
+      // Check for existing joints.
+      for (auto &sa : superAgents) {
+        if (sa.contains(agentA, agentB)) {
+          int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
+          
+          //int maxJoints = 4;
+          if (sa.joints.size() < maxJoints) {
+            j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+            sa.joints.push_back(j);
+            found = true;
+          } else {
+            found = true;
+          }
         }
       }
-    }
     
-    if (!found) {
-      j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-      superAgent.setup(agentA, agentB, j); // Create a new super agent.
-      superAgents.push_back(superAgent);
-      agentA -> setPartner(agentB);
-      agentB -> setPartner(agentA);
-    }
+      if (!found) {
+        j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+        superAgent.setup(agentA, agentB, j); // Create a new super agent.
+        superAgents.push_back(superAgent);
+        agentA -> setPartner(agentB);
+        agentB -> setPartner(agentA);
+      }
     
-    collidingBodies.clear();
+      collidingBodies.clear();
   }
 }
 

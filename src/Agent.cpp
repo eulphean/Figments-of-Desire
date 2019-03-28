@@ -17,10 +17,10 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
   
   // Force weights for various body actions..
-  seekWeight = 0.2;
+  seekWeight = 0.4;
   tickleWeight = 2.5;
   stretchWeight = 1.5;
-  repulsionWeight = 1.0;
+  repulsionWeight = 0.5;
   
   // These are actions. But, what are the desires?
   applyStretch = true;
@@ -32,8 +32,9 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
   // assigned randomly. These could be in the DNA, so the agent mutates
   // based on some interval (TODO, think).
   maxTickleCounter = ofRandom(50, 100);
-  maxStretchCounter = ofRandom(100, 200);
-  maxRepulsionCounter = ofRandom(200, 300);
+  maxStretchCounter = ofRandom(150, 220);
+  maxRepulsionCounter = ofRandom(400, 500);
+  maxBondCounter = ofRandom(700, 1000);
   
   maxInterAgentJoints = ofRandom(1, vertices.size());
 }
@@ -139,7 +140,7 @@ void Agent::createTexture(ofPoint meshSize) {
     ofClear(0, 0, 0, 0);
   
     // Assign background.
-    ofColor c = ofColor(palette.at(0), 200);
+    ofColor c = ofColor(palette.at(2), 200);
     ofBackground(c);
   
     // Draw assigned messages.
@@ -155,6 +156,16 @@ void Agent::applyBehaviors() {
   handleSeek();
   handleStretch();
   handleRepulsion();
+  handleBondState();
+}
+
+void Agent::handleBondState() {
+  if (curBondCounter <= -maxBondCounter) {
+    // Reset bond counter. 
+    curBondCounter = maxBondCounter;
+  } else {
+    curBondCounter = curBondCounter - 0.5;
+  }
 }
 
 void Agent::handleSeek() {
@@ -166,40 +177,20 @@ void Agent::handleSeek() {
   // New target? Add an impulse in that direction.
   if (applySeek) {
     // seek()
-    for (auto &v: vertices) {
-        v->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
-        v->setRotation(ofRandom(180, 360));
-    }
+    
+    vertices[0]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
+    vertices[0]->setRotation(ofRandom(180, 360));
+    
+    vertices[vertices.size()-1]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
+    vertices[vertices.size()-1]->setRotation(ofRandom(180, 360));
+    
     applySeek = false;
-  }
-  
-  // Pick a new target location once it starts slowing down.
-  glm::vec2 avgVel;
-  for (auto v : vertices) {
-    avgVel += glm::vec2(v->getVelocity().x, v->getVelocity().y);
-  }
-  avgVel = avgVel/vertices.size();
-  
-  // Pick a new target when the agent has really slowed down. Is this really what I want?
-  if (abs(avgVel.g) < 0.05 && !applySeek) {
-    // Calculate a new target position.
-    auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
-    seekTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
-    applySeek = true;
   }
 }
 
 void Agent::handleStretch() {
-  // Check for stretch counter
-  if (curStretchCounter <= 0) { // Time to apply a stretch.
-    applyStretch = true;
-    curStretchCounter = maxStretchCounter;
-  } else {
-    curStretchCounter -= 0.5;
-  }
-  
-  if (applyStretch) {
-    // Apply force away from centroid on some of the vertices.
+  // Check for counter.
+  if (curStretchCounter <= 0 && applyStretch) { // Time to apply a stretch.
     for (auto &v : vertices) {
       if (ofRandom(1) < 0.2) {
         v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
@@ -208,32 +199,31 @@ void Agent::handleStretch() {
       }
       v->setRotation(ofRandom(150));
     }
+    curStretchCounter = maxStretchCounter;
     applyStretch = false;
+  } else {
+    curStretchCounter -= 1.0;
   }
 }
 
 void Agent::handleTickle() {
   // No tickling if the agent has a partner.
-  if (partner == NULL) {
-    return;
-  }
-  
-  // Check for tickle counter.
-  if (curTickleCounter <= 0) {
-    applyTickle = true;
-    curTickleCounter = maxTickleCounter;
-  } else {
-    curTickleCounter -= 0.5;
-  }
-
-  // Random force/ Force all vertices.
-  if (applyTickle) {
-    // force()
+//  if (partner == NULL) {
+//    return;
+//  }
+//  
+  // Does the agent want to tickle? Check with counter conditions.
+  if (curTickleCounter <= 0 && applyTickle == true) {
+    // Apply the tickle.
     for (auto &v: vertices) {
       glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
       v -> addForce(force, tickleWeight);
     }
+    
+    curTickleCounter = maxTickleCounter;
     applyTickle = false;
+  } else {
+    curTickleCounter -= 0.5;
   }
 }
 
@@ -247,7 +237,7 @@ void Agent::handleRepulsion() {
     applyRepulsion = true;
     curRepulsionCounter = maxRepulsionCounter;
   } else {
-    curRepulsionCounter -= 0.5;
+    curRepulsionCounter -= 1.0;
   }
   
    if (applyRepulsion) {
@@ -257,6 +247,12 @@ void Agent::handleRepulsion() {
     }
     applyRepulsion = false;
    }
+}
+
+bool Agent::canBond() {
+  return curBondCounter >= 0;
+  
+  // If bondCounter is < 0, agent doesn't want to bond.
 }
 
 int Agent::getMaxInterAgentJoints() {
@@ -271,9 +267,21 @@ ofMesh& Agent::getMesh() {
   return mesh;
 }
 
-void Agent::setSeekTarget(glm::vec2 target) {
-  seekTargetPos = target;
-  applySeek = true;
+void Agent::setSeekTarget() {
+  // Pick a new target location once it starts slowing down.
+  glm::vec2 avgVel;
+  for (auto v : vertices) {
+    avgVel += glm::vec2(v->getVelocity().x, v->getVelocity().y);
+  }
+  avgVel = avgVel/vertices.size();
+  
+  // Pick a new target when the agent has really slowed down. Is this really what I want?
+  if (abs(avgVel.g) < 0.5 && !applySeek) {
+    // Calculate a new target position.
+    auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
+    seekTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
+    applySeek = true;
+  }
 }
 
 void Agent::setTickle(float avgForceWeight) {

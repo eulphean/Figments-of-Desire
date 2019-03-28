@@ -10,11 +10,10 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
   // Max Force based on which the joint breaks.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     auto force = j->getReactionForce(ofGetElapsedTimef());
-    if (abs(force.length()) > maxJointForce) {
-      auto data = (SoundData *) j -> joint -> GetUserData();
+    // Both AgentA and AgentB want to break the bonds?
+    // Then Break it. 
+    if (!agentA -> canBond() && !agentB -> canBond()) {
       box2d.getWorld()->DestroyJoint(j->joint);
-      // Trigger the break sound here.
-      
       return true;
     } else {
       return false;
@@ -63,3 +62,6 @@ void SuperAgent::clean(ofxBox2d &box2d) {
   
   joints.clear();
 }
+
+//
+//abs(force.length()) > maxJointForce
