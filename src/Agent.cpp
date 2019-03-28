@@ -1,6 +1,11 @@
 #include "Agent.h"
 
-void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {  
+void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
+  // Prepare the agent's texture.
+  assignMessages(agentProps.meshSize);
+  createTexture(agentProps.meshSize);
+  
+  // Prepare agent's mesh.
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
@@ -62,7 +67,13 @@ void Agent::draw(bool debug, bool showTexture) {
     }
   ofPopStyle();
   
-  if (!showTexture) {
+  if (showTexture) {
+    filter->begin();
+    fbo.getTexture().bind();
+    mesh.draw();
+    fbo.getTexture().unbind();
+    filter->end();
+  } else {
     ofPushStyle();
     for(auto j: joints) {
       ofPushMatrix();
@@ -100,30 +111,43 @@ void Agent::clean(ofxBox2d &box2d) {
   joints.clear();
   vertices.clear();
 }
-//
-//void Agent::createTexture(ofPoint meshSize) {
-////  // Create a simple fbo. 
-////  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
-////  fbo.begin();
-////    ofClear(0, 0, 0, 0);
-////    ofColor c = ofColor(colorSlots.at(0), 200);
-////    ofBackground(c);
-////    const int firstRecs = 1; // Biased towards later colors
-////    // Create the slots in the fbo.
-////    for (int i = 0; i < maxSlots; i++) {
-////      //int numRecs = firstRecs * (i+1);
-////      int numRecs = 100;
-////      ofSetColor(colorSlots.at(i));
-////      for (int j = 0; j < numRecs; j++) {
-////        auto x = ofRandom(0, fbo.getWidth());
-////        auto y = ofRandom(0, fbo.getHeight());
-////        //ofDrawRectangle(x, y, x+ofRandom(10, 15), y+ofRandom(10, 15));
-////        ofDrawCircle(x, y, 10);
-////      }
-////    }
-////  fbo.end();
-//}
 
+void Agent::assignMessages(ofPoint meshSize) {
+  // Number of messages.
+  for (int i = 0; i < numMessages; i++) {
+    // Pick a random location on the mesh.
+    int w = meshSize.x; int h = meshSize.y;
+    auto x = ofRandom(0, w); auto y = ofRandom(0, h);
+    
+    // Pick a random color for the message.
+    int idx = ofRandom(0, palette.size());
+    ofColor c = ofColor(palette.at(idx));
+    
+    // Pick a random size (TOOD: Based off on the length of the message).
+    int size = ofRandom(10, 25);
+    
+    // Create a message.
+    Message m = Message(glm::vec2(x, y), c, size);
+    messages.push_back(m);
+  }
+}
+
+void Agent::createTexture(ofPoint meshSize) {
+  // Create a simple fbo.
+  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+  fbo.begin();
+    ofClear(0, 0, 0, 0);
+  
+    // Assign background.
+    ofColor c = ofColor(palette.at(0), 200);
+    ofBackground(c);
+  
+    // Draw assigned messages.
+    for (auto m : messages) {
+      m.draw();
+    }
+  fbo.end();
+}
 
 void Agent::applyBehaviors() {
   // ----Current actions/behaviors---

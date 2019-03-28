@@ -173,6 +173,7 @@
 		F9D73FAB2244C8560004B176 /* BgMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAA2244C8560004B176 /* BgMesh.cpp */; };
 		F9D73FB0224B57770004B176 /* Amay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAC224B57770004B176 /* Amay.cpp */; };
 		F9D73FB1224B57770004B176 /* Azra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FAE224B57770004B176 /* Azra.cpp */; };
+		F9D73FB6224C70AE0004B176 /* Message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9D73FB4224C70AE0004B176 /* Message.cpp */; };
 		FA0BBE176778E31F22416E56 /* CGAColorspaceFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB3299330EDA105F196B9FAB /* CGAColorspaceFilter.cpp */; };
 		FA7300BAC71DAC1ABAF6EE15 /* b2Fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 774DDD1B3F05D3FDF0D37794 /* b2Fixture.cpp */; };
 		FB0C5E9247855598AD76F101 /* ThresholdedNonMaximumSuppressionFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C769559240676D67F72858CE /* ThresholdedNonMaximumSuppressionFilter.cpp */; };
@@ -748,6 +749,8 @@
 		F9D73FAD224B57770004B176 /* Amay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Amay.h; sourceTree = "<group>"; };
 		F9D73FAE224B57770004B176 /* Azra.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Azra.cpp; sourceTree = "<group>"; };
 		F9D73FAF224B57770004B176 /* Azra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Azra.h; sourceTree = "<group>"; };
+		F9D73FB4224C70AE0004B176 /* Message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Message.cpp; sourceTree = "<group>"; };
+		F9D73FB5224C70AE0004B176 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		FA784162B6A8E3A77BBE4D6C /* b2TimeStep.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = b2TimeStep.h; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/b2TimeStep.h; sourceTree = SOURCE_ROOT; };
 		FD20B1FFE795860DB1C68BF2 /* b2ChainAndCircleContact.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = b2ChainAndCircleContact.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1692,6 +1695,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F9D73FB4224C70AE0004B176 /* Message.cpp */,
+				F9D73FB5224C70AE0004B176 /* Message.h */,
 				F9D73FB3224C52330004B176 /* Midi */,
 				F9D73FB2224C520F0004B176 /* Agents */,
 				F9D73FAA2244C8560004B176 /* BgMesh.cpp */,
@@ -2025,6 +2030,7 @@
 				483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */,
 				F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */,
 				837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */,
+				F9D73FB6224C70AE0004B176 /* Message.cpp in Sources */,
 				B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */,
 				1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */,
 				63D0FD8734D5760B8080C901 /* RtMidi.cpp in Sources */,

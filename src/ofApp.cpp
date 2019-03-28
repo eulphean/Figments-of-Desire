@@ -126,7 +126,7 @@ void ofApp::draw(){
   
   // Draw Agent is the virtual method for derived class. 
   for (auto a: agents) {
-    a -> drawAgent(debug, showTexture);
+    a -> draw(debug, showTexture);
   }
   
   // Health parameters

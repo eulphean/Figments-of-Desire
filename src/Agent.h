@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxFilterLibrary.h"
+#include "Message.h"
 
 struct AgentProperties {
   ofPoint meshSize; // w, h of the mesh.
@@ -18,11 +19,7 @@ class Agent {
   public:
     void setup(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void update();
-  
-    // Each agent must override this method to be able to draw itself.
-    virtual void drawAgent(bool debug, bool showTexture) {
-      cout << "Base class.. Should never be called." << endl;
-    }
+    void draw(bool debug, bool showTexture);
   
     // Clean the agent
     void clean(ofxBox2d &box2d);
@@ -56,11 +53,20 @@ class Agent {
     Agent *getPartner();
     void setPartner(Agent *partner);
   
+    // Texture
+    void createTexture(ofPoint meshSize);
+  
+  
+  
   protected:
-    ofMesh mesh;
-    void draw(bool debug, bool showTexture);
+    // Derived class needs to have access to these. 
+    int numMessages;
+    std::vector<ofColor> palette;
+    std::vector<Message> messages;
+    AbstractFilter * filter;
     
   private:
+    void assignMessages(ofPoint meshSize);
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void updateMesh();
@@ -68,8 +74,11 @@ class Agent {
     // ----------------- Data members -------------------
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
     
-    // Partner agent
+    // Partner agent.
     Agent *partner = NULL;
+  
+    // Mesh.
+    ofMesh mesh;
   
     // Seek
     glm::vec2 seekTargetPos;
@@ -99,8 +108,8 @@ class Agent {
     // Max InterAgent joints for each agent
     int maxInterAgentJoints;
   
-    // ------------------- Desires ----------------------
-    // THINK WHAT THE DESIRES ARE
+    // Texture
+    ofFbo fbo; 
 };
 
 // Data Structure to hold a pointer to the agent instance
