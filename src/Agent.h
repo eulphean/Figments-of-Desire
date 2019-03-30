@@ -17,7 +17,7 @@ struct AgentProperties {
 // Subsection body that is torn apart from the actual texture and falls on the ground. 
 class Agent {
   public:
-    void setup(ofxBox2d &box2d, AgentProperties softBodyProperties);
+    void setup(ofxBox2d &box2d, AgentProperties softBodyProperties, string fileName);
     void update();
     void draw(bool debug, bool showTexture);
   
@@ -68,8 +68,10 @@ class Agent {
     int numMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
+    ofTrueTypeFont font; 
     
   private:
+    void readFile(string fileName);
     void assignMessages(ofPoint meshSize);
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
@@ -117,7 +119,10 @@ class Agent {
     int maxInterAgentJoints;
   
     // Texture
-    ofFbo fbo; 
+    ofFbo fbo;
+  
+    // Messages for this agent.
+    std::vector<string> textMsgs; 
 };
 
 // Data Structure to hold a pointer to the agent instance

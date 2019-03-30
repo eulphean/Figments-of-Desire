@@ -1,7 +1,8 @@
 #include "Agent.h"
 
-void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps) {
+void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) {
   // Prepare the agent's texture.
+  readFile(fileName);
   assignMessages(agentProps.meshSize);
   createTexture(agentProps.meshSize);
   
@@ -99,6 +100,23 @@ void Agent::draw(bool debug, bool showTexture) {
       ofSetColor(ofColor::white);
       ofDrawCircle(0, 0, targetPerceptionRad);
     ofPopMatrix();
+  }
+}
+
+void Agent::readFile(string fileName) {
+  auto buffer = ofBufferFromFile(fileName);
+  auto lines = ofSplitString(buffer.getText(), "\n");
+ 
+  for (auto l: lines) {
+    auto i = l.find(":");
+    if (i > 0) {
+      auto s = l.substr(i+1);
+      textMsgs.push_back(s);
+    } else {
+      auto b = textMsgs.back();
+      b = b + "\n" + l; // Append the line to the last value in the vector.
+      textMsgs[textMsgs.size()-1] = b;
+    }
   }
 }
 
