@@ -60,7 +60,7 @@ class Agent {
     ofPoint getTextureSize();
   
     // Pubic iterator to access messages. 
-    std::vector<Message>::iterator it;
+    std::vector<Message>::iterator curMsg;
     std::vector<Message> messages;
   
   protected:

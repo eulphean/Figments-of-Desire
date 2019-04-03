@@ -4,7 +4,7 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   agentA = agent1;
   agentB = agent2;
   joints.push_back(joint);
-  maxExchangeCounter = 50;
+  maxExchangeCounter = 100;
   curExchangeCounter = 0;
 }
 
@@ -30,8 +30,8 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
     // When it's a super agent, that means it's bonded.
     // Check if it's ready to swap messages.
     if (curExchangeCounter <= 0) {
-      auto& aMessage = agentA -> it;
-      auto& bMessage = agentB -> it;
+      std::vector<Message>::iterator aMessage = agentA -> curMsg;
+      std::vector<Message>::iterator bMessage = agentB -> curMsg;
       
       Message swap = Message(aMessage->location, aMessage->color, aMessage->size, aMessage->message);
       
@@ -48,6 +48,9 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
       // Change the iteretor to point to a unique message now
       aMessage = agentA -> messages.begin() + ofRandom(0, agentA -> messages.size() - 1);
       bMessage = agentB -> messages.begin() + ofRandom(0, agentB -> messages.size() - 1);
+      
+      agentA -> curMsg = aMessage;
+      agentB -> curMsg = bMessage; 
       
       // Create new textures the two agents as they have just gone through a swap.
       agentA -> createTexture(agentA -> getTextureSize());

@@ -4,6 +4,11 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Prepare the agent's texture.
   readFile(fileName);
   assignMessages(agentProps.meshSize);
+  
+  
+  // Initialize the iterator.
+  curMsg = messages.begin(); // Need the message to draw
+  
   createTexture(agentProps.meshSize);
   
   // Prepare agent's mesh.
@@ -33,7 +38,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // assigned randomly. These could be in the DNA, so the agent mutates
   // based on some interval (TODO, think).
   maxTickleCounter = ofRandom(50, 80);
-  maxStretchCounter = ofRandom(100, 1500);
+  maxStretchCounter = ofRandom(100, 200);
   maxRepulsionCounter = ofRandom(400, 500);
   maxBondCounter = ofRandom(700, 1000);
   
@@ -41,9 +46,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   curStretchCounter = 0; 
   
   maxInterAgentJoints = ofRandom(1, vertices.size());
-  
-  // Initialize the iterator.
-  it = messages.begin();
 }
 
 void Agent::update() {
@@ -76,11 +78,11 @@ void Agent::draw(bool debug, bool showTexture) {
   ofPopStyle();
   
   if (showTexture) {
-//    filter->begin();
+   //filter->begin();
     fbo.getTexture().bind();
     mesh.draw();
     fbo.getTexture().unbind();
-//    filter->end();
+   //filter->end();
   } else {
     ofPushStyle();
     for(auto j: joints) {
@@ -142,32 +144,33 @@ void Agent::clean(ofxBox2d &box2d) {
 }
 
 void Agent::assignMessages(ofPoint meshSize) {
-  // Create Bogus message circles.
-  for (int i = 0; i < numBogusMessages; i++) {
-    // Pick a random location on the mesh.
-    int w = meshSize.x; int h = meshSize.y;
-    auto x = ofRandom(0, w-20); auto y = ofRandom(5, h-20);
-    
-    // Pick a random color for the message.
-    int idx = ofRandom(1, palette.size());
-    ofColor c = ofColor(palette.at(idx));
-    
-    // Pick a random size (TOOD: Based off on the length of the message).
-    int size = ofRandom(10, 35);
-    
-    // Create a message.
-    Message m = Message(glm::vec2(x, y), c, size, "~");
-    messages.push_back(m);
-  }
+//  // Create Bogus message circles.
+//  for (int i = 0; i < numBogusMessages; i++) {
+//    // Pick a random location on the mesh.
+//    int w = meshSize.x; int h = meshSize.y;
+//    auto x = ofRandom(0, w-20); auto y = ofRandom(5, h-20);
+//    
+//    // Pick a random color for the message.
+//    int idx = ofRandom(1, palette.size());
+//    ofColor c = ofColor(palette.at(idx));
+//    
+//    // Pick a random size (TOOD: Based off on the length of the message).
+//    int size = ofRandom(10, 35);
+//    
+//    // Create a message.
+//    Message m = Message(glm::vec2(x, y), c, size, "~");
+//    messages.push_back(m);
+//  }
   
   // Create text messages. 
   for (int i = 0; i < textMsgs.size(); i++) {
     // Pick a random location on the mesh.
     int w = meshSize.x; int h = meshSize.y;
-    auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
+    //auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
+    auto x = 10; auto y = h/2;
     
     // Pick a random color for the message.
-    int idx = ofRandom(0, palette.size());
+    int idx = ofRandom(1, palette.size());
     ofColor c = ofColor(palette.at(idx));
     
     // Pick a random size (TOOD: Based off on the length of the message).
@@ -191,9 +194,11 @@ void Agent::createTexture(ofPoint meshSize) {
     ofBackground(c);
   
     // Draw assigned messages.
-    for (auto m : messages) {
-      m.draw(font);
-    }
+//    for (auto m : messages) {
+//      m.draw(font);
+//    }
+    curMsg->draw(font);
+    
   fbo.end();
 }
 

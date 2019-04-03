@@ -11,9 +11,9 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Messages
   this->numBogusMessages = 400;
-  this->font.load("marvelos.otf", 25);
+  this->font.load("opensansbold.ttf", 60);
   setup(box2d, agentProps, "amay.txt"); // TODO: Actually pass a pointer to all the messages later (for now it's assigned randomly)
 
   // Post process filters.
-  filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 9.f);
+  filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 1.f);
 }

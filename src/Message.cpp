@@ -20,7 +20,7 @@ void Message::draw(ofTrueTypeFont font) {
   } else { // Draw actual string message.
     ofPushMatrix();
       ofTranslate(location);
-      ofRotateDeg(angle);
+//      ofRotateDeg(angle);
       ofPushStyle();
         ofSetColor(color);
         font.drawString(message, 0, 0);
