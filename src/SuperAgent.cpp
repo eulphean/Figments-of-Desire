@@ -29,36 +29,31 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
   } else {
     // When it's a super agent, that means it's bonded.
     // Check if it's ready to swap messages.
-    
     if (curExchangeCounter <= 0) {
       auto& aMessage = agentA -> it;
       auto& bMessage = agentB -> it;
-      Message swap = Message(aMessage->location, aMessage->color, aMessage->size);
+      
+      Message swap = Message(aMessage->location, aMessage->color, aMessage->size, aMessage->message);
       
       // Assign A message
       aMessage->color = bMessage->color;
       aMessage->size = bMessage->size;
+      aMessage->message = bMessage->message;
       
       // Assign B message
       bMessage->color = swap.color;
       bMessage->size = swap.size;
+      bMessage->message = swap.message;
       
-      // Increment iterators
-      if (aMessage == agentA -> messages.end()) {
-        aMessage = agentA -> messages.begin();
-      } else {
-        aMessage++;
-      }
+      // Change the iteretor to point to a unique message now
+      aMessage = agentA -> messages.begin() + ofRandom(0, agentA -> messages.size() - 1);
+      bMessage = agentB -> messages.begin() + ofRandom(0, agentB -> messages.size() - 1);
       
-      if (bMessage == agentB -> messages.end()) {
-        bMessage = agentB -> messages.begin();
-      } else {
-        bMessage++;
-      }
-      
+      // Create new textures the two agents as they have just gone through a swap.
       agentA -> createTexture(agentA -> getTextureSize());
       agentB -> createTexture(agentB -> getTextureSize());
       
+      // Reset exchange counter since
       curExchangeCounter = maxExchangeCounter;
     } else {
       curExchangeCounter -= 1;

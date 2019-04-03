@@ -156,9 +156,9 @@ void ofApp::processOsc() {
     if(m.getAddress() == "/Back2"){
       float val = m.getArgAsFloat(0);
       for (auto &a : agents) {
-        a -> setStretch(3.0 );
+        a -> setStretch(ofRandom(4, 7));
       }
-    }
+    } 
     
     if(m.getAddress() == "/Bell"){
       float val = m.getArgAsFloat(0);
@@ -472,7 +472,6 @@ void ofApp::createSuperAgents() {
         if (sa.contains(agentA, agentB)) {
           int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
           
-          //int maxJoints = 4;
           if (sa.joints.size() < maxJoints) {
             j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
             sa.joints.push_back(j);
@@ -501,12 +500,24 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     float d = ofRandom(1, damping);
     j->setup(box2d.getWorld(), bodyA, bodyB, f, d); // Use the interAgentJoint props.
   
+//    // Update bodyA's user data
+//    auto v = (VertexData *) bodyA->GetUserData();
+//    auto m = new VertexData(v->agent, true);
+//    delete v;
+//    bodyA -> SetUserData(m);
+//
+//    // Update bodyB's user data
+//    v = (VertexData *) bodyB->GetUserData();
+//    m = new VertexData(v->agent, true);
+//    delete v
+//
+//    dataA->interAgentJoint = true;
+//    auto &dataB = bodyB -> GetUserData();
+//    dataB->interAgentJoint
+  
     // Joint length
     int jointLength = ofRandom(250, 300);
     j->setLength(jointLength);
-  
-    // Create User Data
-    j->joint->SetUserData(new SoundData());
   
     return j;
 }

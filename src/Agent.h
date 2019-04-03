@@ -65,7 +65,7 @@ class Agent {
   
   protected:
     // Derived class needs to have access to these. 
-    int numMessages;
+    int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
     ofTrueTypeFont font; 
@@ -129,9 +129,11 @@ class Agent {
 // to which this vertex belongs to.
 class VertexData {
   public:
-    VertexData(Agent *ptr) {
+    VertexData(Agent *ptr, bool interAgent = false) {
       agent = ptr;
+      interAgentVertex = interAgent;
     }
   
     Agent * agent;
+    bool interAgentVertex;
 };

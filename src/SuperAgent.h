@@ -22,29 +22,3 @@ class SuperAgent {
     float curExchangeCounter;
     float maxExchangeCounter;
 };
-
-// Sound data for the joint interAgentJoint.
-class SoundData
-{
-    public:
-      SoundData() {
-        midiNote = ofRandom(60, 72);
-      }
-  
-    int midiNote;
-};
-
-
-
-
-// Should come in the update function of the super agents actually. 
-//  // Joint destruction based on a predetermined force between agents.
-//  ofRemove(interAgentJoints, [&](std::shared_ptr<ofxBox2dJoint> c){
-//      auto f = c->getReactionForce(ofGetElapsedTimef());
-//      if (f.length() > maxJointForce) {
-//        box2d.getWorld()->DestroyJoint(c->joint);
-//        return true;
-//      }
-//
-//      return false;
-//  });

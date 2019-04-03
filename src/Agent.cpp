@@ -76,11 +76,11 @@ void Agent::draw(bool debug, bool showTexture) {
   ofPopStyle();
   
   if (showTexture) {
-    filter->begin();
+//    filter->begin();
     fbo.getTexture().bind();
     mesh.draw();
     fbo.getTexture().unbind();
-    filter->end();
+//    filter->end();
   } else {
     ofPushStyle();
     for(auto j: joints) {
@@ -142,23 +142,42 @@ void Agent::clean(ofxBox2d &box2d) {
 }
 
 void Agent::assignMessages(ofPoint meshSize) {
-  // Number of messages.
-  for (int i = 0; i < numMessages; i++) {
+  // Create Bogus message circles.
+  for (int i = 0; i < numBogusMessages; i++) {
     // Pick a random location on the mesh.
     int w = meshSize.x; int h = meshSize.y;
-    auto x = ofRandom(0, w); auto y = ofRandom(0, h);
+    auto x = ofRandom(0, w-20); auto y = ofRandom(5, h-20);
+    
+    // Pick a random color for the message.
+    int idx = ofRandom(1, palette.size());
+    ofColor c = ofColor(palette.at(idx));
+    
+    // Pick a random size (TOOD: Based off on the length of the message).
+    int size = ofRandom(10, 35);
+    
+    // Create a message.
+    Message m = Message(glm::vec2(x, y), c, size, "~");
+    messages.push_back(m);
+  }
+  
+  // Create text messages. 
+  for (int i = 0; i < textMsgs.size(); i++) {
+    // Pick a random location on the mesh.
+    int w = meshSize.x; int h = meshSize.y;
+    auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
     
     // Pick a random color for the message.
     int idx = ofRandom(0, palette.size());
     ofColor c = ofColor(palette.at(idx));
     
     // Pick a random size (TOOD: Based off on the length of the message).
-    int size = ofRandom(10, 25);
+    int size = ofRandom(10, 35);
     
     // Create a message.
-    Message m = Message(glm::vec2(x, y), c, size);
+    Message m = Message(glm::vec2(x, y), c, size, textMsgs[i]);
     messages.push_back(m);
   }
+  
 }
 
 void Agent::createTexture(ofPoint meshSize) {
@@ -173,7 +192,7 @@ void Agent::createTexture(ofPoint meshSize) {
   
     // Draw assigned messages.
     for (auto m : messages) {
-      m.draw();
+      m.draw(font);
     }
   fbo.end();
 }
@@ -235,11 +254,6 @@ void Agent::handleStretch() {
 }
 
 void Agent::handleTickle() {
-  // No tickling if the agent has a partner.
-//  if (partner == NULL) {
-//    return;
-//  }
-//  
   // Does the agent want to tickle? Check with counter conditions.
   if (curTickleCounter <= 0 && applyTickle == true) {
     // Apply the tickle.
@@ -270,8 +284,8 @@ void Agent::handleRepulsion() {
   
    if (applyRepulsion) {
     for (auto &v: vertices) {
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+//      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+//      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
     }
     applyRepulsion = false;
    }

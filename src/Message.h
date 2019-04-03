@@ -6,10 +6,12 @@
 
 class Message {
   public:
-    Message(glm::vec2 loc, ofColor col, float s);
-    void draw();
+    Message(glm::vec2 loc, ofColor col, float size, string msg);
+    void draw(ofTrueTypeFont font);
   
     glm::vec2 location;
     ofColor color;
     float size;
+    string message;
+    float angle;
 };
