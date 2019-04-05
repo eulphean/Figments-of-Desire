@@ -39,7 +39,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // based on some interval (TODO, think).
   maxTickleCounter = ofRandom(50, 80);
   maxStretchCounter = ofRandom(100, 200);
-  maxRepulsionCounter = ofRandom(400, 500);
+  maxRepulsionCounter = ofRandom(200, 300);
   maxBondCounter = ofRandom(700, 1000);
   
   curRepulsionCounter = maxRepulsionCounter;
@@ -78,11 +78,11 @@ void Agent::draw(bool debug, bool showTexture) {
   ofPopStyle();
   
   if (showTexture) {
-   //filter->begin();
+   filter->begin();
     fbo.getTexture().bind();
     mesh.draw();
     fbo.getTexture().unbind();
-   //filter->end();
+   filter->end();
   } else {
     ofPushStyle();
     for(auto j: joints) {
@@ -144,42 +144,42 @@ void Agent::clean(ofxBox2d &box2d) {
 }
 
 void Agent::assignMessages(ofPoint meshSize) {
-//  // Create Bogus message circles.
-//  for (int i = 0; i < numBogusMessages; i++) {
-//    // Pick a random location on the mesh.
-//    int w = meshSize.x; int h = meshSize.y;
-//    auto x = ofRandom(0, w-20); auto y = ofRandom(5, h-20);
-//    
-//    // Pick a random color for the message.
-//    int idx = ofRandom(1, palette.size());
-//    ofColor c = ofColor(palette.at(idx));
-//    
-//    // Pick a random size (TOOD: Based off on the length of the message).
-//    int size = ofRandom(10, 35);
-//    
-//    // Create a message.
-//    Message m = Message(glm::vec2(x, y), c, size, "~");
-//    messages.push_back(m);
-//  }
-  
-  // Create text messages. 
-  for (int i = 0; i < textMsgs.size(); i++) {
+  // Create Bogus message circles.
+  for (int i = 0; i < numBogusMessages; i++) {
     // Pick a random location on the mesh.
     int w = meshSize.x; int h = meshSize.y;
-    //auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
-    auto x = 10; auto y = h/2;
+    auto x = ofRandom(0, w); auto y = ofRandom(0, h);
     
     // Pick a random color for the message.
     int idx = ofRandom(1, palette.size());
     ofColor c = ofColor(palette.at(idx));
     
     // Pick a random size (TOOD: Based off on the length of the message).
-    int size = ofRandom(10, 35);
+    int size = ofRandom(20, 40);
     
     // Create a message.
-    Message m = Message(glm::vec2(x, y), c, size, textMsgs[i]);
+    Message m = Message(glm::vec2(x, y), c, size, "~");
     messages.push_back(m);
   }
+  
+  // Create text messages. 
+//  for (int i = 0; i < textMsgs.size(); i++) {
+//    // Pick a random location on the mesh.
+//    int w = meshSize.x; int h = meshSize.y;
+//    //auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
+//    auto x = 10; auto y = h/2;
+//
+//    // Pick a random color for the message.
+//    int idx = ofRandom(1, palette.size());
+//    ofColor c = ofColor(palette.at(idx));
+//
+//    // Pick a random size (TOOD: Based off on the length of the message).
+//    int size = ofRandom(10, 35);
+//
+//    // Create a message.
+//    Message m = Message(glm::vec2(x, y), c, size, textMsgs[i]);
+//    messages.push_back(m);
+//  }
   
 }
 
@@ -194,10 +194,10 @@ void Agent::createTexture(ofPoint meshSize) {
     ofBackground(c);
   
     // Draw assigned messages.
-//    for (auto m : messages) {
-//      m.draw(font);
-//    }
-    curMsg->draw(font);
+    for (auto m : messages) {
+      m.draw(font);
+    }
+    //curMsg->draw(font);
     
   fbo.end();
 }
@@ -289,8 +289,8 @@ void Agent::handleRepulsion() {
   
    if (applyRepulsion) {
     for (auto &v: vertices) {
-//      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-//      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
     }
     applyRepulsion = false;
    }
