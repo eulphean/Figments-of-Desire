@@ -204,11 +204,11 @@ void Agent::createTexture(ofPoint meshSize) {
 
 void Agent::applyBehaviors() {
   // ----Current actions/behaviors---
-  handleTickle();
-  handleSeek();
-  handleStretch();
-  handleRepulsion();
-  handleBondState();
+      handleStretch();
+  //  handleTickle();
+  //  handleSeek();
+  //  handleRepulsion();
+  //  handleBondState();
 }
 
 void Agent::handleBondState() {
@@ -227,9 +227,7 @@ void Agent::handleSeek() {
   }
   
   // New target? Add an impulse in that direction.
-  if (applySeek) {
-    // seek()
-    
+  if (applySeek) {    
     vertices[0]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
     vertices[0]->setRotation(ofRandom(180, 360));
     
@@ -345,15 +343,6 @@ std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
   int randV = ofRandom(vertices.size());
   auto v = vertices[randV];
   return v;
-}
-
-// Agent partners. 
-void Agent::setPartner(Agent *a) {
-  partner = a;
-}
-
-Agent *Agent::getPartner() {
-  return partner;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {

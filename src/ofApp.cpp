@@ -52,23 +52,23 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
 
 // Joint creation sequence.
 void ofApp::contactEnd(ofxBox2dContactArgs &e) {
-  if (agents.size() > 0) {
-    if(e.a != NULL && e.b != NULL) {
-      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
-          && e.a->GetBody() && e.b->GetBody()) {
-        // Extract Agent pointers.
-        Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
-        Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
-
-        // Really long routine to evaluate if two vertices belonging to two different agents
-        // can actually bond with each other or not. Take a look at the conditions under which
-        // this bonding actually happens.
-        if (agentA != agentB) {
-          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
-        }
-      }
-    }
-  }
+//  if (agents.size() > 0) {
+//    if(e.a != NULL && e.b != NULL) {
+//      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
+//          && e.a->GetBody() && e.b->GetBody()) {
+//        // Extract Agent pointers.
+//        Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
+//        Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
+//
+//        // Really long routine to evaluate if two vertices belonging to two different agents
+//        // can actually bond with each other or not. Take a look at the conditions under which
+//        // this bonding actually happens.
+//        if (agentA != agentB) {
+//          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+//        }
+//      }
+//    }
+//  }
 }
 
 //--------------------------------------------------------------
@@ -78,7 +78,6 @@ void ofApp::update(){
   
   //handleSerial();
   
-  // The crazy routine that's broken right now. 
   ofRemove(superAgents, [&](SuperAgent &sa){
     sa.update(box2d, maxJointForce);
     if (sa.shouldRemove == true) {
@@ -99,7 +98,7 @@ void ofApp::update(){
   }
   
   // Create super agents based on collision bodies.
-  createSuperAgents();
+//  createSuperAgents();
   
   // Update background
   bg.updateWithVertices(meshes);
@@ -243,12 +242,16 @@ void ofApp::updateAgentProps() {
 }
 
 void ofApp::createAgents() {
-  // Create Amay (0th index is Amay)
+  // Create Amay & Azra
   Amay *a = new Amay(box2d, agentProps);
-  agents.push_back(a);
-  
-  // Create Azra (1st index is Azra)
   Azra *b = new Azra(box2d, agentProps);
+  
+  // Set partners
+  a->partner = b;
+  b->partner = a;
+  
+  // Push agents in the array.
+  agents.push_back(a);
   agents.push_back(b);
 }
 
@@ -326,13 +329,12 @@ void ofApp::clearScreen() {
   box2d.enableEvents();
 }
 
-// Core function had the issue. All the logic was fine.
 void ofApp::removeUnbonded() {
   ofRemove(agents, [&](Agent *a) {
-    if (a->getPartner() == NULL) {
-      a->clean(box2d);
-      return true;
-    }
+//    if (a->getPartner() == NULL) {
+//      a->clean(box2d);
+//      return true;
+//    }
     
     return false;
   });
@@ -404,17 +406,17 @@ void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *
   
   // Is AgentA's partner AgentB
   // Is AgentB's partner AgentA
-  if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
-        && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
-    // Vertex level checks. Is this vertex bonded to anything except itself?
-    bool a = canVertexBond(bodyA, agentA);
-    bool b = canVertexBond(bodyB, agentB);
-    if (a && b) {
-      // Prepare for bond.
-      collidingBodies.push_back(bodyA);
-      collidingBodies.push_back(bodyB);
-    }
-  }
+//  if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
+//        && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
+//    // Vertex level checks. Is this vertex bonded to anything except itself?
+//    bool a = canVertexBond(bodyA, agentA);
+//    bool b = canVertexBond(bodyB, agentB);
+//    if (a && b) {
+//      // Prepare for bond.
+//      collidingBodies.push_back(bodyA);
+//      collidingBodies.push_back(bodyB);
+//    }
+//  }
 }
 
 bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
@@ -486,8 +488,9 @@ void ofApp::createSuperAgents() {
         j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
         superAgent.setup(agentA, agentB, j); // Create a new super agent.
         superAgents.push_back(superAgent);
-        agentA -> setPartner(agentB);
-        agentB -> setPartner(agentA);
+        // Dodgy. I will be using the partner for something else now...
+//        agentA -> setPartner(agentB);
+//        agentB -> setPartner(agentA);
       }
     
       collidingBodies.clear();
@@ -499,21 +502,6 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     float f = ofRandom(0.3, frequency);
     float d = ofRandom(1, damping);
     j->setup(box2d.getWorld(), bodyA, bodyB, f, d); // Use the interAgentJoint props.
-  
-//    // Update bodyA's user data
-//    auto v = (VertexData *) bodyA->GetUserData();
-//    auto m = new VertexData(v->agent, true);
-//    delete v;
-//    bodyA -> SetUserData(m);
-//
-//    // Update bodyB's user data
-//    v = (VertexData *) bodyB->GetUserData();
-//    m = new VertexData(v->agent, true);
-//    delete v
-//
-//    dataA->interAgentJoint = true;
-//    auto &dataB = bodyB -> GetUserData();
-//    dataB->interAgentJoint
   
     // Joint length
     int jointLength = ofRandom(250, 300);

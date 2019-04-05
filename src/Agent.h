@@ -38,9 +38,6 @@ class Agent {
     void setTickle(float weight);
     void setStretch(float weight);
     void setRepulsionTarget(Agent *target, int targetAgentId);
-    
-    // Filters
-    void nextFilter();
   
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
@@ -51,10 +48,6 @@ class Agent {
     // Vertices
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
   
-    // Partners
-    Agent *getPartner();
-    void setPartner(Agent *partner);
-  
     // Texture
     void createTexture(ofPoint meshSize);
     ofPoint getTextureSize();
@@ -63,12 +56,15 @@ class Agent {
     std::vector<Message>::iterator curMsg;
     std::vector<Message> messages;
   
+    // Agent's partner
+    Agent *partner = NULL;
+  
   protected:
     // Derived class needs to have access to these. 
     int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
-    ofTrueTypeFont font; 
+    ofTrueTypeFont font;
     
   private:
     void readFile(string fileName);
@@ -79,9 +75,6 @@ class Agent {
   
     // ----------------- Data members -------------------
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
-    
-    // Partner agent.
-    Agent *partner = NULL;
   
     // Mesh.
     ofMesh mesh;

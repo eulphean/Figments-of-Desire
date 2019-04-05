@@ -23,8 +23,8 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
   });
   
   if (joints.size() == 0) {
-    agentA -> setPartner(NULL);
-    agentB -> setPartner(NULL);
+//    agentA -> setPartner(NULL);
+//    agentB -> setPartner(NULL);
     shouldRemove = true;
   } else {
     // When it's a super agent, that means it's bonded.
