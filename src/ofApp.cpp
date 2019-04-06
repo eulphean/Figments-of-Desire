@@ -71,25 +71,18 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         
         // Critical condition here. 
         if (agentA != agentB) {
-          // Negative desire for now.
           if (agentA->getDesireCounter() < 0) {
+            // Repel vertex of AgentB. 
             auto data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
             data->applyRepulsion = true;
             e.b->GetBody()->SetUserData(data);
-            
-            data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
-            data->applyAttraction = true;
-            e.a->GetBody()->SetUserData(data);
           }
           
           if (agentB->getDesireCounter() < 0) {
+            // Repel vertex of AgentA.
             auto data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
             data->applyRepulsion = true;
             e.a->GetBody()->SetUserData(data);
-            
-            data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
-            data->applyAttraction = true;
-            e.b->GetBody()->SetUserData(data);
           }
         }
     

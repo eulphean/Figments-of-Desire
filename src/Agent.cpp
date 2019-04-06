@@ -28,7 +28,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   
   // Force weights for various body actions..
   stretchWeight = 1.5;
-  repulsionWeight = 1.0;
+  repulsionWeight = 0.5;
   attractionWeight = 0.3;
   
   seekWeight = 0.4; // Probably seek with a single vertex. 
@@ -251,12 +251,12 @@ void Agent::createTexture(ofPoint meshSize) {
   fbo.end();
 }
 
-void Agent::applyBehaviors() {
+void Agent::applyBehaviors()  {
   // ----Current actions/behaviors---
   handleStretch();
   handleRepulsion();
   handleAttraction();
-  //  handleTickle();
+    handleTickle();
   //  handleSeek();
   
   handleVertexBehaviors();
