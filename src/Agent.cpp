@@ -7,7 +7,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   readFile(fileName);
   assignMessages(agentProps.meshSize);
   
-  
   // Initialize the iterator.
   curMsg = messages.begin(); // Need the message to draw
   
@@ -16,6 +15,9 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Prepare agent's mesh.
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
+  
+  // Assign corner and boundary indices for applying forces on vertices. 
+  assignIndices(agentProps);
   
   // Calculate a desireRadius based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
@@ -26,7 +28,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   
   // Force weights for various body actions..
   stretchWeight = 1.5;
-  repulsionWeight = 0.5;
+  repulsionWeight = 1.0;
   attractionWeight = 0.3;
   
   seekWeight = 0.4; // Probably seek with a single vertex. 
@@ -56,7 +58,7 @@ void Agent::update() {
   // Check if the two desire radius' intersect.
   // If desire radius intersect, time to apply interpersonal behaviors
   auto d = glm::distance(this->getCentroid(), partner->getCentroid());
-  auto maxDistanceForIntersection = (this->desireRadius + partner->desireRadius) * 4/5;
+  auto maxDistanceForIntersection = (this->desireRadius + partner->desireRadius) * 6/7;
   if (d < maxDistanceForIntersection) {
     // Apply the right behavior for this states
     if (curDesireCounter < 0) {
@@ -123,9 +125,52 @@ void Agent::draw(bool debug, bool showTexture) {
         string = "Max Desire: " + ofToString(maxDesireCounter);
         rec = f.getBoundingBox(string, 0, 0);
         font.drawString(string, -rec.width, 70);
+    
+        string = "Desire Increment: " + ofToString(desireIncrement);
+        rec = f.getBoundingBox(string, 0, 0);
+        font.drawString(string, -rec.width, 100);
         ofPopStyle();
       ofPopMatrix();
     ofPopMatrix();
+  }
+}
+
+void Agent::assignIndices(AgentProperties agentProps) {
+  // Store the corner indices in this array to access it when applying forces.
+  auto rows = agentProps.meshDimensions.x; auto cols = agentProps.meshDimensions.y;
+
+  // Corners
+  cornerIndices[0] = 0; cornerIndices[1] = (cols-1) + 0 * (cols-1);
+  cornerIndices[2] = 0 + (rows-1) * (cols-1); cornerIndices[3] = (cols-1) + (rows-1) * (cols-1);
+  
+  // Boundaries.
+  
+  // TOP
+  int x; int y = 0;
+  for (x = 0; x < cols-1; x++) {
+    int idx = x + y * (cols-1);
+    boundaryIndices.push_back(idx);
+  }
+  
+  // BOTTOM
+  y = rows-1;
+  for (x = 0; x < cols-1; x++) {
+    int idx = x + y * (cols-1);
+    boundaryIndices.push_back(idx);
+  }
+  
+  // LEFT
+  x = 0;
+  for (y = 0; y < rows-1; y++) {
+    int idx = x + y * (cols-1);
+    boundaryIndices.push_back(idx);
+  }
+  
+  // RIGHT
+  x = cols-1;
+  for (y = 0; y < rows-1; y++) {
+    int idx = x + y * (cols-1);
+    boundaryIndices.push_back(idx);
   }
 }
 
@@ -207,35 +252,61 @@ void Agent::createTexture(ofPoint meshSize) {
 }
 
 void Agent::applyBehaviors() {
-
   // ----Current actions/behaviors---
   handleStretch();
   handleRepulsion();
   handleAttraction();
   //  handleTickle();
   //  handleSeek();
+  
+  handleVertexBehaviors();
 }
 
-void Agent::handleAttraction() {
-  if (applyAttraction) {
-    // Don't apply attraction on all the vertices.
-    // Algorithm to pick bunch of vertices to apply forces on.
+void Agent::handleVertexBehaviors() {
+  for (auto &v : vertices) {
+    auto data = reinterpret_cast<VertexData*>(v->getData());
+    if (data->applyRepulsion) {
+      // Repel this vertex from it's partner's centroid especially
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 5);
+      
+      // Reset repulsion parameter on the vertex.
+      data->applyRepulsion = false;
+      v->setData(data);
+    }
     
-    auto v = vertices[0];
-    auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-    v->addAttractionPoint({pos.x, pos.y}, attractionWeight);
-    applyAttraction = false;
+    if (data->applyAttraction) {
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      v->addAttractionPoint({pos.x, pos.y}, attractionWeight * 5);
+      
+      data->applyAttraction = false;
+      v->setData(data);
+    }
   }
 }
 
 void Agent::handleRepulsion() {
+  // TODO: Behavior of individual vertices (when they hit each other, as they want to repel each other)
+  // NEED to handle each of those behaviors there as well. 
   if (applyRepulsion) {
-    // Don't apply repulsion on all the vertices.
-    // Algorithm to pick a good vertex to apply the repulsion on.
-    auto v = vertices[0];
-    auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-    v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+    for (auto idx: cornerIndices) {
+        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+        vertices[idx]->addRepulsionForce(pos.x, pos.y, ofRandom(repulsionWeight));
+    }
     applyRepulsion = false;
+  }
+}
+
+void Agent::handleAttraction() {
+  // Think about the attraction//
+  // Probably the corner that's closest to the centroid of the other agent..
+  // NOTE (Come back to attraction)
+  if (applyAttraction) {
+    for (auto idx: boundaryIndices) {
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      vertices[idx]->addAttractionPoint({pos.x, pos.y}, ofRandom(attractionWeight));
+    }
+    applyAttraction = false;
   }
 }
 
@@ -440,4 +511,8 @@ void Agent::updateMesh() {
     meshPoint.y = pos.y;
     mesh.setVertex(j, meshPoint);
   }
+}
+
+float Agent::getDesireCounter() {
+  return curDesireCounter; 
 }

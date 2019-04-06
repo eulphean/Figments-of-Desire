@@ -29,6 +29,7 @@ class Agent {
     void handleRepulsion();
     void handleAttraction();
     void handleStretch();
+    void handleVertexBehaviors();
   
     void handleSeek();
     void handleTickle();
@@ -42,6 +43,7 @@ class Agent {
     // Helpers
     std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
+    float getDesireCounter();
     ofMesh& getMesh();
     int getMaxInterAgentJoints();
   
@@ -82,6 +84,7 @@ class Agent {
     void createMesh(AgentProperties softBodyProperties);
     void createSoftBody(ofxBox2d &box2d, AgentProperties softBodyProperties);
     void updateMesh();
+    void assignIndices(AgentProperties agentProps);
   
     // ----------------- Data members -------------------
     std::vector<std::shared_ptr<ofxBox2dJoint>> joints; // Joints connecting those vertices.
@@ -117,18 +120,24 @@ class Agent {
     ofFbo fbo;
   
     // Messages for this agent.
-    std::vector<string> textMsgs; 
+    std::vector<string> textMsgs;
+  
+    // Figment's corner indices
+    int cornerIndices[4];
+    vector<int> boundaryIndices;
 };
 
 // Data Structure to hold a pointer to the agent instance
 // to which this vertex belongs to.
 class VertexData {
   public:
-    VertexData(Agent *ptr, bool interAgent = false) {
+    VertexData(Agent *ptr) {
       agent = ptr;
-      interAgentVertex = interAgent;
+      applyRepulsion = false;
+      applyAttraction = false; 
     }
   
     Agent * agent;
-    bool interAgentVertex;
+    bool applyRepulsion;
+    bool applyAttraction;
 };

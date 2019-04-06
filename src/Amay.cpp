@@ -14,7 +14,7 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   // Desire counters.
   this->maxDesireCounter = 100;
   this->curDesireCounter = -this->maxDesireCounter; // Start with a negative number (No desire)
-  this->desireIncrement = 0.01;
+  this->desireIncrement = 0.1;
   
   setup(box2d, agentProps, "amay.txt"); // TODO: Actually pass a pointer to all the messages later (for now it's assigned randomly)
 

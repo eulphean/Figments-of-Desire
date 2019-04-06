@@ -54,23 +54,54 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
 
 // Joint creation sequence.
 void ofApp::contactEnd(ofxBox2dContactArgs &e) {
-//  if (agents.size() > 0) {
-//    if(e.a != NULL && e.b != NULL) {
-//      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
-//          && e.a->GetBody() && e.b->GetBody()) {
-//        // Extract Agent pointers.
-//        Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
-//        Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
-//
-//        // Really long routine to evaluate if two vertices belonging to two different agents
-//        // can actually bond with each other or not. Take a look at the conditions under which
-//        // this bonding actually happens.
+  // Based on the current state of desire, what should the vertices do if they hit each other
+  // How do they effect each other?
+  
+  // BOTH FIGMENTS WANT TO REPEL
+  // ONE WANTS TO REPEL AND OTHER WANTS TO ATTRACT
+  // BOTH WANT TO ATTRACT
+
+  if (agents.size() > 0) {
+    if(e.a != NULL && e.b != NULL) {
+      if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
+          && e.a->GetBody() && e.b->GetBody()) {
+        // Extract Agent pointers.
+        Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
+        Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
+        
+        // Critical condition here. 
+        if (agentA != agentB) {
+          // Negative desire for now.
+          if (agentA->getDesireCounter() < 0) {
+            auto data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+            data->applyRepulsion = true;
+            e.b->GetBody()->SetUserData(data);
+            
+            data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
+            data->applyAttraction = true;
+            e.a->GetBody()->SetUserData(data);
+          }
+          
+          if (agentB->getDesireCounter() < 0) {
+            auto data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
+            data->applyRepulsion = true;
+            e.a->GetBody()->SetUserData(data);
+            
+            data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+            data->applyAttraction = true;
+            e.b->GetBody()->SetUserData(data);
+          }
+        }
+    
+        // Really long routine to evaluate if two vertices belonging to two different agents
+        // can actually bond with each other or not. Take a look at the conditions under which
+        // this bonding actually happens.
 //        if (agentA != agentB) {
 //          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
 //        }
-//      }
-//    }
-//  }
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------
