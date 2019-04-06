@@ -9,11 +9,15 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   // Assign a color palette
   palette = { ofColor::fromHex(0x540D6E), ofColor::fromHex(0x982A41), ofColor::fromHex(0xFFEEB9), ofColor::fromHex(0x3BCEAC), ofColor::fromHex(0x0EAD69) };
   
-  // Messages
-  this->numBogusMessages = 600;
-  this->font.load("opensansbold.ttf", 60);
+  this->numBogusMessages = 550;
+  
+  // Desire counters.
+  this->maxDesireCounter = 100;
+  this->curDesireCounter = -this->maxDesireCounter; // Start with a negative number (No desire)
+  this->desireIncrement = 0.01;
+  
   setup(box2d, agentProps, "amay.txt"); // TODO: Actually pass a pointer to all the messages later (for now it's assigned randomly)
 
   // Post process filters.
-  filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);
+  this->filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);
 }

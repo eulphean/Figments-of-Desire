@@ -26,12 +26,12 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void handleSeek();
     void handleRepulsion();
+    void handleAttraction();
     void handleStretch();
+  
+    void handleSeek();
     void handleTickle();
-    void handleBondState();
-    bool canBond();
   
     // Enabling behaviors
     void setSeekTarget();
@@ -59,12 +59,22 @@ class Agent {
     // Agent's partner
     Agent *partner = NULL;
   
+    // Desire radius determines when the behaviors get
+    // activated. They are not constantly activated all
+    // the time for whatever place.
+    float desireRadius;
+  
   protected:
     // Derived class needs to have access to these. 
     int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
     ofTrueTypeFont font;
+  
+    // Desire counters;
+    float curDesireCounter;
+    float maxDesireCounter;
+    float desireIncrement;
     
   private:
     void readFile(string fileName);
@@ -87,27 +97,19 @@ class Agent {
     // Tickle.
     float tickleWeight;
     bool applyTickle;
-    float curTickleCounter;
-    float maxTickleCounter;
   
     // Stretch out.
     float stretchWeight;
     bool applyStretch;
-    float curStretchCounter;
-    float maxStretchCounter;
   
     // Repulsion.
     bool applyRepulsion;
     float repulsionWeight;
-    float curRepulsionCounter;
-    float maxRepulsionCounter;
   
-    // Bond timers.
-    float curBondCounter = 0; 
-    float maxBondCounter; 
+    // Attraction.
+    bool applyAttraction;
+    float attractionWeight; 
   
-    // Perception
-    int targetPerceptionRad;
     // Max InterAgent joints for each agent
     int maxInterAgentJoints;
   

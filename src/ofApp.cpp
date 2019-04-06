@@ -6,6 +6,8 @@ void ofApp::setup(){
   receiver.setup(PORT);
   //ofHideCursor();
   
+  debugFont.load("opensansbond.ttf", 30);
+  
   ofBackground(ofColor::fromHex(0x2E2F2D));
   ofSetCircleResolution(20);
   ofDisableArbTex();
@@ -106,8 +108,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  // Draw background. 
-  bg.draw();
+  // Draw background.
+  if (!debug) {
+   bg.draw();
+  }
   
   // Draw box2d bounds.
   ofPushStyle();

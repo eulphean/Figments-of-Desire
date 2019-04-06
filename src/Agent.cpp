@@ -1,6 +1,8 @@
 #include "Agent.h"
 
 void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) {
+  font.load("opensansbold.ttf", 25);
+  
   // Prepare the agent's texture.
   readFile(fileName);
   assignMessages(agentProps.meshSize);
@@ -15,35 +17,26 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   createMesh(agentProps);
   createSoftBody(box2d, agentProps);
   
-  // Calculate a targetPerceptionRad based on the size of the mesh
+  // Calculate a desireRadius based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
-  targetPerceptionRad = sqrt(area/PI);
+  desireRadius = sqrt(area/PI);
   
   // Target position
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
   
   // Force weights for various body actions..
-  seekWeight = 0.4;
-  tickleWeight = 2.5;
   stretchWeight = 1.5;
   repulsionWeight = 0.5;
+  attractionWeight = 0.3;
+  
+  seekWeight = 0.4; // Probably seek with a single vertex. 
+  tickleWeight = 2.5;
   
   // These are actions. But, what are the desires?
   applyStretch = true;
   applySeek = false;
   applyTickle = false;
   applyRepulsion = false;
-  
-  // Set counters. Every agent must have different counters, thus they are
-  // assigned randomly. These could be in the DNA, so the agent mutates
-  // based on some interval (TODO, think).
-  maxTickleCounter = ofRandom(50, 80);
-  maxStretchCounter = ofRandom(100, 200);
-  maxRepulsionCounter = ofRandom(200, 300);
-  maxBondCounter = ofRandom(700, 1000);
-  
-  curRepulsionCounter = maxRepulsionCounter;
-  curStretchCounter = 0; 
   
   maxInterAgentJoints = ofRandom(1, vertices.size());
 }
@@ -52,15 +45,31 @@ void Agent::update() {
   // Use box2d circle to update the mesh.
   updateMesh();
   
-  // Apply behavioral forces on the body.
+  // Update desire
+  // Any other conditions ? Like when it's stuck, I'll have to come
+  // and update this.
+  // Update this every frame.
+  if (curDesireCounter < maxDesireCounter) {
+    curDesireCounter += desireIncrement;
+  }
+  
+  // Check if the two desire radius' intersect.
+  // If desire radius intersect, time to apply interpersonal behaviors
+  auto d = glm::distance(this->getCentroid(), partner->getCentroid());
+  auto maxDistanceForIntersection = (this->desireRadius + partner->desireRadius) * 4/5;
+  if (d < maxDistanceForIntersection) {
+    // Apply the right behavior for this states
+    if (curDesireCounter < 0) {
+      applyRepulsion = true;
+    } else {
+      applyAttraction = true; 
+    }
+  }
+  
   applyBehaviors();
   
-  // Update the weights.
-  if (partner != NULL) {
-    stretchWeight = 3.0;
-  } else {
-    stretchWeight = 1.5;
-  }
+  // Inputs from Ableton
+  // Choregraphy behaviors should be applied seperately.
 }
 
 void Agent::draw(bool debug, bool showTexture) {
@@ -100,7 +109,22 @@ void Agent::draw(bool debug, bool showTexture) {
       ofTranslate(centroid);
       ofNoFill();
       ofSetColor(ofColor::white);
-      ofDrawCircle(0, 0, targetPerceptionRad);
+      ofDrawCircle(0, 0, desireRadius);
+    
+      // Write the current desire values for each figment
+      ofPushMatrix();
+        ofPushStyle();
+        ofTranslate(0, -desireRadius);
+        ofBitmapFont f;
+        auto string = "Current Desire: " + ofToString(curDesireCounter);
+        auto rec = f.getBoundingBox(string, 0, 0);
+        font.drawString(string, -rec.width, 40);
+    
+        string = "Max Desire: " + ofToString(maxDesireCounter);
+        rec = f.getBoundingBox(string, 0, 0);
+        font.drawString(string, -rec.width, 70);
+        ofPopStyle();
+      ofPopMatrix();
     ofPopMatrix();
   }
 }
@@ -161,26 +185,6 @@ void Agent::assignMessages(ofPoint meshSize) {
     Message m = Message(glm::vec2(x, y), c, size, "~");
     messages.push_back(m);
   }
-  
-  // Create text messages. 
-//  for (int i = 0; i < textMsgs.size(); i++) {
-//    // Pick a random location on the mesh.
-//    int w = meshSize.x; int h = meshSize.y;
-//    //auto x = ofRandom(5, w-20); auto y = ofRandom(5, h-20);
-//    auto x = 10; auto y = h/2;
-//
-//    // Pick a random color for the message.
-//    int idx = ofRandom(1, palette.size());
-//    ofColor c = ofColor(palette.at(idx));
-//
-//    // Pick a random size (TOOD: Based off on the length of the message).
-//    int size = ofRandom(10, 35);
-//
-//    // Create a message.
-//    Message m = Message(glm::vec2(x, y), c, size, textMsgs[i]);
-//    messages.push_back(m);
-//  }
-  
 }
 
 void Agent::createTexture(ofPoint meshSize) {
@@ -203,20 +207,50 @@ void Agent::createTexture(ofPoint meshSize) {
 }
 
 void Agent::applyBehaviors() {
+
   // ----Current actions/behaviors---
-      handleStretch();
+  handleStretch();
+  handleRepulsion();
+  handleAttraction();
   //  handleTickle();
   //  handleSeek();
-  //  handleRepulsion();
-  //  handleBondState();
 }
 
-void Agent::handleBondState() {
-  if (curBondCounter <= -maxBondCounter) {
-    // Reset bond counter. 
-    curBondCounter = maxBondCounter;
-  } else {
-    curBondCounter = curBondCounter - 0.5;
+void Agent::handleAttraction() {
+  if (applyAttraction) {
+    // Don't apply attraction on all the vertices.
+    // Algorithm to pick bunch of vertices to apply forces on.
+    
+    auto v = vertices[0];
+    auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+    v->addAttractionPoint({pos.x, pos.y}, attractionWeight);
+    applyAttraction = false;
+  }
+}
+
+void Agent::handleRepulsion() {
+  if (applyRepulsion) {
+    // Don't apply repulsion on all the vertices.
+    // Algorithm to pick a good vertex to apply the repulsion on.
+    auto v = vertices[0];
+    auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+    v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+    applyRepulsion = false;
+  }
+}
+
+void Agent::handleStretch() {
+  // Check for counter.
+  if (applyStretch) { // Time to apply a stretch.
+    for (auto &v : vertices) {
+      if (ofRandom(1) < 0.2) {
+        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
+      } else {
+        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
+      }
+      v->setRotation(ofRandom(150));
+    }
+    applyStretch = false;
   }
 }
 
@@ -227,7 +261,7 @@ void Agent::handleSeek() {
   }
   
   // New target? Add an impulse in that direction.
-  if (applySeek) {    
+  if (applySeek) {
     vertices[0]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
     vertices[0]->setRotation(ofRandom(180, 360));
     
@@ -238,66 +272,16 @@ void Agent::handleSeek() {
   }
 }
 
-void Agent::handleStretch() {
-  // Check for counter.
-  if (curStretchCounter <= 0 && applyStretch) { // Time to apply a stretch.
-    for (auto &v : vertices) {
-      if (ofRandom(1) < 0.2) {
-        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
-      } else {
-        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
-      }
-      v->setRotation(ofRandom(150));
-    }
-    curStretchCounter = maxStretchCounter;
-    applyStretch = false;
-  } else {
-    curStretchCounter -= 1.0;
-  }
-}
-
 void Agent::handleTickle() {
   // Does the agent want to tickle? Check with counter conditions.
-  if (curTickleCounter <= 0 && applyTickle == true) {
+  if (applyTickle == true) {
     // Apply the tickle.
     for (auto &v: vertices) {
       glm::vec2 force = glm::vec2(ofRandom(-5, 5), ofRandom(-5, 5));
       v -> addForce(force, tickleWeight);
     }
-    
-    curTickleCounter = maxTickleCounter;
     applyTickle = false;
-  } else {
-    curTickleCounter -= 0.5;
   }
-}
-
-void Agent::handleRepulsion() {
-  // No repulsion if the agent has a partner.
-  if (partner == NULL) {
-      return;
-  }
-  
-  if (curRepulsionCounter <= 0) {
-    applyRepulsion = true;
-    curRepulsionCounter = maxRepulsionCounter;
-  } else {
-    curRepulsionCounter -= 1.0;
-  }
-  
-   if (applyRepulsion) {
-    for (auto &v: vertices) {
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight);
-    }
-    applyRepulsion = false;
-   }
-}
-
-bool Agent::canBond() {
-  return curBondCounter >= 0;
-  
-  // If bondCounter is < 0, agent doesn't want to bond.
 }
 
 int Agent::getMaxInterAgentJoints() {
@@ -323,7 +307,7 @@ void Agent::setSeekTarget() {
   // Pick a new target when the agent has really slowed down. Is this really what I want?
   if (abs(avgVel.g) < 0.5 && !applySeek) {
     // Calculate a new target position.
-    auto x = targetPerceptionRad * sin(ofRandom(360)); auto y = targetPerceptionRad * cos(ofRandom(360));
+    auto x = desireRadius * sin(ofRandom(360)); auto y = desireRadius * cos(ofRandom(360));
     seekTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
     applySeek = true;
   }

@@ -12,14 +12,15 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
   // Max Force based on which the joint breaks.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     auto force = j->getReactionForce(ofGetElapsedTimef());
+    return true;
     // Both AgentA and AgentB want to break the bonds?
     // Then Break it. 
-    if (!agentA -> canBond() && !agentB -> canBond()) {
-      box2d.getWorld()->DestroyJoint(j->joint);
-      return true;
-    } else {
-      return false;
-    }
+//    if (!agentA -> canBond() && !agentB -> canBond()) {
+//      box2d.getWorld()->DestroyJoint(j->joint);
+//      return true;
+//    } else {
+//      return false;
+//    }
   });
   
   if (joints.size() == 0) {

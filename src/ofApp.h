@@ -118,5 +118,7 @@ class ofApp : public ofBaseApp{
     ofxOscReceiver receiver;
   
     // Background
-    BgMesh bg; 
+    BgMesh bg;
+  
+    ofTrueTypeFont debugFont;
 };
