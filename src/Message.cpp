@@ -13,7 +13,8 @@ void Message::draw(ofTrueTypeFont font) {
     ofPushMatrix();
     ofTranslate(location);
       ofPushStyle();
-      ofSetColor(color);
+      ofColor c = ofColor(color, 220);
+      ofSetColor(c);
       ofDrawCircle(0, 0, size);
       ofPopStyle();
   ofPopMatrix();

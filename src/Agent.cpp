@@ -49,6 +49,7 @@ void Agent::update() {
 
   // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
   if (desireState == LOW) {
+    stretchWeight = 1.5;
     auto d = glm::distance(this->getCentroid(), partner->getCentroid());
     auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
     if (d < maxDistanceForIntersetion) {
@@ -58,6 +59,7 @@ void Agent::update() {
   
   // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
   if (desireState == HIGH) {
+    stretchWeight = 1.5;
     applyAttraction = true;
   }
   
@@ -244,6 +246,15 @@ void Agent::handleVertexBehaviors() {
       data->applyRepulsion = false;
       v->setData(data);
     }
+    
+    if (data->applyAttraction) {
+      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      v->addAttractionPoint({pos.x, pos.y}, attractionWeight);
+      
+      // Reset repulsion parameter on the vertex.
+      data->applyAttraction = false;
+      v->setData(data);
+    }
   }
 }
 
@@ -266,10 +277,15 @@ void Agent::handleAttraction() {
     // Find minimum distance idx.
     for (auto idx : boundaryIndices) {
       auto v = vertices[idx];
-      auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
-      auto d = glm::distance(p, partner->getCentroid());
-      if (d < minD) {
-        minD = d; minIdx = idx;
+      auto data = reinterpret_cast<VertexData*>(v->getData());
+      
+      // If it has a bond, don't add the attraction force.
+      if (!data->hasInterAgentJoint) {
+        auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
+        auto d = glm::distance(p, partner->getCentroid());
+        if (d < minD) {
+          minD = d; minIdx = idx;
+        }
       }
     }
     
@@ -287,12 +303,15 @@ void Agent::handleStretch() {
   // Check for counter.
   if (applyStretch) { // Time to apply a stretch.
     for (auto &v : vertices) {
-      if (ofRandom(1) < 0.2) {
-        v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
-      } else {
-        v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
+      auto data = reinterpret_cast<VertexData*>(v->getData());
+      if (!data->hasInterAgentJoint) {
+        if (ofRandom(1) < 0.2 ) {
+          v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
+        } else {
+          v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
+        }
+        v->setRotation(ofRandom(150));
       }
-      v->setRotation(ofRandom(150));
     }
     applyStretch = false;
   }
