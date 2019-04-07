@@ -56,11 +56,11 @@ void Agent::update() {
     curDesireCounter += desireIncrement;
   }
 //
-//  if (curDesireCounter > 0) {
-//    desireRadius = wideRadius;
-//  } else {
-//    desireRadius = wideRadius/3;
-//  }
+  if (curDesireCounter > 0) {
+    desireRadius = wideRadius;
+  } else {
+    desireRadius = wideRadius/3;
+  }
   
   // Check if the two desire radius' intersect.
   // If desire radius intersect, time to apply interpersonal behaviors
