@@ -106,25 +106,6 @@ void Agent::draw(bool debug, bool showTexture) {
       ofNoFill();
       ofSetColor(ofColor::white);
       ofDrawCircle(0, 0, desireRadius);
-    
-      // Write the current desire values for each figment
-      ofPushMatrix();
-        ofPushStyle();
-        ofTranslate(0, -desireRadius);
-        ofBitmapFont f;
-        auto string = "Current Desire: " + ofToString(curDesireCounter);
-        auto rec = f.getBoundingBox(string, 0, 0);
-        font.drawString(string, -rec.width, 40);
-    
-        string = "Max Desire: " + ofToString(maxDesireCounter);
-        rec = f.getBoundingBox(string, 0, 0);
-        font.drawString(string, -rec.width, 70);
-    
-        string = "Desire Increment: " + ofToString(desireIncrement);
-        rec = f.getBoundingBox(string, 0, 0);
-        font.drawString(string, -rec.width, 100);
-        ofPopStyle();
-      ofPopMatrix();
     ofPopMatrix();
   }
 }
@@ -351,24 +332,6 @@ void Agent::handleStretch() {
   }
 }
 
-void Agent::handleSeek() {
-  // Don't seek if this agent has a partner.
-  if (partner != NULL) {
-    return;
-  }
-  
-  // New target? Add an impulse in that direction.
-  if (applySeek) {
-    vertices[0]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
-    vertices[0]->setRotation(ofRandom(180, 360));
-    
-    vertices[vertices.size()-1]->addAttractionPoint(seekTargetPos.x, seekTargetPos.y, seekWeight);
-    vertices[vertices.size()-1]->setRotation(ofRandom(180, 360));
-    
-    applySeek = false;
-  }
-}
-
 void Agent::handleTickle() {
   // Does the agent want to tickle? Check with counter conditions.
   if (applyTickle == true) {
@@ -393,23 +356,6 @@ ofMesh& Agent::getMesh() {
   return mesh;
 }
 
-void Agent::setSeekTarget() {
-  // Pick a new target location once it starts slowing down.
-  glm::vec2 avgVel;
-  for (auto v : vertices) {
-    avgVel += glm::vec2(v->getVelocity().x, v->getVelocity().y);
-  }
-  avgVel = avgVel/vertices.size();
-  
-  // Pick a new target when the agent has really slowed down. Is this really what I want?
-  if (abs(avgVel.g) < 0.5 && !applySeek) {
-    // Calculate a new target position.
-    auto x = desireRadius * sin(ofRandom(360)); auto y = desireRadius * cos(ofRandom(360));
-    seekTargetPos = glm::vec2(mesh.getCentroid().x, mesh.getCentroid().y) + glm::vec2(x, y);
-    applySeek = true;
-  }
-}
-
 void Agent::setTickle(float avgForceWeight) {
   applyTickle = true;
   tickleWeight = avgForceWeight;
@@ -418,12 +364,6 @@ void Agent::setTickle(float avgForceWeight) {
 void Agent::setStretch(float avgWeight) {
   applyStretch = true;
   stretchWeight = avgWeight;
-}
-
-std::shared_ptr<ofxBox2dCircle> Agent::getRandomVertex() {
-  int randV = ofRandom(vertices.size());
-  auto v = vertices[randV];
-  return v;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {
@@ -536,10 +476,6 @@ void Agent::updateMesh() {
     meshPoint.y = pos.y;
     mesh.setVertex(j, meshPoint);
   }
-}
-
-float Agent::getDesireCounter() {
-  return curDesireCounter; 
 }
 
 void Agent::setDesireState(DesireState newState) {

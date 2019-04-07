@@ -179,12 +179,9 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/Bell"){
       float val = m.getArgAsFloat(0);
-      for (auto &a : agents) {
-        a -> setSeekTarget();
-      }
     }
     
-    // STATE CHANGER IS THE MELODY!
+    // STATE CHANGER!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
       for (auto &a : agents) {

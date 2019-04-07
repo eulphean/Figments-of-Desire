@@ -4,7 +4,7 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   agentA = agent1;
   agentB = agent2;
   joints.push_back(joint);
-  maxExchangeCounter = 50;
+  maxExchangeCounter = 30;
   curExchangeCounter = 0;
 }
 

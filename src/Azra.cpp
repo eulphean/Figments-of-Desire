@@ -9,11 +9,6 @@ Azra::Azra(ofxBox2d &box2d, AgentProperties agentProps) {
   
   this->numBogusMessages= 500;
   
-  // Desire
-  this->maxDesireCounter = 100;
-  this->curDesireCounter = -this->maxDesireCounter; // Start with a negative number (No desire)
-  this->desireIncrement = 0.01;
-  
   setup(box2d, agentProps, "azra.txt");
   
   // Post process filters.

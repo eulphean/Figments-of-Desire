@@ -36,20 +36,14 @@ class Agent {
     void handleAttraction();
     void handleStretch();
     void handleVertexBehaviors();
-  
-    void handleSeek();
     void handleTickle();
   
     // Enabling behaviors
-    void setSeekTarget();
     void setTickle(float weight);
     void setStretch(float weight);
-    void setRepulsionTarget(Agent *target, int targetAgentId);
   
     // Helpers
-    std::shared_ptr<ofxBox2dCircle> getRandomVertex();
     glm::vec2 getCentroid();
-    float getDesireCounter();
     ofMesh& getMesh();
     int getMaxInterAgentJoints();
     void setDesireState(DesireState state);
@@ -72,18 +66,12 @@ class Agent {
     float desireRadius;
     DesireState desireState;
 
-  
   protected:
     // Derived class needs to have access to these. 
     int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
     ofTrueTypeFont font;
-  
-    // Desire counters;
-    float curDesireCounter;
-    float maxDesireCounter;
-    float desireIncrement;
     
   private:
     void readFile(string fileName);
