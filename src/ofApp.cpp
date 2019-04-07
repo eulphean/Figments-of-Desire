@@ -79,14 +79,14 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
             data->applyRepulsion = true;
             e.a->GetBody()->SetUserData(data);
           }
+          
+          // Really long routine to evaluate if two vertices belonging to two different agents
+          // can actually bond with each other or not. Take a look at the conditions under which
+          // this bonding actually happens.
+          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
+            evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+          }
         }
-    
-        // Really long routine to evaluate if two vertices belonging to two different agents
-        // can actually bond with each other or not. Take a look at the conditions under which
-        // this bonding actually happens.
-//        if (agentA != agentB) {
-//          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
-//        }
       }
     }
   }
@@ -98,11 +98,8 @@ void ofApp::update(){
   processOsc();
   
   //handleSerial();
-  
   ofRemove(superAgents, [&](SuperAgent &sa){
     sa.update(box2d, maxJointForce);
-    if (sa.shouldRemove == true) {
-    }
     return sa.shouldRemove;
   });
   
@@ -110,16 +107,14 @@ void ofApp::update(){
   updateAgentProps();
   
   std::vector<ofMesh> meshes;
-  std::vector<glm::vec2> centroids;
   // Update agents
   for (auto &a : agents) {
     a -> update();
-    centroids.push_back(a->getCentroid());
     meshes.push_back(a->getMesh());
   }
   
   // Create super agents based on collision bodies.
-//  createSuperAgents();
+  createSuperAgents();
   
   // Update background
   bg.updateWithVertices(meshes);
@@ -187,9 +182,9 @@ void ofApp::processOsc() {
       for (auto &a : agents) {
         a -> setSeekTarget();
       }
-      cout << "Bell" << endl;
     }
     
+    // STATE CHANGER IS THE MELODY!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
       for (auto &a : agents) {
@@ -433,24 +428,19 @@ void ofApp::exit() {
 void ofApp::evaluateBonding(b2Body *bodyA, b2Body *bodyB, Agent *agentA, Agent *agentB) {
   collidingBodies.clear();
   
-  // Is AgentA's partner AgentB
-  // Is AgentB's partner AgentA
-//  if ((agentA -> getPartner() == agentB || agentA -> getPartner() == NULL)
-//        && (agentB -> getPartner() == NULL || agentB -> getPartner() == agentA)) {
-//    // Vertex level checks. Is this vertex bonded to anything except itself?
-//    bool a = canVertexBond(bodyA, agentA);
-//    bool b = canVertexBond(bodyB, agentB);
-//    if (a && b) {
-//      // Prepare for bond.
-//      collidingBodies.push_back(bodyA);
-//      collidingBodies.push_back(bodyB);
-//    }
-//  }
+  // Vertex level checks. Is this vertex bonded to anything except itself?
+  bool a = canVertexBond(bodyA, agentA);
+  bool b = canVertexBond(bodyB, agentB);
+  if (a && b) {
+    // Prepare for bond.
+    collidingBodies.push_back(bodyA);
+    collidingBodies.push_back(bodyB);
+  }
 }
 
 bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
   // If it joins anything except itself, then it cannot join.
-  auto curEdge = body -> GetJointList();
+  auto curEdge = body->GetJointList();
   // Traverse the joint doubly linked list.
   while (curEdge) {
     // Other agent that this joint is joined to.
@@ -461,8 +451,7 @@ bool ofApp::canVertexBond(b2Body* body, Agent *curAgent) {
         return false;
       }
     }
-    
-    curEdge = curEdge -> next;
+    curEdge = curEdge->next;
   }
 
   return true;
@@ -492,6 +481,7 @@ void ofApp::updateForce(int & newVal) {
 void ofApp::createSuperAgents() {
   // Joint creation based on when two bodies collide at certain vertices.
   if (collidingBodies.size()>0) {
+      // Find the agent of this body.
       auto agentA = reinterpret_cast<VertexData*>(collidingBodies[0]->GetUserData())->agent;
       auto agentB = reinterpret_cast<VertexData*>(collidingBodies[1]->GetUserData())->agent;
     
@@ -517,9 +507,6 @@ void ofApp::createSuperAgents() {
         j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
         superAgent.setup(agentA, agentB, j); // Create a new super agent.
         superAgents.push_back(superAgent);
-        // Dodgy. I will be using the partner for something else now...
-//        agentA -> setPartner(agentB);
-//        agentB -> setPartner(agentA);
       }
     
       collidingBodies.clear();

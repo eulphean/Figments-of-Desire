@@ -285,30 +285,30 @@ void Agent::handleRepelCorners() {
 
 // Steer Away
 void Agent::handleRepulsion() {
-  // Can we be smart about this ?
-  if (applyRepulsion) {
-    float minD = 9999; int minIdx;
-      // Find minimum distance idx.
-      for (auto idx : boundaryIndices) {
-        auto v = vertices[idx];
-        auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
-        auto d = glm::distance(p, partner->getCentroid());
-        if (d < minD) {
-          minD = d; minIdx = idx;
-        }
-    }
-    
-    // Calculate another pos
-    auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
-    if (d > 150) {
-      glm::vec2 pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      
-      float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
-      
-      vertices[minIdx]->addAttractionPoint({pos.x, pos.y }, newWeight);
-    }
-    applyRepulsion = false;
-  }
+//  // Can we be smart about this ?
+//  if (applyRepulsion) {
+//    float minD = 9999; int minIdx;
+//      // Find minimum distance idx.
+//      for (auto idx : boundaryIndices) {
+//        auto v = vertices[idx];
+//        auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
+//        auto d = glm::distance(p, partner->getCentroid());
+//        if (d < minD) {
+//          minD = d; minIdx = idx;
+//        }
+//    }
+//    
+//    // Calculate another pos
+//    auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
+//    if (d > 150) {
+//      glm::vec2 pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+//
+//      float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
+//      
+//      vertices[minIdx]->addAttractionPoint({pos.x, pos.y }, newWeight);
+//    }
+//    applyRepulsion = false;
+//  }
 }
 
 void Agent::handleAttraction() {
@@ -509,7 +509,6 @@ void Agent::createSoftBody(ofxBox2d &box2d, AgentProperties agentProps) {
         joint -> setup(box2d.getWorld(), vertices[idx] -> body, vertices[rightIdx] -> body, agentProps.jointPhysics.x, agentProps.jointPhysics.y); // frequency, damping
         joints.push_back(joint);
       }
-      
       
       // Do this for each row except the last row. There is no further joint to
       // be made there.
