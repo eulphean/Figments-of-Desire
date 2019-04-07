@@ -22,6 +22,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Calculate a desireRadius based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
   desireRadius = sqrt(area/PI);
+  wideRadius = desireRadius * 3;
   
   // Target position
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
@@ -29,7 +30,7 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Force weights for various body actions..
   stretchWeight = 1.5;
   repulsionWeight = 0.5;
-  attractionWeight = 0.3;
+  attractionWeight = 0.5; // Can this be changed when the other agent is trying to attack me?
   
   seekWeight = 0.4; // Probably seek with a single vertex. 
   tickleWeight = 2.5;
@@ -54,6 +55,12 @@ void Agent::update() {
   if (curDesireCounter < maxDesireCounter) {
     curDesireCounter += desireIncrement;
   }
+//
+//  if (curDesireCounter > 0) {
+//    desireRadius = wideRadius;
+//  } else {
+//    desireRadius = wideRadius/3;
+//  }
   
   // Check if the two desire radius' intersect.
   // If desire radius intersect, time to apply interpersonal behaviors
@@ -69,9 +76,6 @@ void Agent::update() {
   }
   
   applyBehaviors();
-  
-  // Inputs from Ableton
-  // Choregraphy behaviors should be applied seperately.
 }
 
 void Agent::draw(bool debug, bool showTexture) {
@@ -256,9 +260,10 @@ void Agent::applyBehaviors()  {
   handleStretch();
   handleRepulsion();
   handleAttraction();
-    handleTickle();
+  handleTickle();
   //  handleSeek();
   
+  // Behavior of individual bodies on the agent (all circles mostly)
   handleVertexBehaviors();
 }
 
@@ -268,7 +273,7 @@ void Agent::handleVertexBehaviors() {
     if (data->applyRepulsion) {
       // Repel this vertex from it's partner's centroid especially
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 5);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 2);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -277,35 +282,70 @@ void Agent::handleVertexBehaviors() {
     
     if (data->applyAttraction) {
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addAttractionPoint({pos.x, pos.y}, attractionWeight * 5);
+      v->addAttractionPoint({pos.x, pos.y}, attractionWeight * 2);
       
+      // Reset attraction parameter on the vertex.
       data->applyAttraction = false;
       v->setData(data);
     }
   }
 }
 
+// Steer Away
 void Agent::handleRepulsion() {
-  // TODO: Behavior of individual vertices (when they hit each other, as they want to repel each other)
-  // NEED to handle each of those behaviors there as well. 
+  // Can we be smart about this ?
   if (applyRepulsion) {
-    for (auto idx: cornerIndices) {
-        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-        vertices[idx]->addRepulsionForce(pos.x, pos.y, ofRandom(repulsionWeight));
+    float minD = 9999; int minIdx;
+      // Find minimum distance idx.
+      for (auto idx : boundaryIndices) {
+        auto v = vertices[idx];
+        auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
+        auto d = glm::distance(p, partner->getCentroid());
+        if (d < minD) {
+          minD = d; minIdx = idx;
+        }
+    }
+    
+    // Calculate another pos
+    auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
+//    auto angle = ofRandom(45, 90);
+//    glm::vec2 pos = glm::vec2(desireRadius/2 * cos(angle), desireRadius/2 * sin(angle));
+
+    if (d > 150) {
+      glm::vec2 pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      
+      float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
+      
+      vertices[minIdx]->addAttractionPoint({pos.x, pos.y }, newWeight);
     }
     applyRepulsion = false;
   }
 }
 
 void Agent::handleAttraction() {
+  // From all the corner vertices, which one is the closes to the other agent.
+  
   // Think about the attraction//
   // Probably the corner that's closest to the centroid of the other agent..
   // NOTE (Come back to attraction)
   if (applyAttraction) {
-    for (auto idx: boundaryIndices) {
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      vertices[idx]->addAttractionPoint({pos.x, pos.y}, ofRandom(attractionWeight));
+    float minD = 9999; int minIdx;
+    // Find minimum distance idx.
+    for (auto idx : boundaryIndices) {
+      auto v = vertices[idx];
+      auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
+      auto d = glm::distance(p, partner->getCentroid());
+      if (d < minD) {
+        minD = d; minIdx = idx;
+      }
     }
+    
+  auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
+  if (d > 150) {
+    float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
+    auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+    vertices[minIdx]->addAttractionPoint({pos.x, pos.y}, newWeight);
+  }
     applyAttraction = false;
   }
 }

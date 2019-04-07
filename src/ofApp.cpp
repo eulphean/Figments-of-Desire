@@ -192,12 +192,12 @@ void ofApp::processOsc() {
       for (auto &a : agents) {
         a -> setSeekTarget();
       }
-//      cout << "Back 2" << endl;
+      cout << "Bell" << endl;
     }
     
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-//      cout << val << endl;
+      cout << val << endl;
     }
     
     // UI messages.

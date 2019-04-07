@@ -65,6 +65,7 @@ class Agent {
     // activated. They are not constantly activated all
     // the time for whatever place.
     float desireRadius;
+    float wideRadius; 
   
   protected:
     // Derived class needs to have access to these. 
