@@ -84,6 +84,21 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           // can actually bond with each other or not. Take a look at the conditions under which
           // this bonding actually happens.
           if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
+            auto data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
+            
+            // Body repels if the it doesn't have a joint.
+            if (!data->hasInterAgentJoint) {
+              data->applyRepulsion = true;
+              e.a->GetBody()->SetUserData(data);
+            }
+            
+            // Body repels if tt doesn't have a joint. 
+            data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+            if (!data->hasInterAgentJoint) {
+              data->applyRepulsion = true;
+              e.b->GetBody()->SetUserData(data);
+            }
+            
             evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
           }
         }
@@ -513,6 +528,15 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     // Joint length
     int jointLength = ofRandom(250, 300);
     j->setLength(jointLength);
+  
+    // Enable interAgentJoint
+    auto data = reinterpret_cast<VertexData*>(bodyA->GetUserData());
+    data->hasInterAgentJoint = true;
+    bodyA->SetUserData(data);
+  
+    data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
+    data->hasInterAgentJoint = true;
+    bodyB->SetUserData(data);
   
     return j;
 }

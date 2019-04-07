@@ -123,8 +123,10 @@ class VertexData {
     VertexData(Agent *ptr) {
       agent = ptr;
       applyRepulsion = false;
+      hasInterAgentJoint = false; 
     }
   
     Agent * agent;
     bool applyRepulsion;
+    bool hasInterAgentJoint;
 };
