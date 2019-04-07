@@ -56,11 +56,6 @@ void ofApp::contactStart(ofxBox2dContactArgs &e) {
 void ofApp::contactEnd(ofxBox2dContactArgs &e) {
   // Based on the current state of desire, what should the vertices do if they hit each other
   // How do they effect each other?
-  
-  // BOTH FIGMENTS WANT TO REPEL
-  // ONE WANTS TO REPEL AND OTHER WANTS TO ATTRACT
-  // BOTH WANT TO ATTRACT
-
   if (agents.size() > 0) {
     if(e.a != NULL && e.b != NULL) {
       if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle
@@ -69,17 +64,17 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         Agent* agentA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData())->agent;
         Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
         
-        // Critical condition here. 
+        // DEFINE INDIVIDUAL VERTEX BEHAVIORS.
         if (agentA != agentB) {
-          if (agentA->getDesireCounter() < 0) {
-            // Repel vertex of AgentB. 
+          // REPEL AGENT B's vertices
+          if (agentA->desireState == LOW) {
             auto data =  reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
             data->applyRepulsion = true;
             e.b->GetBody()->SetUserData(data);
           }
           
-          if (agentB->getDesireCounter() < 0) {
-            // Repel vertex of AgentA.
+          // Repel AGENT A's vertice
+          if (agentB->desireState == LOW) {
             auto data =  reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
             data->applyRepulsion = true;
             e.a->GetBody()->SetUserData(data);
@@ -197,7 +192,13 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-      cout << val << endl;
+      for (auto &a : agents) {
+        if (val > 0) {
+          a->setDesireState(HIGH);
+        } else {
+          a->setDesireState(LOW);
+        }
+      }
     }
     
     // UI messages.

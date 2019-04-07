@@ -14,6 +14,11 @@ struct AgentProperties {
   float vertexRadius;
 };
 
+enum DesireState {
+  LOW,
+  HIGH
+};
+
 // Subsection body that is torn apart from the actual texture and falls on the ground. 
 class Agent {
   public:
@@ -27,6 +32,7 @@ class Agent {
     // Behaviors
     void applyBehaviors();
     void handleRepulsion();
+    void handleRepelCorners();
     void handleAttraction();
     void handleStretch();
     void handleVertexBehaviors();
@@ -46,6 +52,7 @@ class Agent {
     float getDesireCounter();
     ofMesh& getMesh();
     int getMaxInterAgentJoints();
+    void setDesireState(DesireState state);
   
     // Vertices
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
@@ -61,11 +68,10 @@ class Agent {
     // Agent's partner
     Agent *partner = NULL;
   
-    // Desire radius determines when the behaviors get
-    // activated. They are not constantly activated all
-    // the time for whatever place.
+    // Desires. 
     float desireRadius;
-    float wideRadius; 
+    DesireState desireState;
+
   
   protected:
     // Derived class needs to have access to these. 
@@ -110,6 +116,9 @@ class Agent {
     bool applyRepulsion;
     float repulsionWeight;
   
+    // Repel corners
+    bool repelCorners; 
+  
     // Attraction.
     bool applyAttraction;
     float attractionWeight; 
@@ -135,10 +144,8 @@ class VertexData {
     VertexData(Agent *ptr) {
       agent = ptr;
       applyRepulsion = false;
-      applyAttraction = false; 
     }
   
     Agent * agent;
     bool applyRepulsion;
-    bool applyAttraction;
 };

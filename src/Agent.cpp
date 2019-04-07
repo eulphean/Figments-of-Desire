@@ -22,7 +22,6 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Calculate a desireRadius based on the size of the mesh
   auto area = agentProps.meshSize.x * agentProps.meshSize.y;
   desireRadius = sqrt(area/PI);
-  wideRadius = desireRadius * 3;
   
   // Target position
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
@@ -40,39 +39,30 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   applySeek = false;
   applyTickle = false;
   applyRepulsion = false;
+  repelCorners = true; 
   
   maxInterAgentJoints = ofRandom(1, vertices.size());
+  
+  // Current desire state. 
+  desireState = LOW;
 }
 
 void Agent::update() {
   // Use box2d circle to update the mesh.
   updateMesh();
-  
-  // Update desire
-  // Any other conditions ? Like when it's stuck, I'll have to come
-  // and update this.
-  // Update this every frame.
-  if (curDesireCounter < maxDesireCounter) {
-    curDesireCounter += desireIncrement;
-  }
-//
-  if (curDesireCounter > 0) {
-    desireRadius = wideRadius;
-  } else {
-    desireRadius = wideRadius/3;
-  }
-  
-  // Check if the two desire radius' intersect.
-  // If desire radius intersect, time to apply interpersonal behaviors
-  auto d = glm::distance(this->getCentroid(), partner->getCentroid());
-  auto maxDistanceForIntersection = (this->desireRadius + partner->desireRadius) * 6/7;
-  if (d < maxDistanceForIntersection) {
-    // Apply the right behavior for this states
-    if (curDesireCounter < 0) {
-      applyRepulsion = true;
-    } else {
-      applyAttraction = true; 
+
+  // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
+  if (desireState == LOW) {
+    auto d = glm::distance(this->getCentroid(), partner->getCentroid());
+    auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
+    if (d < maxDistanceForIntersetion) {
+      repelCorners = true;
     }
+  }
+  
+  // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
+  if (desireState == HIGH) {
+    applyAttraction = true;
   }
   
   applyBehaviors();
@@ -250,7 +240,6 @@ void Agent::createTexture(ofPoint meshSize) {
     for (auto m : messages) {
       m.draw(font);
     }
-    //curMsg->draw(font);
     
   fbo.end();
 }
@@ -258,10 +247,11 @@ void Agent::createTexture(ofPoint meshSize) {
 void Agent::applyBehaviors()  {
   // ----Current actions/behaviors---
   handleStretch();
+  handleRepelCorners();
+  
   handleRepulsion();
   handleAttraction();
   handleTickle();
-  //  handleSeek();
   
   // Behavior of individual bodies on the agent (all circles mostly)
   handleVertexBehaviors();
@@ -279,15 +269,17 @@ void Agent::handleVertexBehaviors() {
       data->applyRepulsion = false;
       v->setData(data);
     }
-    
-    if (data->applyAttraction) {
+  }
+}
+
+void Agent::handleRepelCorners() {
+  // Repel from all the corners.
+  if (repelCorners) {
+    for (auto i : cornerIndices) {
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addAttractionPoint({pos.x, pos.y}, attractionWeight * 2);
-      
-      // Reset attraction parameter on the vertex.
-      data->applyAttraction = false;
-      v->setData(data);
+      vertices[i]->addRepulsionForce(pos.x, pos.y, repulsionWeight);
     }
+    repelCorners = false;
   }
 }
 
@@ -308,9 +300,6 @@ void Agent::handleRepulsion() {
     
     // Calculate another pos
     auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
-//    auto angle = ofRandom(45, 90);
-//    glm::vec2 pos = glm::vec2(desireRadius/2 * cos(angle), desireRadius/2 * sin(angle));
-
     if (d > 150) {
       glm::vec2 pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
       
@@ -323,11 +312,8 @@ void Agent::handleRepulsion() {
 }
 
 void Agent::handleAttraction() {
-  // From all the corner vertices, which one is the closes to the other agent.
-  
-  // Think about the attraction//
-  // Probably the corner that's closest to the centroid of the other agent..
-  // NOTE (Come back to attraction)
+  // Find the closes vertex from the boundary of indices and attract it to the
+  // centroid of the other mesh
   if (applyAttraction) {
     float minD = 9999; int minIdx;
     // Find minimum distance idx.
@@ -341,7 +327,7 @@ void Agent::handleAttraction() {
     }
     
   auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
-  if (d > 150) {
+  if (d > desireRadius) {
     float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
     auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
     vertices[minIdx]->addAttractionPoint({pos.x, pos.y}, newWeight);
@@ -555,4 +541,8 @@ void Agent::updateMesh() {
 
 float Agent::getDesireCounter() {
   return curDesireCounter; 
+}
+
+void Agent::setDesireState(DesireState newState) {
+  desireState = newState;
 }
