@@ -36,12 +36,8 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   
   // These are actions. But, what are the desires?
   applyStretch = true;
-  applySeek = false;
   applyTickle = false;
-  applyRepulsion = false;
-  repelCorners = true; 
-  
-  maxInterAgentJoints = ofRandom(1, vertices.size());
+  repelCorners = false;
   
   // Current desire state. 
   desireState = LOW;
@@ -221,7 +217,7 @@ void Agent::createTexture(ofPoint meshSize) {
     for (auto m : messages) {
       m.draw(font);
     }
-    
+
   fbo.end();
 }
 
@@ -229,8 +225,6 @@ void Agent::applyBehaviors()  {
   // ----Current actions/behaviors---
   handleStretch();
   handleRepelCorners();
-  
-  handleRepulsion();
   handleAttraction();
   handleTickle();
   
@@ -244,7 +238,7 @@ void Agent::handleVertexBehaviors() {
     if (data->applyRepulsion) {
       // Repel this vertex from it's partner's centroid especially
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 2);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 5);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -262,34 +256,6 @@ void Agent::handleRepelCorners() {
     }
     repelCorners = false;
   }
-}
-
-// Steer Away
-void Agent::handleRepulsion() {
-//  // Can we be smart about this ?
-//  if (applyRepulsion) {
-//    float minD = 9999; int minIdx;
-//      // Find minimum distance idx.
-//      for (auto idx : boundaryIndices) {
-//        auto v = vertices[idx];
-//        auto p = glm::vec2(v->getPosition().x, v->getPosition().y);
-//        auto d = glm::distance(p, partner->getCentroid());
-//        if (d < minD) {
-//          minD = d; minIdx = idx;
-//        }
-//    }
-//    
-//    // Calculate another pos
-//    auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
-//    if (d > 150) {
-//      glm::vec2 pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-//
-//      float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
-//      
-//      vertices[minIdx]->addAttractionPoint({pos.x, pos.y }, newWeight);
-//    }
-//    applyRepulsion = false;
-//  }
 }
 
 void Agent::handleAttraction() {
@@ -342,10 +308,6 @@ void Agent::handleTickle() {
     }
     applyTickle = false;
   }
-}
-
-int Agent::getMaxInterAgentJoints() {
-  return maxInterAgentJoints;
 }
 
 glm::vec2 Agent::getCentroid() {

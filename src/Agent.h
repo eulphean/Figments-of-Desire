@@ -31,7 +31,6 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void handleRepulsion();
     void handleRepelCorners();
     void handleAttraction();
     void handleStretch();
@@ -45,7 +44,6 @@ class Agent {
     // Helpers
     glm::vec2 getCentroid();
     ofMesh& getMesh();
-    int getMaxInterAgentJoints();
     void setDesireState(DesireState state);
   
     // Vertices
@@ -90,7 +88,6 @@ class Agent {
     // Seek
     glm::vec2 seekTargetPos;
     float seekWeight;
-    bool applySeek;
   
     // Tickle.
     float tickleWeight;
@@ -100,19 +97,13 @@ class Agent {
     float stretchWeight;
     bool applyStretch;
   
-    // Repulsion.
-    bool applyRepulsion;
-    float repulsionWeight;
-  
     // Repel corners
-    bool repelCorners; 
+    bool repelCorners;
+    float repulsionWeight;
   
     // Attraction.
     bool applyAttraction;
     float attractionWeight; 
-  
-    // Max InterAgent joints for each agent
-    int maxInterAgentJoints;
   
     // Texture
     ofFbo fbo;

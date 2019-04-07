@@ -488,15 +488,9 @@ void ofApp::createSuperAgents() {
       // Check for existing joints.
       for (auto &sa : superAgents) {
         if (sa.contains(agentA, agentB)) {
-          int maxJoints = (agentA->getMaxInterAgentJoints() + agentB->getMaxInterAgentJoints())/2; // Average of both of these joints.
-          
-          if (sa.joints.size() < maxJoints) {
-            j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
-            sa.joints.push_back(j);
-            found = true;
-          } else {
-            found = true;
-          }
+          j = createInterAgentJoint(collidingBodies[0], collidingBodies[1]);
+          sa.joints.push_back(j);
+          found = true;
         }
       }
     
