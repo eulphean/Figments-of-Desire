@@ -201,7 +201,7 @@ void ofApp::processOsc() {
       float val = m.getArgAsFloat(0);
       cout << val << endl; 
       for (auto &a : agents) {
-        if (val > 0 && val < 0.98) {
+        if (val > 0 && val < 0.98n) {
           a->setDesireState(HIGH);
         } else {
           a->setDesireState(LOW);
