@@ -240,7 +240,7 @@ void Agent::handleVertexBehaviors() {
     if (data->applyRepulsion) {
       // Repel this vertex from it's partner's centroid especially
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 5);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 8);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -335,6 +335,18 @@ glm::vec2 Agent::getCentroid() {
 
 ofMesh& Agent::getMesh() {
   return mesh;
+}
+
+
+// Repulse the vertices constantly
+void Agent::repulseBondedVertices() {
+  for (auto &v : vertices) {
+    auto data = reinterpret_cast<VertexData*>(v->getData());
+    if (data->hasInterAgentJoint) {
+      data->applyRepulsion = true;
+      v->setData(data);
+    }
+  }
 }
 
 void Agent::setTickle(float avgForceWeight) {

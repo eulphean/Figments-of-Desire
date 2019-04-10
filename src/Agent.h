@@ -40,6 +40,7 @@ class Agent {
     // Enabling behaviors
     void setTickle(float weight);
     void setStretch(float weight);
+    void repulseBondedVertices();
   
     // Helpers
     glm::vec2 getCentroid();

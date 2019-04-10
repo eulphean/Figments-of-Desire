@@ -194,14 +194,18 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/Bell"){
       float val = m.getArgAsFloat(0);
+      cout << "Bell" << endl;
+//      for (auto &a : agents) {
+//        a->repulseBondedVertices();
+//      }
+
     }
     
     // STATE CHANGER!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-      cout << val << endl; 
       for (auto &a : agents) {
-        if (val > 0 && val < 0.98n) {
+        if (val > 0 && val < 0.98) {
           a->setDesireState(HIGH);
         } else {
           a->setDesireState(LOW);
