@@ -13,8 +13,8 @@
 		<Vertex_Friction>1</Vertex_Friction>
 	</Vertex_Params>
 	<Joint_Params>
-		<Joint_Frequency>4.28571</Joint_Frequency>
-		<Joint_Damping>5</Joint_Damping>
+		<Joint_Frequency>2.2449</Joint_Frequency>
+		<Joint_Damping>4.03061</Joint_Damping>
 	</Joint_Params>
 	<InterAgentJoint_Params>
 		<Joint_Frequency>1</Joint_Frequency>

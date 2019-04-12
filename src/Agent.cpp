@@ -59,7 +59,7 @@ void Agent::update() {
   
   // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
   if (desireState == HIGH) {
-    stretchWeight = 1.5;
+    stretchWeight = 1.0;
     applyAttraction = true;
   }
   
@@ -261,10 +261,18 @@ void Agent::handleVertexBehaviors() {
 void Agent::handleRepelCorners() {
   // Repel from all the corners.
   if (repelCorners) {
-    for (auto i : cornerIndices) {
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      vertices[i]->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+    if (ofRandom(1) < 0.5) {
+      for (auto i : cornerIndices) {
+        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+        vertices[i]->addRepulsionForce(pos.x, pos.y, repulsionWeight);
+      }
+    } else {
+      for (auto i : cornerIndices) {
+        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+        vertices[i]->addAttractionPoint({pos.x, pos.y}, attractionWeight);
+      }
     }
+    
     repelCorners = false;
   }
 }
