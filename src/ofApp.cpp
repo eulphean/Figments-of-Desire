@@ -315,8 +315,8 @@ void ofApp::setupGui() {
     meshParams.setName("Mesh Params");
     meshParams.add(meshRows.set("Mesh Rows", 5, 5, 100)); // Add the current value
     meshParams.add(meshColumns.set("Mesh Columns", 5, 5, 100));
-    meshParams.add(meshWidth.set("Mesh Width", 100, 10, ofGetWidth()/2));
-    meshParams.add(meshHeight.set("Mesh Height", 100, 10, ofGetHeight()/2));
+    meshParams.add(meshWidth.set("Mesh Width", 100, 10, ofGetWidth()));
+    meshParams.add(meshHeight.set("Mesh Height", 100, 10, ofGetHeight()-));
   
     // Vertex parameters
     vertexParams.setName("Vertex Params");
