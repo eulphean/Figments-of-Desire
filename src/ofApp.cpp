@@ -70,51 +70,44 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           auto dataA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
           auto dataB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
         
-          // Both are low.
+          // State behaviors for vertices when agent state is LOW.
           if (agentA->desireState == LOW && agentB->desireState == LOW) {
               // This is too random!!
-//              if (ofRandom(1) < 0.5) {
-//                dataA->applyRepulsion = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//
-//                dataB->applyRepulsion = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              } else {
-//                dataA->applyAttraction = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//
-//                dataB->applyAttraction = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              }
+              if (ofRandom(1) < 0.5) {
+                dataA->applyRepulsion = true;
+                e.a->GetBody()->SetUserData(dataA);
+
+                dataB->applyRepulsion = true;
+                e.b->GetBody()->SetUserData(dataB);
+              } else {
+                dataA->applyAttraction = true;
+                e.a->GetBody()->SetUserData(dataA);
+
+                dataB->applyAttraction = true;
+                e.b->GetBody()->SetUserData(dataB);
+              }
           }
           
-          
-          // Really long routine to evaluate if two vertices belonging to two different agents
-          // can actually bond with each other or not. Take a look at the conditions under which
-//          // this bonding actually happens.
+          // State behaviors for vertices when agent state is HIGH.
           if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
-            if (ofRandom(1) < 0.5) {
-              // Body repels if the it doesn't have a joint.
+              // Repel vertices on collision if they don't have an interAgentJoint.
               if (!dataA->hasInterAgentJoint) {
                 dataA->applyRepulsion = true;
                 e.a->GetBody()->SetUserData(dataA);
               }
-            } else {
-              // Body repels if tt doesn't have a joint.
-              dataB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+            
               if (!dataB->hasInterAgentJoint) {
                 dataB->applyRepulsion = true;
                 e.b->GetBody()->SetUserData(dataB);
               }
           }
 
-          // Bonding if they both high.
+          // Long routine to evaluate bonding behavior.
           evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
         }
       }
     }
   }
-}
 }
 
 //--------------------------------------------------------------
@@ -204,7 +197,6 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/Bell"){
       float val = m.getArgAsFloat(0);
-      cout << "Bell" << endl;
 //      for (auto &a : agents) {
 //        a->repulseBondedVertices();
 //      }

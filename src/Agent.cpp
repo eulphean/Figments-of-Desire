@@ -50,7 +50,7 @@ void Agent::update() {
   // Print the velocity of vertices.
   for (auto &v : vertices) {
     auto vel = v->getVelocity().length();
-    if (vel > 60) {
+    if (vel > 25) {
       // Normalize current velocity and multiply it by 20
       auto n = v->getVelocity().normalize();
       n = n*0;
