@@ -72,27 +72,26 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         
           // Both are low.
           if (agentA->desireState == LOW && agentB->desireState == LOW) {
-              if (ofRandom(1) < 0.5) {
-                dataA->applyRepulsion = true;
-                e.a->GetBody()->SetUserData(dataA);
-              } else {
-                dataA->applyAttraction = true;
-                e.a->GetBody()->SetUserData(dataA);
-              }
-            
-              if (ofRandom(1) < 0.5) {
-                dataB->applyRepulsion = true;
-                e.b->GetBody()->SetUserData(dataB);
-              } else {
-                dataB->applyAttraction = true;
-                e.b->GetBody()->SetUserData(dataB);
-              }
+              // This is too random!!
+//              if (ofRandom(1) < 0.5) {
+//                dataA->applyRepulsion = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//
+//                dataB->applyRepulsion = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              } else {
+//                dataA->applyAttraction = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//
+//                dataB->applyAttraction = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              }
           }
           
           
           // Really long routine to evaluate if two vertices belonging to two different agents
           // can actually bond with each other or not. Take a look at the conditions under which
-          // this bonding actually happens.
+//          // this bonding actually happens.
           if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
             if (ofRandom(1) < 0.5) {
               // Body repels if the it doesn't have a joint.
@@ -107,10 +106,10 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
                 dataB->applyRepulsion = true;
                 e.b->GetBody()->SetUserData(dataB);
               }
-              
-              // Bonding if they both are
-              evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
           }
+
+          // Bonding if they both high.
+          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
         }
       }
     }
@@ -316,7 +315,7 @@ void ofApp::setupGui() {
     meshParams.add(meshRows.set("Mesh Rows", 5, 5, 100)); // Add the current value
     meshParams.add(meshColumns.set("Mesh Columns", 5, 5, 100));
     meshParams.add(meshWidth.set("Mesh Width", 100, 10, ofGetWidth()));
-    meshParams.add(meshHeight.set("Mesh Height", 100, 10, ofGetHeight()-));
+    meshParams.add(meshHeight.set("Mesh Height", 100, 10, ofGetHeight()));
   
     // Vertex parameters
     vertexParams.setName("Vertex Params");

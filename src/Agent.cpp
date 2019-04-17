@@ -46,6 +46,17 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
 void Agent::update() {
   // Use box2d circle to update the mesh.
   updateMesh();
+  
+  // Print the velocity of vertices.
+  for (auto &v : vertices) {
+    auto vel = v->getVelocity().length();
+    if (vel > 60) {
+      // Normalize current velocity and multiply it by 20
+      auto n = v->getVelocity().normalize();
+      n = n*0;
+      v->setVelocity(n.x, n.y);
+    }
+  }
 
   // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
   if (desireState == LOW) {
@@ -53,7 +64,7 @@ void Agent::update() {
     auto d = glm::distance(this->getCentroid(), partner->getCentroid());
     auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
     if (d < maxDistanceForIntersetion) {
-      repelCorners = true;
+      //repelCorners = true;
     }
   }
   
