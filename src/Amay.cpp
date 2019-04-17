@@ -5,6 +5,7 @@
 Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {  
   // Assign Amay's mesh origin (left corner).
   agentProps.meshOrigin = ofPoint(10, 20);
+  agentProps.vertexRadius = 7; 
   
   // Assign a color palette
   palette = { ofColor::fromHex(0x540D6E), ofColor::fromHex(0x982A41), ofColor::fromHex(0xFFEEB9), ofColor::fromHex(0x3BCEAC), ofColor::fromHex(0x0EAD69) };

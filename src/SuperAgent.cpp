@@ -78,7 +78,7 @@ void SuperAgent::draw() {
   for (auto j : joints) {
     ofPushStyle();
       ofSetColor(ofColor::red);
-      ofSetLineWidth(3);
+      ofSetLineWidth(0.3);
       j->draw();
     ofPopStyle();
   }

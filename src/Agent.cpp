@@ -314,7 +314,7 @@ void Agent::handleStretch() {
       auto data = reinterpret_cast<VertexData*>(v->getData());
       if (!data->hasInterAgentJoint) {
         if (ofRandom(1) < 0.2 ) {
-          v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight);
+          v->addAttractionPoint({mesh.getCentroid().x, mesh.getCentroid().y}, stretchWeight/2);
         } else {
           v->addRepulsionForce(mesh.getCentroid().x, mesh.getCentroid().y, stretchWeight);
         }

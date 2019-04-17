@@ -2,7 +2,7 @@
 <Inter_Mesh_Settings>
 	<Mesh_Params>
 		<Mesh_Rows>20</Mesh_Rows>
-		<Mesh_Columns>19</Mesh_Columns>
+		<Mesh_Columns>20</Mesh_Columns>
 		<Mesh_Width>960</Mesh_Width>
 		<Mesh_Height>540</Mesh_Height>
 	</Mesh_Params>
