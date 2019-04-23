@@ -12,7 +12,6 @@ void SuperAgent::update(ofxBox2d &box2d, bool shouldBond, int maxJointForce) {
   // Max Force based on which the joint breaks.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     if (!shouldBond) {
-      cout << "Remove joints" << endl; 
       box2d.getWorld()->DestroyJoint(j->joint);
       // Get the bodies
       auto bodyA = j->joint->GetBodyA();
