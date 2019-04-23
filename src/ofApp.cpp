@@ -45,6 +45,8 @@ void ofApp::setup(){
   // Store params and create background. 
   bg.setParams(bgParams);
   bg.createBg();
+  
+  shouldBond = false; 
 }
 
 void ofApp::contactStart(ofxBox2dContactArgs &e) {
@@ -103,24 +105,11 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
             // Reset agent state to None on collision.
             agentB->setDesireState(None);
           }
-        
-//
-//          // State behaviors for vertices when agent state is HIGH.
-//          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
-//              // Repel vertices on collision if they don't have an interAgentJoint.
-//              if (!dataA->hasInterAgentJoint) {
-//                dataA->applyRepulsion = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//              }
-//
-//              if (!dataB->hasInterAgentJoint) {
-//                dataB->applyRepulsion = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              }
-//          }
 
-          // Long routine to evaluate bonding behavior.
-          // evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+          // Should the agents be evaluated for bonding?
+          if (shouldBond) {
+            evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+          }
         }
       }
     }
@@ -133,7 +122,7 @@ void ofApp::update(){
   processOsc();
 
   ofRemove(superAgents, [&](SuperAgent &sa){
-    sa.update(box2d, maxJointForce);
+    sa.update(box2d, shouldBond, maxJointForce);
     return sa.shouldRemove;
   });
   
@@ -220,10 +209,10 @@ void ofApp::processOsc() {
       std::vector<Agent *> curAgents;
       auto p = ofRandom(1);
       if (p < 0.33) {
-        curAgents.push_back(agents[0]);
+        curAgents.push_back(agents[0]); // Agent A
       } else if (p < 0.66){
-        curAgents.push_back(agents[1]);
-      } else {
+        curAgents.push_back(agents[1]); // Agent B
+      } else { // Both agents.
         curAgents.push_back(agents[0]);
         curAgents.push_back(agents[1]);
       }
@@ -237,13 +226,7 @@ void ofApp::processOsc() {
     // STATE CHANGER!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-//      for (auto &a : agents) {
-//        if (val > 0 && val < 0.98) {
-//          a->setDesireState(HIGH);
-//        } else {
-//          a->setDesireState(LOW);
-//        }
-//      }
+      shouldBond = (val > 0); // At 0, don't bond anymore
     }
     
 // ------------------ GUI OSC Messages -----------------------
@@ -585,3 +568,20 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
   
     return j;
 }
+
+
+
+//
+//          // State behaviors for vertices when agent state is HIGH.
+//          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
+//              // Repel vertices on collision if they don't have an interAgentJoint.
+//              if (!dataA->hasInterAgentJoint) {
+//                dataA->applyRepulsion = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//              }
+//
+//              if (!dataB->hasInterAgentJoint) {
+//                dataB->applyRepulsion = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              }
+//          }

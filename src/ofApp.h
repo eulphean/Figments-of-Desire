@@ -121,4 +121,6 @@ class ofApp : public ofBaseApp{
     BgMesh bg;
   
     ofTrueTypeFont debugFont;
+  
+    bool shouldBond; 
 };
