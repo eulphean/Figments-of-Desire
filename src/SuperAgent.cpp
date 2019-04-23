@@ -12,26 +12,28 @@ void SuperAgent::update(ofxBox2d &box2d, int maxJointForce) {
   // Max Force based on which the joint breaks.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     // DESIRES ARE 'LOW', BREAK THE JOINTS
-    if (agentA->desireState==LOW && agentB->desireState==LOW) {
-      box2d.getWorld()->DestroyJoint(j->joint);
-      // Get the bodies
-      auto bodyA = j->joint->GetBodyA();
-      auto bodyB = j->joint->GetBodyB();
-      
-      // Update bodyA's data.
-      auto data = reinterpret_cast<VertexData*>(bodyA->GetUserData());
-      data->hasInterAgentJoint = false;
-      bodyA->SetUserData(data);
-      
-      // Update bodyB's data.
-      data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
-      data->hasInterAgentJoint = false;
-      bodyB->SetUserData(data);
-      
-      return true;
-    } else {
-      return false;
-    }
+//    if (agentA->desireState==LOW && agentB->desireState==LOW) {
+//      box2d.getWorld()->DestroyJoint(j->joint);
+//      // Get the bodies
+//      auto bodyA = j->joint->GetBodyA();
+//      auto bodyB = j->joint->GetBodyB();
+//
+//      // Update bodyA's data.
+//      auto data = reinterpret_cast<VertexData*>(bodyA->GetUserData());
+//      data->hasInterAgentJoint = false;
+//      bodyA->SetUserData(data);
+//
+//      // Update bodyB's data.
+//      data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
+//      data->hasInterAgentJoint = false;
+//      bodyB->SetUserData(data);
+//
+//      return true;
+//    } else {
+//      return false;
+//    }
+
+    return true; 
   });
   
   if (joints.size() == 0) {

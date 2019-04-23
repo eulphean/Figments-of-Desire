@@ -41,7 +41,6 @@ void ofApp::setup(){
   // Instantiate Midi.
   Midi::instance().setup();
   
-  serial.setup("/dev/cu.usb modem1411", 9600);
   
   // Store params and create background. 
   bg.setParams(bgParams);
@@ -69,24 +68,42 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           // Collect datas
           auto dataA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
           auto dataB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
+          
+          // Update positions for repelling.
+          auto pos = getBodyPosition(e.b->GetBody());
+          dataA->targetPos = pos;
+
+          pos = getBodyPosition(e.a->GetBody());
+          dataB->targetPos = pos;
+          
+          // Desire state is NONE! Repel the vertices from each
+          // other. 
+          if (agentA->desireState == None) {
+            dataA->applyRepulsion = true;
+            e.a->GetBody()->SetUserData(dataA);
+          }
+          
+          if (agentB->desireState == None) {
+            dataB->applyRepulsion = true;
+            e.b->GetBody()->SetUserData(dataB);
+          }
+          
+          // Desire state is ATTRACTION!
+          // Repel the other agent.
+          if (agentA->desireState == Attraction) {
+             dataB->applyRepulsion = true;
+             e.b->GetBody()->SetUserData(dataB);
+             // Reset agent state to None on collision.
+             agentA->setDesireState(None);
+          }
+          
+          if (agentB->desireState == Attraction) {
+            dataA->applyRepulsion = true;
+            e.a->GetBody()->SetUserData(dataA);
+            // Reset agent state to None on collision.
+            agentB->setDesireState(None);
+          }
         
-//          // State behaviors for vertices when agent state is LOW.
-//          if (agentA->desireState == LOW && agentB->desireState == LOW) {
-//              // This is too random!!
-//              if (ofRandom(1) < 0.5) {
-//                dataA->applyRepulsion = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//
-//                dataB->applyRepulsion = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              } else {
-//                dataA->applyAttraction = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//
-//                dataB->applyAttraction = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              }
-//          }
 //
 //          // State behaviors for vertices when agent state is HIGH.
 //          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
@@ -103,7 +120,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 //          }
 
           // Long routine to evaluate bonding behavior.
-          evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
+          // evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
         }
       }
     }
@@ -114,8 +131,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 void ofApp::update(){
   box2d.update();
   processOsc();
-  
-  //handleSerial();
+
   ofRemove(superAgents, [&](SuperAgent &sa){
     sa.update(box2d, maxJointForce);
     return sa.shouldRemove;
@@ -180,6 +196,17 @@ void ofApp::processOsc() {
     // Process these OSC messages and based on which agent this needs to be delivered,
     if(m.getAddress() == "/Attract"){
       float val = m.getArgAsFloat(0);
+      // Pick a random figment and set applyAttraction to true
+      Agent *curAgent;
+      auto p = ofRandom(1);
+      if (p < 0.5) {
+        curAgent = agents[0];
+      } else {
+        curAgent = agents[1];
+      }
+      
+      // Enable attraction in the figment.
+      curAgent->setDesireState(Attraction);
     }
     
     if(m.getAddress() == "/Repel"){
@@ -201,7 +228,7 @@ void ofApp::processOsc() {
         curAgents.push_back(agents[1]);
       }
       
-      // Stretch the figment(s)
+      // Enable stretch in the figment. 
       for (auto a : curAgents) {
         a->setStretch();
       }
@@ -210,13 +237,13 @@ void ofApp::processOsc() {
     // STATE CHANGER!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-      for (auto &a : agents) {
-        if (val > 0 && val < 0.98) {
-          a->setDesireState(HIGH);
-        } else {
-          a->setDesireState(LOW);
-        }
-      }
+//      for (auto &a : agents) {
+//        if (val > 0 && val < 0.98) {
+//          a->setDesireState(HIGH);
+//        } else {
+//          a->setDesireState(LOW);
+//        }
+//      }
     }
     
 // ------------------ GUI OSC Messages -----------------------
@@ -500,6 +527,13 @@ void ofApp::updateForce(int & newVal) {
   bg.setParams(bgParams);
 }
 
+glm::vec2 ofApp::getBodyPosition(b2Body* body) {
+  auto xf = body->GetTransform();
+  b2Vec2 pos      = body->GetLocalCenter();
+  b2Vec2 b2Center = b2Mul(xf, pos);
+  auto p = worldPtToscreenPt(b2Center);
+  return glm::vec2(p.x, p.y);
+}
 
 void ofApp::createSuperAgents() {
   // Joint creation based on when two bodies collide at certain vertices.
@@ -550,23 +584,4 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     bodyB->SetUserData(data);
   
     return j;
-}
-
-void ofApp::handleSerial() {
-  while (serial.available() > 0)
-    {
-        // Read the byte.
-        char b = serial.readByte();
-
-        // End of line character.
-        if (b == '\n')
-        {
-            // Skip
-            cout<< "New line" << "\n";
-        }
-        else
-        {
-        
-        }
-    }
 }

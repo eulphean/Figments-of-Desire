@@ -26,21 +26,14 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // Target position
   seekTargetPos = glm::vec2(ofRandom(150, ofGetWidth() - 200), ofRandom(50 , 250));
   
-  // Force weights for various body actions..
-  stretchWeight = 1.5;
-  repulsionWeight = 0.5;
-  attractionWeight = 0.5; // Can this be changed when the other agent is trying to attack me?
-  
-  seekWeight = 0.4; // Probably seek with a single vertex. 
-  tickleWeight = 2.5;
-  
   // These are actions. But, what are the desires?
   applyStretch = true;
   applyTickle = false;
   repelCorners = false;
+  applyAttraction = false; 
   
   // Current desire state. 
-  desireState = LOW;
+  desireState = None;
 }
 
 void Agent::update() {
@@ -58,21 +51,21 @@ void Agent::update() {
     }
   }
 
-  // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
-  if (desireState == LOW) {
-    stretchWeight = 1.5;
-    auto d = glm::distance(this->getCentroid(), partner->getCentroid());
-    auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
-    if (d < maxDistanceForIntersetion) {
-      //repelCorners = true;
-    }
-  }
-  
-  // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
-  if (desireState == HIGH) {
-    stretchWeight = 1.0;
-    applyAttraction = true;
-  }
+//  // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
+//  if (desireState == LOW) {
+//    stretchWeight = 1.5;
+//    auto d = glm::distance(this->getCentroid(), partner->getCentroid());
+//    auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
+//    if (d < maxDistanceForIntersetion) {
+//      //repelCorners = true;
+//    }
+//  }
+//
+//  // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
+//  if (desireState == HIGH) {
+//    stretchWeight = 1.0;
+//    applyAttraction = true;
+//  }
   
   applyBehaviors();
 }
@@ -250,8 +243,9 @@ void Agent::handleVertexBehaviors() {
     auto data = reinterpret_cast<VertexData*>(v->getData());
     if (data->applyRepulsion) {
       // Repel this vertex from it's partner's centroid especially
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 8);
+      //auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      auto pos = data->targetPos;
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 10);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -260,6 +254,7 @@ void Agent::handleVertexBehaviors() {
     
     if (data->applyAttraction) {
       auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      //auto pos = data->targetPos;
       v->addAttractionPoint({pos.x, pos.y}, attractionWeight);
       
       // Reset repulsion parameter on the vertex.
@@ -289,7 +284,7 @@ void Agent::handleRepelCorners() {
 }
 
 void Agent::handleAttraction() {
-  // Find the closes vertex from the boundary of indices and attract it to the
+  // Find the closest vertex from the boundary of indices and attract it to the
   // centroid of the other mesh
   if (applyAttraction) {
     float minD = 9999; int minIdx;
@@ -308,13 +303,10 @@ void Agent::handleAttraction() {
       }
     }
     
-  auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
-  if (d > desireRadius) {
+    auto d = glm::distance(partner->getCentroid(), getCentroid()); // Distance till the centroid
     float newWeight = ofMap(d, desireRadius * 3, 0, attractionWeight, 0, true);
     auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
     vertices[minIdx]->addAttractionPoint({pos.x, pos.y}, newWeight);
-  }
-    applyAttraction = false;
   }
 }
 
@@ -491,4 +483,12 @@ void Agent::updateMesh() {
 
 void Agent::setDesireState(DesireState newState) {
   desireState = newState;
+  
+  if (desireState == Attraction) {
+    applyAttraction = true;
+  }
+  
+  if (desireState == None) {
+    applyAttraction = false;
+  }
 }

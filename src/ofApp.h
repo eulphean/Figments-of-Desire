@@ -93,11 +93,11 @@ class ofApp : public ofBaseApp{
     std::vector<b2Body *> collidingBodies;
   
     // Helper methods.
-    void handleSerial();
     void processOsc();
     void clearScreen();
     void removeJoints();
     void removeUnbonded();
+    glm::vec2 getBodyPosition(b2Body* body);
   
     // Super Agents (Inter Agent Bonding Logic)
     void createSuperAgents();

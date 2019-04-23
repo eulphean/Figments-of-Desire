@@ -15,8 +15,9 @@ struct AgentProperties {
 };
 
 enum DesireState {
-  LOW,
-  HIGH
+  None,
+  Attraction,
+  Repulsion
 };
 
 // Subsection body that is torn apart from the actual texture and falls on the ground. 
@@ -46,6 +47,7 @@ class Agent {
     glm::vec2 getCentroid();
     ofMesh& getMesh();
     void setDesireState(DesireState state);
+    void enableAttraction(); 
   
     // Vertices
     std::vector<std::shared_ptr<ofxBox2dCircle>> vertices; // Every vertex in the mesh is a circle.
@@ -71,6 +73,13 @@ class Agent {
     std::vector<ofColor> palette;
     AbstractFilter * filter;
     ofTrueTypeFont font;
+  
+    // Weights
+    float tickleWeight;
+    float stretchWeight;
+    float repulsionWeight;
+    float attractionWeight;
+    float seekWeight;
     
   private:
     void readFile(string fileName);
@@ -88,23 +97,18 @@ class Agent {
   
     // Seek
     glm::vec2 seekTargetPos;
-    float seekWeight;
   
     // Tickle.
-    float tickleWeight;
     bool applyTickle;
   
     // Stretch out.
-    float stretchWeight;
     bool applyStretch;
   
     // Repel corners
     bool repelCorners;
-    float repulsionWeight;
   
     // Attraction.
     bool applyAttraction;
-    float attractionWeight; 
   
     // Texture
     ofFbo fbo;
@@ -132,4 +136,5 @@ class VertexData {
     bool applyRepulsion;
     bool hasInterAgentJoint;
     bool applyAttraction;
+    glm::vec2 targetPos; 
 };
