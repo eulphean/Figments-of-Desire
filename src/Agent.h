@@ -39,7 +39,7 @@ class Agent {
   
     // Enabling behaviors
     void setTickle(float weight);
-    void setStretch(float weight);
+    void setStretch();
     void repulseBondedVertices();
   
     // Helpers

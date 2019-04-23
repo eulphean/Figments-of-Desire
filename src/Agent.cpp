@@ -373,9 +373,8 @@ void Agent::setTickle(float avgForceWeight) {
   tickleWeight = avgForceWeight;
 }
 
-void Agent::setStretch(float avgWeight) {
+void Agent::setStretch() {
   applyStretch = true;
-  stretchWeight = avgWeight;
 }
 
 void Agent::createMesh(AgentProperties agentProps) {

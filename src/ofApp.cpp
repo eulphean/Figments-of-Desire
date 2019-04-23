@@ -70,37 +70,37 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           auto dataA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
           auto dataB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
         
-          // State behaviors for vertices when agent state is LOW.
-          if (agentA->desireState == LOW && agentB->desireState == LOW) {
-              // This is too random!!
-              if (ofRandom(1) < 0.5) {
-                dataA->applyRepulsion = true;
-                e.a->GetBody()->SetUserData(dataA);
-
-                dataB->applyRepulsion = true;
-                e.b->GetBody()->SetUserData(dataB);
-              } else {
-                dataA->applyAttraction = true;
-                e.a->GetBody()->SetUserData(dataA);
-
-                dataB->applyAttraction = true;
-                e.b->GetBody()->SetUserData(dataB);
-              }
-          }
-          
-          // State behaviors for vertices when agent state is HIGH.
-          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
-              // Repel vertices on collision if they don't have an interAgentJoint.
-              if (!dataA->hasInterAgentJoint) {
-                dataA->applyRepulsion = true;
-                e.a->GetBody()->SetUserData(dataA);
-              }
-            
-              if (!dataB->hasInterAgentJoint) {
-                dataB->applyRepulsion = true;
-                e.b->GetBody()->SetUserData(dataB);
-              }
-          }
+//          // State behaviors for vertices when agent state is LOW.
+//          if (agentA->desireState == LOW && agentB->desireState == LOW) {
+//              // This is too random!!
+//              if (ofRandom(1) < 0.5) {
+//                dataA->applyRepulsion = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//
+//                dataB->applyRepulsion = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              } else {
+//                dataA->applyAttraction = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//
+//                dataB->applyAttraction = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              }
+//          }
+//
+//          // State behaviors for vertices when agent state is HIGH.
+//          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
+//              // Repel vertices on collision if they don't have an interAgentJoint.
+//              if (!dataA->hasInterAgentJoint) {
+//                dataA->applyRepulsion = true;
+//                e.a->GetBody()->SetUserData(dataA);
+//              }
+//
+//              if (!dataB->hasInterAgentJoint) {
+//                dataB->applyRepulsion = true;
+//                e.b->GetBody()->SetUserData(dataB);
+//              }
+//          }
 
           // Long routine to evaluate bonding behavior.
           evaluateBonding(e.a->GetBody(), e.b->GetBody(), agentA, agentB);
@@ -178,29 +178,33 @@ void ofApp::processOsc() {
     
     // ABLETON messages.
     // Process these OSC messages and based on which agent this needs to be delivered,
-    // we send the messages to that agent.
-    // They all correspond to some behavior.
-    
-    if(m.getAddress() == "/Back1"){
+    if(m.getAddress() == "/Attract"){
       float val = m.getArgAsFloat(0);
-      for (auto &a : agents) {
-        a -> setTickle(5.0);
-      }
     }
     
-    if(m.getAddress() == "/Back2"){
+    if(m.getAddress() == "/Repel"){
       float val = m.getArgAsFloat(0);
-      for (auto &a : agents) {
-        a -> setStretch(ofRandom(4, 7));
-      }
-    } 
+    }
     
-    if(m.getAddress() == "/Bell"){
+    if(m.getAddress() == "/Stretch") {
       float val = m.getArgAsFloat(0);
-//      for (auto &a : agents) {
-//        a->repulseBondedVertices();
-//      }
-
+      
+      // Populate random agents
+      std::vector<Agent *> curAgents;
+      auto p = ofRandom(1);
+      if (p < 0.33) {
+        curAgents.push_back(agents[0]);
+      } else if (p < 0.66){
+        curAgents.push_back(agents[1]);
+      } else {
+        curAgents.push_back(agents[0]);
+        curAgents.push_back(agents[1]);
+      }
+      
+      // Stretch the figment(s)
+      for (auto a : curAgents) {
+        a->setStretch();
+      }
     }
     
     // STATE CHANGER!
@@ -215,7 +219,7 @@ void ofApp::processOsc() {
       }
     }
     
-    // UI messages.
+// ------------------ GUI OSC Messages -----------------------
     if(m.getAddress() == "/interMesh/width"){
       float val = m.getArgAsFloat(0);
       cout << val << endl;
