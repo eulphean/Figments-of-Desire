@@ -128,11 +128,9 @@ void ofApp::update(){
   box2d.update();
   processOsc();
   
-  // Update vertices
-
+  // Update super agents
   ofRemove(superAgents, [&](SuperAgent &sa){
-    sa.update(box2d, shouldBond, maxJointForce);
-    
+    sa.update(box2d, memories, shouldBond, maxJointForce);
     return sa.shouldRemove;
   });
   
@@ -151,6 +149,12 @@ void ofApp::update(){
   
   // Update background
   bg.updateWithVertices(meshes);
+  
+  // Update memories.
+  ofRemove(memories, [&](Memory &m) {
+    m.update();
+    return m.shouldRemove;
+  });
 }
 
 //--------------------------------------------------------------
@@ -587,10 +591,6 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
     data->hasInterAgentJoint = true;
     bodyB->SetUserData(data);
-  
-    // Create a new memory object for each interAgentJoint and populate the vector. 
-    Memory mem(box2d);
-    memories.push_back(mem);
   
     return j;
 }

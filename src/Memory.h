@@ -5,10 +5,14 @@
 
 class Memory {
   public:
-    Memory(ofxBox2d &box2d);
+    Memory(ofxBox2d &box2d, glm::vec2 location);
     void update();
     void draw();
+    bool shouldRemove;
   
   private:
-    std::shared_ptr<ofxBox2dCircle> mem; 
+    std::shared_ptr<ofxBox2dCircle> mem;
+    unsigned long curTime;
+    unsigned long maxTime;
+    unsigned long elapsedTime; 
 };

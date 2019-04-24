@@ -8,7 +8,7 @@ void SuperAgent::setup(Agent *agent1, Agent *agent2, std::shared_ptr<ofxBox2dJoi
   curExchangeCounter = 0;
 }
 
-void SuperAgent::update(ofxBox2d &box2d, bool shouldBond, int maxJointForce) {
+void SuperAgent::update(ofxBox2d &box2d, std::vector<Memory> &memories, bool shouldBond, int maxJointForce) {
   // Max Force based on which the joint breaks.
   ofRemove(joints, [&](std::shared_ptr<ofxBox2dJoint> j) {
     if (!shouldBond) {
@@ -26,6 +26,14 @@ void SuperAgent::update(ofxBox2d &box2d, bool shouldBond, int maxJointForce) {
       data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
       data->hasInterAgentJoint = false;
       bodyB->SetUserData(data);
+      
+      // Create a new memory object for each interAgentJoint and populate the vector.
+      glm::vec2 locA = getBodyPosition(bodyA);
+      glm::vec2 locB = getBodyPosition(bodyB);
+      glm::vec2 avgLoc = (locA + locB)/2;
+      
+      Memory mem(box2d, avgLoc);
+      memories.push_back(mem);
 
       return true;
     } else {
@@ -107,4 +115,12 @@ void SuperAgent::clean(ofxBox2d &box2d) {
   });
   
   joints.clear();
+}
+
+glm::vec2 SuperAgent::getBodyPosition(b2Body* body) {
+  auto xf = body->GetTransform();
+  b2Vec2 pos      = body->GetLocalCenter();
+  b2Vec2 b2Center = b2Mul(xf, pos);
+  auto p = worldPtToscreenPt(b2Center);
+  return glm::vec2(p.x, p.y);
 }
