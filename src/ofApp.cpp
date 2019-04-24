@@ -31,7 +31,7 @@ void ofApp::setup(){
   stopEverything = false; 
   showTexture = true;
   
-  // Boundaries
+  // Bounds
   bounds.x = -20; bounds.y = -20;
   bounds.width = ofGetWidth() + (-1) * bounds.x * 2; bounds.height = ofGetHeight() + (-1) * 2 * bounds.y;
   box2d.createBounds(bounds);
@@ -179,15 +179,9 @@ void ofApp::draw(){
     a -> draw(debug, showTexture);
   }
   
-  // Draw memory
+  // Draw memories
   for (auto m : memories) {
-    ofPushMatrix();
-      ofTranslate(m->getPosition());
-      ofPushStyle();
-        ofSetColor(ofColor::red);
-        ofDrawCircle(0, 0, m->getRadius());
-      ofPopStyle();
-    ofPopMatrix();
+    m.draw();
   }
 
   // Health parameters
@@ -594,13 +588,9 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     data->hasInterAgentJoint = true;
     bodyB->SetUserData(data);
   
-    // Create a corresponding memory object
-    auto memory = std::make_shared<ofxBox2dCircle>();
-    memory -> setPhysics(0.3, 0.3, 0.3); // bounce, density, friction
-    memory -> setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2, 5); // ofRandom(3, agentProps.vertexRadius)
-    memory -> setFixedRotation(true);
-    memory -> setData(new VertexData(NULL)); // No agent pointer for this.
-    memories.push_back(memory);
+    // Create a new memory object for each interAgentJoint and populate the vector. 
+    Memory mem(box2d);
+    memories.push_back(mem);
   
     return j;
 }

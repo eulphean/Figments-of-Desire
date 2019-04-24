@@ -10,6 +10,7 @@
 #include "ofxOsc.h"
 #include "Midi.h"
 #include "BgMesh.h"
+#include "Memory.h"
 
 #define PORT 8000
 
@@ -89,7 +90,7 @@ class ofApp : public ofBaseApp{
     ofParameter<float> shaderScale;
 
   private:
-    std::vector<std::shared_ptr<ofxBox2dCircle>> memories;
+    std::vector<Memory> memories;
     std::vector<b2Body *> collidingBodies;
   
     // Helper methods.
