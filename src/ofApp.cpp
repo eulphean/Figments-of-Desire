@@ -241,11 +241,6 @@ void ofApp::processOsc() {
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
       shouldBond = (val > 0); // At 1, don't bond anymore
-//      if (val == 0) {
-//        for (auto &a : agents) {
-//          a->setDesireState(Repulsion);
-//        }
-//      }
     }
     
 // ------------------ GUI OSC Messages -----------------------

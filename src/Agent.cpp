@@ -50,22 +50,6 @@ void Agent::update() {
       v->setVelocity(n.x, n.y);
     }
   }
-
-//  // REPEL CORNER VERTICES FROM OTHER AGENT'S CENTROID
-//  if (desireState == LOW) {
-//    stretchWeight = 1.5;
-//    auto d = glm::distance(this->getCentroid(), partner->getCentroid());
-//    auto maxDistanceForIntersetion = (this->desireRadius + partner->desireRadius) * 6/7;
-//    if (d < maxDistanceForIntersetion) {
-//      //repelCorners = true;
-//    }
-//  }
-//
-//  // MAKE THE FIGMENTS ATTRACT TOWARDS EACH OTHER.
-//  if (desireState == HIGH) {
-//    stretchWeight = 1.0;
-//    applyAttraction = true;
-//  }
   
   applyBehaviors();
 }
@@ -245,7 +229,7 @@ void Agent::handleVertexBehaviors() {
       // Repel this vertex from it's partner's centroid especially
       //auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
       auto pos = data->targetPos;
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 20);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 18);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -273,7 +257,6 @@ void Agent::handleRepulsion() {
         // Apply repulsion force off the target vertex
         v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight);
     }
-    
     desireState = None;
     applyRepulsion = false;
   }
