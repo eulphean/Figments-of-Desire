@@ -89,7 +89,7 @@ class ofApp : public ofBaseApp{
     ofParameter<float> shaderScale;
 
   private:
-    std::vector<std::shared_ptr<ofxBox2dJoint>> interAgentJoints;
+    std::vector<std::shared_ptr<ofxBox2dCircle>> memories;
     std::vector<b2Body *> collidingBodies;
   
     // Helper methods.

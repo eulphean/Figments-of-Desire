@@ -32,7 +32,7 @@ void ofApp::setup(){
   showTexture = true;
   
   // Boundaries
-  bounds.x = -50; bounds.y = -50;
+  bounds.x = -20; bounds.y = -20;
   bounds.width = ofGetWidth() + (-1) * bounds.x * 2; bounds.height = ofGetHeight() + (-1) * 2 * bounds.y;
   box2d.createBounds(bounds);
   
@@ -66,7 +66,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
         Agent* agentB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData())->agent;
         
         // DEFINE INDIVIDUAL VERTEX BEHAVIORS.
-        if (agentA != agentB) {
+        if (agentA != agentB && agentA != NULL && agentB != NULL) {
           // Collect datas
           auto dataA = reinterpret_cast<VertexData*>(e.a->GetBody()->GetUserData());
           auto dataB = reinterpret_cast<VertexData*>(e.b->GetBody()->GetUserData());
@@ -127,9 +127,12 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
 void ofApp::update(){
   box2d.update();
   processOsc();
+  
+  // Update vertices
 
   ofRemove(superAgents, [&](SuperAgent &sa){
     sa.update(box2d, shouldBond, maxJointForce);
+    
     return sa.shouldRemove;
   });
   
@@ -176,6 +179,17 @@ void ofApp::draw(){
     a -> draw(debug, showTexture);
   }
   
+  // Draw memory
+  for (auto m : memories) {
+    ofPushMatrix();
+      ofTranslate(m->getPosition());
+      ofPushStyle();
+        ofSetColor(ofColor::red);
+        ofDrawCircle(0, 0, m->getRadius());
+      ofPopStyle();
+    ofPopMatrix();
+  }
+
   // Health parameters
   if (hideGui) {
     gui.draw();
@@ -579,6 +593,14 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
     data = reinterpret_cast<VertexData*>(bodyB->GetUserData());
     data->hasInterAgentJoint = true;
     bodyB->SetUserData(data);
+  
+    // Create a corresponding memory object
+    auto memory = std::make_shared<ofxBox2dCircle>();
+    memory -> setPhysics(0.3, 0.3, 0.3); // bounce, density, friction
+    memory -> setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2, 5); // ofRandom(3, agentProps.vertexRadius)
+    memory -> setFixedRotation(true);
+    memory -> setData(new VertexData(NULL)); // No agent pointer for this.
+    memories.push_back(memory);
   
     return j;
 }
