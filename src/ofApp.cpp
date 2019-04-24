@@ -93,17 +93,22 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           // Desire state is ATTRACTION!
           // Repel the other agent.
           if (agentA->desireState == Attraction) {
-             dataB->applyRepulsion = true;
-             e.b->GetBody()->SetUserData(dataB);
-             // Reset agent state to None on collision.
-             agentA->setDesireState(None);
+             // If this body has an interAgentJoint, don't add a repulsion on the bodies it hits
+             if (!dataA->hasInterAgentJoint) {
+               dataB->applyRepulsion = true;
+               e.b->GetBody()->SetUserData(dataB);
+               // Reset agent state to None on collision.
+               agentA->setDesireState(None);
+             }
           }
           
           if (agentB->desireState == Attraction) {
-            dataA->applyRepulsion = true;
-            e.a->GetBody()->SetUserData(dataA);
-            // Reset agent state to None on collision.
-            agentB->setDesireState(None);
+            if (!dataB->hasInterAgentJoint) {
+              dataA->applyRepulsion = true;
+              e.a->GetBody()->SetUserData(dataA);
+              // Reset agent state to None on collision.
+              agentB->setDesireState(None);
+            }
           }
 
           // Should the agents be evaluated for bonding?
@@ -208,17 +213,20 @@ void ofApp::processOsc() {
       // Populate random agents
       std::vector<Agent *> curAgents;
       auto p = ofRandom(1);
-      if (p < 0.33) {
-        curAgents.push_back(agents[0]); // Agent A
-      } else if (p < 0.66){
-        curAgents.push_back(agents[1]); // Agent B
-      } else { // Both agents.
-        curAgents.push_back(agents[0]);
-        curAgents.push_back(agents[1]);
+        if (agents.size()>0) {
+        if (p < 0.33) {
+          curAgents.push_back(agents[0]); // Agent A
+        } else if (p < 0.66){
+          curAgents.push_back(agents[1]); // Agent B
+        } else { // Both agents.
+          curAgents.push_back(agents[0]);
+          curAgents.push_back(agents[1]);
+        }
       }
       
+      
       // Enable stretch in the figment. 
-      for (auto a : curAgents) {
+      for (auto &a : curAgents) {
         a->setStretch();
       }
     }

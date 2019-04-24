@@ -25,7 +25,7 @@ void BgMesh::createBg() {
         }
         ofPushMatrix();
         ofTranslate(x * rectWidth, y * rectHeight);
-          ofDrawRectangle(0, 0, rectWidth, rectHeight);
+          ofDrawRectangle(0, 0, rectWidth, rectHeight) ;
         ofPopMatrix();
         a++;
       }
