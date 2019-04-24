@@ -17,8 +17,8 @@
 		<Joint_Damping>4.03061</Joint_Damping>
 	</Joint_Params>
 	<InterAgentJoint_Params>
-		<Joint_Frequency>1</Joint_Frequency>
-		<Joint_Damping>4</Joint_Damping>
+		<Joint_Frequency>0.7</Joint_Frequency>
+		<Joint_Damping>2.44898</Joint_Damping>
 		<Max_Joint_Force>20</Max_Joint_Force>
 	</InterAgentJoint_Params>
 	<Background_Params>

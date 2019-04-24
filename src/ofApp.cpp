@@ -97,18 +97,20 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
              if (!dataA->hasInterAgentJoint) {
                dataB->applyRepulsion = true;
                e.b->GetBody()->SetUserData(dataB);
-               // Reset agent state to None on collision.
-               agentA->setDesireState(None);
              }
+            
+            // Reset agent state to None on collision.
+            agentA->setDesireState(None);
           }
           
           if (agentB->desireState == Attraction) {
             if (!dataB->hasInterAgentJoint) {
               dataA->applyRepulsion = true;
               e.a->GetBody()->SetUserData(dataA);
-              // Reset agent state to None on collision.
-              agentB->setDesireState(None);
             }
+            
+            // Reset agent state to None on collision.
+            agentB->setDesireState(None);
           }
 
           // Should the agents be evaluated for bonding?
@@ -205,6 +207,10 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/Repel"){
       float val = m.getArgAsFloat(0);
+      
+      for (auto &a : agents) {
+        a->setDesireState(Repulsion);
+      }
     }
     
     if(m.getAddress() == "/Stretch") {
@@ -234,7 +240,12 @@ void ofApp::processOsc() {
     // STATE CHANGER!
     if(m.getAddress() == "/Melody"){
       float val = m.getArgAsFloat(0);
-      shouldBond = (val > 0); // At 0, don't bond anymore
+      shouldBond = (val > 0); // At 1, don't bond anymore
+//      if (val == 0) {
+//        for (auto &a : agents) {
+//          a->setDesireState(Repulsion);
+//        }
+//      }
     }
     
 // ------------------ GUI OSC Messages -----------------------

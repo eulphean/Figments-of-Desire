@@ -32,7 +32,7 @@ class Agent {
   
     // Behaviors
     void applyBehaviors();
-    void handleRepelCorners();
+    void handleRepulsion();
     void handleAttraction();
     void handleStretch();
     void handleVertexBehaviors();
@@ -72,7 +72,6 @@ class Agent {
     int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
-    ofTrueTypeFont font;
   
     // Weights
     float tickleWeight;
@@ -80,6 +79,7 @@ class Agent {
     float repulsionWeight;
     float attractionWeight;
     float seekWeight;
+    float maxVelocity;
     
   private:
     void readFile(string fileName);
@@ -104,11 +104,11 @@ class Agent {
     // Stretch out.
     bool applyStretch;
   
-    // Repel corners
-    bool repelCorners;
-  
     // Attraction.
     bool applyAttraction;
+  
+    // Repulsion
+    bool applyRepulsion;
   
     // Texture
     ofFbo fbo;
@@ -119,6 +119,8 @@ class Agent {
     // Figment's corner indices
     int cornerIndices[4];
     vector<int> boundaryIndices;
+  
+    ofTrueTypeFont font; 
 };
 
 // Data Structure to hold a pointer to the agent instance

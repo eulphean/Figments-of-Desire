@@ -29,8 +29,8 @@ void Agent::setup(ofxBox2d &box2d, AgentProperties agentProps, string fileName) 
   // These are actions. But, what are the desires?
   applyStretch = true;
   applyTickle = false;
-  repelCorners = false;
-  applyAttraction = false; 
+  applyAttraction = false;
+  applyRepulsion = false; 
   
   // Current desire state. 
   desireState = None;
@@ -43,10 +43,10 @@ void Agent::update() {
   // Print the velocity of vertices.
   for (auto &v : vertices) {
     auto vel = v->getVelocity().length();
-    if (vel > 25) {
+    if (vel > maxVelocity) {
       // Normalize current velocity and multiply it by 20
       auto n = v->getVelocity().normalize();
-      n = n*0;
+      n = n * maxVelocity; // Max velocity weight
       v->setVelocity(n.x, n.y);
     }
   }
@@ -230,7 +230,7 @@ void Agent::createTexture(ofPoint meshSize) {
 void Agent::applyBehaviors()  {
   // ----Current actions/behaviors---
   handleStretch();
-  handleRepelCorners();
+  handleRepulsion();
   handleAttraction();
   handleTickle();
   
@@ -245,7 +245,7 @@ void Agent::handleVertexBehaviors() {
       // Repel this vertex from it's partner's centroid especially
       //auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
       auto pos = data->targetPos;
-      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 10);
+      v->addRepulsionForce(pos.x, pos.y, repulsionWeight * 20);
       
       // Reset repulsion parameter on the vertex.
       data->applyRepulsion = false;
@@ -264,22 +264,18 @@ void Agent::handleVertexBehaviors() {
   }
 }
 
-void Agent::handleRepelCorners() {
-  // Repel from all the corners.
-  if (repelCorners) {
-    if (ofRandom(1) < 0.5) {
-      for (auto i : cornerIndices) {
-        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-        vertices[i]->addRepulsionForce(pos.x, pos.y, repulsionWeight);
-      }
-    } else {
-      for (auto i : cornerIndices) {
-        auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
-        vertices[i]->addAttractionPoint({pos.x, pos.y}, attractionWeight);
-      }
+void Agent::handleRepulsion() {
+  // Go through all the vertices
+  // Get the data and check if it has
+  if (applyRepulsion) {
+    for (auto &v : vertices) {
+      auto data = reinterpret_cast<VertexData*>(v->getData());
+        // Apply repulsion force off the target vertex
+        v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight);
     }
     
-    repelCorners = false;
+    desireState = None;
+    applyRepulsion = false;
   }
 }
 
@@ -484,11 +480,17 @@ void Agent::updateMesh() {
 void Agent::setDesireState(DesireState newState) {
   desireState = newState;
   
-  if (desireState == Attraction) {
-    applyAttraction = true;
-  }
   
   if (desireState == None) {
     applyAttraction = false;
   }
+  
+  if (desireState == Attraction) {
+    applyAttraction = true;
+  }
+  
+  if (desireState == Repulsion) {
+    applyRepulsion = true;
+  }
 }
+
