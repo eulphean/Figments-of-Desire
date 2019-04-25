@@ -115,18 +115,9 @@ glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
 }
 
 void BgMesh::draw() {
-  //post.begin();
-//  filter->begin();
-//  bgImage.getTextureReference().setAnchorPoint(<#float x#>, <#float y#>)
-//  mesh.draw();
-//  bgImage.getTexture().unbind();
-//  filter->end();
-  //post.end();
   testImage.getTexture().bind();
   mesh.draw();
   testImage.getTexture().unbind();
-//  testImage.draw(0, 0);
-  
 }
 
 void BgMesh::createMesh() {

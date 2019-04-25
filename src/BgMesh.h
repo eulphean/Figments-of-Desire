@@ -10,7 +10,6 @@ class BgMesh {
       post.init(ofGetWidth(), ofGetHeight());
       post.createPass<FxaaPass>()->setEnabled(true);
       post.createPass<DofAltPass>()->setEnabled(true);
-      //post.createPass<KaleidoscopePass>()->setEnabled(true);
     }
   
     void setParams(ofParameterGroup params);
