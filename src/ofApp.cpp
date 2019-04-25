@@ -190,7 +190,7 @@ void ofApp::draw(){
 
   // Health parameters
   if (hideGui) {
-     ofDrawBitmapString(ofGetFrameRate(), 150, 50);
+     ofDrawBitmapString(ofGetFrameRate(), 300, 50);
     gui.draw();
   }
 }
@@ -603,20 +603,3 @@ std::shared_ptr<ofxBox2dJoint> ofApp::createInterAgentJoint(b2Body *bodyA, b2Bod
   
     return j;
 }
-
-
-
-//
-//          // State behaviors for vertices when agent state is HIGH.
-//          if (agentA->desireState == HIGH && agentB->desireState == HIGH) {
-//              // Repel vertices on collision if they don't have an interAgentJoint.
-//              if (!dataA->hasInterAgentJoint) {
-//                dataA->applyRepulsion = true;
-//                e.a->GetBody()->SetUserData(dataA);
-//              }
-//
-//              if (!dataB->hasInterAgentJoint) {
-//                dataB->applyRepulsion = true;
-//                e.b->GetBody()->SetUserData(dataB);
-//              }
-//          }

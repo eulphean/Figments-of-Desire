@@ -4,3 +4,4 @@ ofxFilterLibrary
 ofxGui
 ofxMidi
 ofxOsc
+ofxPostProcessing
