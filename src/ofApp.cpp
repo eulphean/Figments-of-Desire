@@ -222,14 +222,17 @@ void ofApp::processOsc() {
       float val = m.getArgAsFloat(0);
       
       // Pick a random figment and set applyAttraction to true
-      Agent *curAgent;
-      if (ofRandom(1) < 0.5) {
-        curAgent = agents[0];
-      } else {
-        curAgent = agents[1];
+//      Agent *curAgent;
+//      if (ofRandom(1) < 0.5) {
+//        curAgent = agents[0];
+//      } else {
+//        curAgent = agents[1];
+//      }
+//
+//      curAgent->setDesireState(Repulsion);
+      for (auto &a: agents) {
+        a->setDesireState(Repulsion);
       }
-      
-      curAgent->setDesireState(Repulsion);
     }
     
     if(m.getAddress() == "/Stretch") {
