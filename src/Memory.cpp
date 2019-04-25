@@ -4,7 +4,7 @@
 Memory::Memory(ofxBox2d &box2d, glm::vec2 location) {
   mem = std::make_shared<ofxBox2dCircle>();
   mem -> setPhysics(0.3, 0.3, 0.3); // bounce, density, friction
-  mem -> setup(box2d.getWorld(), location.x, location.y, 7);
+  mem -> setup(box2d.getWorld(), location.x, location.y, 6);
   mem -> setFixedRotation(true);
   mem -> setVelocity(ofRandom(-3, 3), ofRandom(-3, 3)); // Random velocity
   mem -> setData(new VertexData(NULL)); // No agent pointer for this.

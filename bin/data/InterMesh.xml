@@ -17,15 +17,15 @@
 		<Joint_Damping>4.03061</Joint_Damping>
 	</Joint_Params>
 	<InterAgentJoint_Params>
-		<Joint_Frequency>0.7</Joint_Frequency>
-		<Joint_Damping>2.44898</Joint_Damping>
+		<Joint_Frequency>2</Joint_Frequency>
+		<Joint_Damping>0.765306</Joint_Damping>
 		<Max_Joint_Force>20</Max_Joint_Force>
 	</InterAgentJoint_Params>
 	<Background_Params>
 		<Width>50</Width>
 		<Height>50</Height>
-		<Attraction>-2</Attraction>
-		<Repulsion>51</Repulsion>
+		<Attraction>-7</Attraction>
+		<Repulsion>45</Repulsion>
 		<Scale>8.16327</Scale>
 	</Background_Params>
 </Inter_Mesh_Settings>

@@ -190,6 +190,7 @@ void ofApp::draw(){
 
   // Health parameters
   if (hideGui) {
+     ofDrawBitmapString(ofGetFrameRate(), 150, 50);
     gui.draw();
   }
 }
@@ -220,9 +221,15 @@ void ofApp::processOsc() {
     if(m.getAddress() == "/Repel"){
       float val = m.getArgAsFloat(0);
       
-      for (auto &a : agents) {
-        a->setDesireState(Repulsion);
+      // Pick a random figment and set applyAttraction to true
+      Agent *curAgent;
+      if (ofRandom(1) < 0.5) {
+        curAgent = agents[0];
+      } else {
+        curAgent = agents[1];
       }
+      
+      curAgent->setDesireState(Repulsion);
     }
     
     if(m.getAddress() == "/Stretch") {
@@ -245,7 +252,9 @@ void ofApp::processOsc() {
       
       // Enable stretch in the figment. 
       for (auto &a : curAgents) {
-        a->setStretch();
+        if (a->desireState != Repulsion) {
+          a->setStretch();
+        }
       }
     }
     

@@ -9,7 +9,7 @@ void BgMesh::createBg() {
   auto rectWidth = bgParams.getInt("Width");
   auto rectHeight = bgParams.getInt("Height");
   
-  bgImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
+  bgImage.allocate(ofGetWidth()*2, ofGetHeight()*2, GL_RGBA);
   bgImage.begin();
     ofClear(0, 0, 0, 0);
   int numRows = bgImage.getHeight()/rectHeight;
@@ -33,8 +33,20 @@ void BgMesh::createBg() {
     a++;
   }
   
-  // Create a mesh and texture map the fbo to it.
   bgImage.end();
+  
+  testImage.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
+  testImage.begin();
+    ofClear(0, 0, 0, 0);
+    post.begin();
+    filter->begin();
+      bgImage.getTexture().drawSubsection(0, 0, ofGetWidth(), ofGetHeight(), bgImage.getWidth()/2, bgImage.getHeight()/2);
+    filter->end();
+    post.end();
+  testImage.end();
+  
+  //testImage.getTexture().enableMipmap();
+  //testImage.getTexture().setTextureMinMagFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
   
   // Create mesh for this background
   createMesh();
@@ -103,11 +115,18 @@ glm::vec2 BgMesh::interact(glm::vec2 meshVertex, glm::vec2 centroid, int vIdx) {
 }
 
 void BgMesh::draw() {
-  filter->begin();
-  bgImage.getTexture().bind();
+  //post.begin();
+//  filter->begin();
+//  bgImage.getTextureReference().setAnchorPoint(<#float x#>, <#float y#>)
+//  mesh.draw();
+//  bgImage.getTexture().unbind();
+//  filter->end();
+  //post.end();
+  testImage.getTexture().bind();
   mesh.draw();
-  bgImage.getTexture().unbind();
-  filter->end();
+  testImage.getTexture().unbind();
+//  testImage.draw(0, 0);
+  
 }
 
 void BgMesh::createMesh() {
@@ -121,12 +140,12 @@ void BgMesh::createMesh() {
   int rectHeight = bgParams.getInt("Height");
   
   // Rows/Columns
-  int numRows = bgImage.getHeight()/rectHeight;
-  int numCols = bgImage.getWidth()/rectWidth;
+  int numRows = testImage.getHeight()/rectHeight;
+  int numCols = testImage.getWidth()/rectWidth;
 
   // Mesh size.
-  int w = bgImage.getWidth();
-  int h = bgImage.getHeight();
+  int w = testImage.getWidth();
+  int h = testImage.getHeight();
   
   // Mesh vertices and texture mapping.
   for (int y = 0; y < numRows; y++) {
@@ -136,8 +155,8 @@ void BgMesh::createMesh() {
       mesh.addVertex({ix, iy, 0});
       
       // Texture vertices (0 - 1) since textures are normalized.
-      float texX = ofMap(ix, 0, bgImage.getTexture().getWidth(), 0, 1, true); // Map the calculated x coordinate from 0 - 1
-      float texY = ofMap(iy, 0, bgImage.getTexture().getHeight(), 0, 1, true); // Map the calculated y coordinate from 0 - 1
+      float texX = ofMap(ix, 0, testImage.getTexture().getWidth(), 0, 1, true); // Map the calculated x coordinate from 0 - 1
+      float texY = ofMap(iy, 0, testImage.getTexture().getHeight(), 0, 1, true); // Map the calculated y coordinate from 0 - 1
       mesh.addTexCoord(glm::vec2(texX, texY));
     }
   }

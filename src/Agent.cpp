@@ -254,8 +254,9 @@ void Agent::handleRepulsion() {
   if (applyRepulsion) {
     for (auto &v : vertices) {
       auto data = reinterpret_cast<VertexData*>(v->getData());
-        // Apply repulsion force off the target vertex
-        v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight);
+      if (data->hasInterAgentJoint) {
+         v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight * 10);
+      }
     }
     desireState = None;
     applyRepulsion = false;
