@@ -249,15 +249,16 @@ void Agent::handleVertexBehaviors() {
 }
 
 void Agent::handleRepulsion() {
-  // Go through all the vertices
-  // Get the data and check if it has
+  // Go through all the vertices.
+  // Get the data and check if it has.
   if (applyRepulsion) {
     for (auto &v : vertices) {
       auto data = reinterpret_cast<VertexData*>(v->getData());
       if (data->hasInterAgentJoint) {
-         v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight * 10);
+         v->addRepulsionForce(partner->getCentroid().x, partner->getCentroid().y, repulsionWeight * ofRandom(5, 15));
       }
     }
+    
     desireState = None;
     applyRepulsion = false;
   }
