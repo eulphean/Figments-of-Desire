@@ -291,61 +291,49 @@ void ofApp::processOsc() {
     }
     
 // ------------------ GUI OSC Messages -----------------------
-    if(m.getAddress() == "/interMesh/width"){
+    if(m.getAddress() == "/clear"){
       float val = m.getArgAsFloat(0);
-      cout << val << endl;
-      meshWidth = ofMap(val, 0, 1, 50, 250, true);
-      cout << meshWidth << endl;
-    }
-    
-    if(m.getAddress() == "/interMesh/height"){
-      float val = m.getArgAsFloat(0);
-      meshHeight = ofMap(val, 0, 1, 50, 250, true);
-    }
-    
-    if(m.getAddress() == "/interMesh/rows"){
-      float val = m.getArgAsFloat(0);
-      meshRows = ofMap(val, 0, 1, 5, 15, true);
-    }
-    
-    if(m.getAddress() == "/interMesh/columns"){
-      float val = m.getArgAsFloat(0);
-      meshColumns = ofMap(val, 0, 1, 5, 15, true);
-    }
-    
-    if(m.getAddress() == "/interMesh/jointForce"){
-      float val = m.getArgAsFloat(0);
-      maxJointForce = ofMap(val, 0, 1, 1, 100, true);
-    }
-    
-    if(m.getAddress() == "/interMesh/newMesh"){
-      int val = m.getArgAsInt(0);
-      createAgents();
-    }
-    
-    if(m.getAddress() == "/interMesh/clearScreen"){
-      int val = m.getArgAsInt(0);
       clearScreen();
     }
     
-    if(m.getAddress() == "/interMesh/debug"){
-      int val = m.getArgAsInt(0);
-      debug = !debug;
+    if(m.getAddress() == "/new"){
+      float val = m.getArgAsFloat(0);
+      createAgents();
     }
     
-    if(m.getAddress() == "/interMesh/removeUnbonded"){
-      int val = m.getArgAsInt(0);
-      removeUnbonded();
+    if(m.getAddress() == "/leftBack"){
+      float val = m.getArgAsFloat(0);
+      cout << "Left Back" << endl;
     }
     
-    if(m.getAddress() == "/interMesh/removeJoints"){
-      int val = m.getArgAsInt(0);
-      removeJoints();
+    if(m.getAddress() == "/leftFront"){
+      float val = m.getArgAsFloat(0);
+        cout << "Left Front" << endl;
     }
     
-    if(m.getAddress() == "/interMesh/sound"){
-      int val = m.getArgAsInt(0);
-      enableSound = !enableSound;
+    if(m.getAddress() == "/rightBack"){
+      float val = m.getArgAsFloat(0);
+        cout << "Right Back" << endl;
+    }
+    
+    if(m.getAddress() == "/rightFront"){
+      float val = m.getArgAsFloat(0);
+        cout << "Right Front" << endl;
+    }
+    
+    if(m.getAddress() == "/rain"){
+      float val = m.getArgAsFloat(0);
+        cout << "Rain" << endl;
+    }
+    
+    if(m.getAddress() == "/rightBackMix"){
+      float val = m.getArgAsFloat(0);
+        cout << "Right Back Mix" << endl;
+    }
+    
+    if(m.getAddress() == "/leftFrontMix"){
+      float val = m.getArgAsFloat(0);
+        cout << "Left Front Mix" << endl;
     }
   }
 }
