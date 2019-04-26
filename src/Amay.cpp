@@ -13,12 +13,15 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   this->numBogusMessages = 550;
   
   // Force weight for body actions. This is heavier, so more weight.
-  stretchWeight = 2.0;
-  repulsionWeight = 2.5;
+  maxStretchWeight = 1.5;
+  stretchWeight = 0;
+  
+  vertexRepulsionWeight = 2.5;
+  repulsionWeight = 0;
   attractionWeight = 1.5; // Can this be changed when the other agent is trying to attack me?
   seekWeight = 0.4; // Probably seek with a single vertex.
   tickleWeight = 2.5;
-  maxVelocity = 10;
+  maxVelocity = 20;
   
   // Post process filters.
   //filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);

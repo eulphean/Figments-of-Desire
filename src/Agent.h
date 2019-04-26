@@ -78,8 +78,10 @@ class Agent {
   
     // Weights
     float tickleWeight;
+    float maxStretchWeight;
     float stretchWeight;
     float repulsionWeight;
+    float vertexRepulsionWeight; 
     float attractionWeight;
     float seekWeight;
     float maxVelocity;

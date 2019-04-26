@@ -12,6 +12,8 @@ Memory::Memory(ofxBox2d &box2d, glm::vec2 location) {
   curTime = ofGetElapsedTimeMillis();
   maxTime = ofRandom(5000, 10000);
   shouldRemove = false;
+  finalColor = ofColor(0xDBDBDB);
+  color = ofColor(0x525151);
 }
 
 void Memory::update() {
@@ -25,8 +27,9 @@ void Memory::draw() {
   ofPushMatrix();
     ofTranslate(mem->getPosition());
     ofPushStyle();
+      color = color.lerp(finalColor, 1.0);
       auto opacity = ofMap(elapsedTime, 0, maxTime, 255, 50, true);
-      ofSetColor(ofColor::red, opacity);
+      ofSetColor(color, opacity);
       ofDrawCircle(0, 0, mem->getRadius());
     ofPopStyle();
   ofPopMatrix();

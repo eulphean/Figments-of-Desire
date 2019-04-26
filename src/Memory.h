@@ -9,6 +9,8 @@ class Memory {
     void update();
     void draw();
     bool shouldRemove;
+    ofColor finalColor;
+    ofColor color; 
   
   private:
     std::shared_ptr<ofxBox2dCircle> mem;

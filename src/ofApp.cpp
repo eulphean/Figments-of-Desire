@@ -81,32 +81,55 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           // Desire state is NONE! Repel the vertices from each
           // other. 
           if (agentA->desireState == None) {
-            dataA->applyRepulsion = true;
-            e.a->GetBody()->SetUserData(dataA);
+            if (ofRandom(1) < 0.5) {
+              dataA->applyRepulsion = true;
+              e.a->GetBody()->SetUserData(dataA);
+            } else {
+              dataA->applyAttraction = true;
+              e.a->GetBody()->SetUserData(dataA);
+            }
           }
           
           if (agentB->desireState == None) {
-            dataB->applyRepulsion = true;
-            e.b->GetBody()->SetUserData(dataB);
+            if (ofRandom(1) < 0.5) {
+              dataA->applyRepulsion = true;
+              e.a->GetBody()->SetUserData(dataA);
+            } else {
+              dataB->applyAttraction = true;
+              e.b->GetBody()->SetUserData(dataB);
+            }
           }
           
           // Desire state is ATTRACTION!
           // Repel the other agent.
           if (agentA->desireState == Attraction) {
-             // If this body has an interAgentJoint, don't add a repulsion on the bodies it hits
+             // Attract A's vertices
              if (!dataA->hasInterAgentJoint) {
-               dataB->applyAttraction = true;
-               e.b->GetBody()->SetUserData(dataB);
-             }
+               dataA->applyAttraction = true;
+               e.a->GetBody()->SetUserData(dataA);
+            }
             
+            // Repel B's vertices
+            if (!dataB->hasInterAgentJoint) {
+              dataB->applyRepulsion = true;
+              e.b->GetBody()->SetUserData(dataB);
+            }
+          
             // Reset agent state to None on collision.
             agentA->setDesireState(None);
           }
           
           if (agentB->desireState == Attraction) {
-            if (!dataB->hasInterAgentJoint) {
-              dataA->applyAttraction = true;
-              e.a->GetBody()->SetUserData(dataA);
+            // Attract B's verticle
+             if (!dataB->hasInterAgentJoint) {
+              dataB->applyAttraction = true;
+              e.b->GetBody()->SetUserData(dataB);
+            }
+            
+            // Repel A's vertices
+            if (!dataA->hasInterAgentJoint) {
+               dataA->applyRepulsion = true;
+               e.a->GetBody()->SetUserData(dataA);
             }
             
             // Reset agent state to None on collision.
