@@ -6,14 +6,12 @@ Memory::Memory(ofxBox2d &box2d, glm::vec2 location) {
   mem -> setPhysics(0.3, 0.3, 0.3); // bounce, density, friction
   mem -> setup(box2d.getWorld(), location.x, location.y, ofRandom(4, 8));
   mem -> setFixedRotation(true);
-  mem -> setVelocity(ofRandom(-3, 3), ofRandom(-3, 3)); // Random velocity
+  mem -> setVelocity(ofRandom(-5, 5), ofRandom(-5, 5)); // Random velocity
   mem -> setData(new VertexData(NULL)); // No agent pointer for this.
   
   curTime = ofGetElapsedTimeMillis();
-  maxTime = ofRandom(120000, 180000);
-  shouldRemove = false; 
-  
-  // 2 - 3 minutes = 120000 - 180000
+  maxTime = ofRandom(5000, 10000);
+  shouldRemove = false;
 }
 
 void Memory::update() {

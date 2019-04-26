@@ -13,9 +13,9 @@ void Message::draw(ofTrueTypeFont font) {
     ofPushMatrix();
     ofTranslate(location);
       ofPushStyle();
-      ofColor c = ofColor(color, 220);
-      ofSetColor(c);
-      ofDrawCircle(0, 0, size);
+        ofColor c = ofColor(color, 240);
+        ofSetColor(c);
+        ofDrawCircle(0, 0, size);
       ofPopStyle();
   ofPopMatrix();
   } else { // Draw actual string message.
@@ -28,4 +28,3 @@ void Message::draw(ofTrueTypeFont font) {
     ofPopMatrix();
   }
 }
-

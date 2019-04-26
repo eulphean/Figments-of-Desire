@@ -50,6 +50,7 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<Memory> &memories, bool sho
       std::vector<Message>::iterator aMessage = agentA -> curMsg;
       std::vector<Message>::iterator bMessage = agentB -> curMsg;
       
+      // Save the temp message.
       Message swap = Message(aMessage->location, aMessage->color, aMessage->size, aMessage->message);
       
       // Assign A message
@@ -63,20 +64,21 @@ void SuperAgent::update(ofxBox2d &box2d, std::vector<Memory> &memories, bool sho
       bMessage->message = swap.message;
       
       // Change the iteretor to point to a unique message now
-      aMessage = agentA -> messages.begin() + ofRandom(0, agentA -> messages.size() - 1);
-      bMessage = agentB -> messages.begin() + ofRandom(0, agentB -> messages.size() - 1);
+      aMessage = agentA->messages.begin() + (int) ofRandom(0, agentA -> messages.size() - 1);
+      bMessage = agentB->messages.begin() + (int) ofRandom(0, agentB -> messages.size() - 1);
       
+      // Update iterators for the swap.
       agentA -> curMsg = aMessage;
       agentB -> curMsg = bMessage;
       
       // Create new textures the two agents as they have just gone through a swap.
-      agentA -> createTexture(agentA -> getTextureSize());
-      agentB -> createTexture(agentB -> getTextureSize());
+      agentA->createTexture(agentA->getTextureSize());
+      agentB->createTexture(agentB->getTextureSize());
       
       // Reset exchange counter since
       curExchangeCounter = maxExchangeCounter;
     } else {
-      curExchangeCounter -= 0.5;
+      curExchangeCounter -= 0.8;
     }
   }
 }
@@ -85,7 +87,7 @@ void SuperAgent::draw() {
   for (auto j : joints) {
     ofPushStyle();
       ofSetColor(ofColor::red);
-      ofSetLineWidth(0.3);
+      ofSetLineWidth(0.4);
       j->draw();
     ofPopStyle();
   }

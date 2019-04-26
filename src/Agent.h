@@ -2,6 +2,7 @@
 #include "ofMain.h"
 #include "ofxBox2d.h"
 #include "ofxFilterLibrary.h"
+#include "ofxPostProcessing.h"
 #include "Message.h"
 
 struct AgentProperties {
@@ -72,6 +73,7 @@ class Agent {
     int numBogusMessages;
     std::vector<ofColor> palette;
     AbstractFilter * filter;
+    ofxPostProcessing post;
   
     // Weights
     float tickleWeight;
@@ -111,7 +113,8 @@ class Agent {
     bool applyRepulsion;
   
     // Texture
-    ofFbo fbo;
+    ofFbo firstFbo;
+    ofFbo secondFbo;
   
     // Messages for this agent.
     std::vector<string> textMsgs;
@@ -120,7 +123,7 @@ class Agent {
     int cornerIndices[4];
     vector<int> boundaryIndices;
   
-    ofTrueTypeFont font; 
+    ofTrueTypeFont font;
 };
 
 // Data Structure to hold a pointer to the agent instance

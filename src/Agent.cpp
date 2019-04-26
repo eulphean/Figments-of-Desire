@@ -69,11 +69,9 @@ void Agent::draw(bool debug, bool showTexture) {
   ofPopStyle();
   
   if (showTexture) {
-   filter->begin();
-    fbo.getTexture().bind();
+    secondFbo.getTexture().bind();
     mesh.draw();
-    fbo.getTexture().unbind();
-   filter->end();
+    secondFbo.getTexture().unbind();
   } else {
     ofPushStyle();
     for(auto j: joints) {
@@ -153,7 +151,7 @@ void Agent::readFile(string fileName) {
 }
 
 ofPoint Agent::getTextureSize() {
-  return ofPoint(fbo.getWidth(), fbo.getHeight());
+  return ofPoint(secondFbo.getWidth(), secondFbo.getHeight());
 }
 
 void Agent::clean(ofxBox2d &box2d) {
@@ -180,7 +178,7 @@ void Agent::assignMessages(ofPoint meshSize) {
     int w = meshSize.x; int h = meshSize.y;
     auto x = ofRandom(0, w); auto y = ofRandom(0, h);
     
-    // Pick a random color for the message.
+    // Pick a random color for the message (anything except the background)
     int idx = ofRandom(1, palette.size());
     ofColor c = ofColor(palette.at(idx));
     
@@ -194,13 +192,13 @@ void Agent::assignMessages(ofPoint meshSize) {
 }
 
 void Agent::createTexture(ofPoint meshSize) {
-  // Create a simple fbo.
-  fbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
-  fbo.begin();
+  // Create 1st fbo and draw all the messages. 
+  firstFbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+  firstFbo.begin();
     ofClear(0, 0, 0, 0);
   
     // Assign background.
-    ofColor c = ofColor(palette.at(0), 200);
+    ofColor c = ofColor(palette.at(0), 240);
     ofBackground(c);
   
     // Draw assigned messages.
@@ -208,7 +206,18 @@ void Agent::createTexture(ofPoint meshSize) {
       m.draw(font);
     }
 
-  fbo.end();
+  firstFbo.end();
+  
+  // Create 2nd fbo and draw with filter and postProcessing
+  secondFbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+  secondFbo.begin();
+    ofClear(0, 0, 0, 0);
+//    post.begin();
+      filter->begin();
+        firstFbo.draw(0, 0);
+      filter->end();
+//   post.end();
+  secondFbo.end();
 }
 
 void Agent::applyBehaviors()  {

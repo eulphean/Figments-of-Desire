@@ -21,7 +21,7 @@ void BgMesh::createBg() {
         if (a % 2 == 0) {
           ofSetColor(ofColor::fromHex(0xDBDBDB));
         } else {
-          ofSetColor(ofColor::fromHex(0x444343));
+          ofSetColor(ofColor::fromHex(0x525151));
         }
         ofPushMatrix();
         ofTranslate(x * rectWidth, y * rectHeight);
@@ -40,7 +40,7 @@ void BgMesh::createBg() {
     ofClear(0, 0, 0, 0);
     post.begin();
     filter->begin();
-      bgImage.getTexture().drawSubsection(0, 0, ofGetWidth(), ofGetHeight(), bgImage.getWidth()/2, bgImage.getHeight()/2);
+      bgImage.getTexture().drawSubsection(0, 0, ofGetWidth(), ofGetHeight(), 0, 0);
     filter->end();
     post.end();
   testImage.end();
