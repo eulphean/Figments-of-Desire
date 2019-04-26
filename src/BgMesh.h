@@ -6,10 +6,11 @@
 class BgMesh {
   public:
     BgMesh() {
-      filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(), 30.f);
+      filter = new PerlinPixellationFilter(ofGetWidth(), ofGetHeight(), 40.f);
       post.init(ofGetWidth(), ofGetHeight());
       post.createPass<FxaaPass>()->setEnabled(true);
-      post.createPass<DofAltPass>()->setEnabled(true);
+      //post.createPass<DofAltPass>()->setEnabled(true);
+      post.createPass<DofPass>()->setEnabled(true);
     }
   
     void setParams(ofParameterGroup params);

@@ -21,7 +21,7 @@ void BgMesh::createBg() {
         if (a % 2 == 0) {
           ofSetColor(ofColor::fromHex(0xDBDBDB));
         } else {
-          ofSetColor(ofColor::fromHex(0x525151));
+          ofSetColor(ofColor::fromHex(0x444343));
         }
         ofPushMatrix();
         ofTranslate(x * rectWidth, y * rectHeight);
