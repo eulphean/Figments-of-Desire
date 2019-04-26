@@ -14,20 +14,22 @@ Amay::Amay(ofxBox2d &box2d, AgentProperties agentProps) {
   
   // Force weight for body actions. This is heavier, so more weight.
   stretchWeight = 2.0;
-  repulsionWeight = 2.0;
+  repulsionWeight = 2.5;
   attractionWeight = 1.5; // Can this be changed when the other agent is trying to attack me?
   seekWeight = 0.4; // Probably seek with a single vertex.
   tickleWeight = 2.5;
   maxVelocity = 10;
   
   // Post process filters.
-  filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);
-  post.init(agentProps.meshSize.x, agentProps.meshSize.y);
-  post.createPass<RGBShiftPass>()->setEnabled(true);
-  //post.createPass<FakeSSSPass>()->setEnabled(true);
-  //post.createPass<FxaaPass>()->setEnabled(true);
-  //post.createPass<DofAltPass>()->setEnabled(true);
-  //post.createPass<DofPass>()->setEnabled(true);
+  //filter = new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);
+  //filter = new EmbossFilter(agentProps.meshSize.x, agentProps.meshSize.y, 10.f);
+  filter = new GaussianBlurFilter(agentProps.meshSize.x, agentProps.meshSize.y, 7.f, 1.f);
+  
+  filterChain = new FilterChain(agentProps.meshSize.x, agentProps.meshSize.y, "Chain");
+  filterChain->addFilter(new PerlinPixellationFilter(agentProps.meshSize.x, agentProps.meshSize.y, 15.f));
+  filterChain->addFilter(new LookupFilter(agentProps.meshSize.x, agentProps.meshSize.y, "img/lookup_amatorka.png"));
+  filterChain->addFilter(new PoissonBlendFilter("img/grid.jpg", agentProps.meshSize.x, agentProps.meshSize.y, 0.6, 2));
+  
   
   setup(box2d, agentProps, "amay.txt"); // TODO: Actually pass a pointer to all the messages later (for now it's assigned randomly)
 }

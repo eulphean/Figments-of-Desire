@@ -25,7 +25,7 @@
 		<Width>50</Width>
 		<Height>50</Height>
 		<Attraction>-3</Attraction>
-		<Repulsion>51</Repulsion>
+		<Repulsion>30</Repulsion>
 		<Scale>8.16327</Scale>
 	</Background_Params>
 </Inter_Mesh_Settings>

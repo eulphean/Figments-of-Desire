@@ -72,7 +72,8 @@ class Agent {
     // Derived class needs to have access to these. 
     int numBogusMessages;
     std::vector<ofColor> palette;
-    AbstractFilter * filter;
+    AbstractFilter *filter;
+    FilterChain *filterChain;
     ofxPostProcessing post;
   
     // Weights

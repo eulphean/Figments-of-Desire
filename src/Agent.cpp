@@ -193,12 +193,12 @@ void Agent::assignMessages(ofPoint meshSize) {
 
 void Agent::createTexture(ofPoint meshSize) {
   // Create 1st fbo and draw all the messages. 
-  firstFbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
+  firstFbo.allocate(meshSize.x*2, meshSize.y*2, GL_RGBA);
   firstFbo.begin();
     ofClear(0, 0, 0, 0);
   
     // Assign background.
-    ofColor c = ofColor(palette.at(0), 240);
+    ofColor c = ofColor(palette.at(0), 250);
     ofBackground(c);
   
     // Draw assigned messages.
@@ -212,11 +212,9 @@ void Agent::createTexture(ofPoint meshSize) {
   secondFbo.allocate(meshSize.x, meshSize.y, GL_RGBA);
   secondFbo.begin();
     ofClear(0, 0, 0, 0);
-//    post.begin();
-      filter->begin();
-        firstFbo.draw(0, 0);
-      filter->end();
-//   post.end();
+    filterChain->begin();
+      firstFbo.getTexture().drawSubsection(0, 0, meshSize.x, meshSize.y, 0, 0);
+    filterChain->end();
   secondFbo.end();
 }
 
@@ -246,9 +244,10 @@ void Agent::handleVertexBehaviors() {
     }
     
     if (data->applyAttraction) {
-      auto pos = glm::vec2(partner->getCentroid().x, partner->getCentroid().y);
+      auto data = reinterpret_cast<VertexData*>(v->getData());
+      auto pos = glm::vec2(data->targetPos.x, data->targetPos.y);
       //auto pos = data->targetPos;
-      v->addAttractionPoint({pos.x, pos.y}, attractionWeight);
+      v->addAttractionPoint({pos.x, pos.y}, attractionWeight * 18);
       
       // Reset repulsion parameter on the vertex.
       data->applyAttraction = false;

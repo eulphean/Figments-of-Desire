@@ -95,7 +95,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           if (agentA->desireState == Attraction) {
              // If this body has an interAgentJoint, don't add a repulsion on the bodies it hits
              if (!dataA->hasInterAgentJoint) {
-               dataB->applyRepulsion = true;
+               dataB->applyAttraction = true;
                e.b->GetBody()->SetUserData(dataB);
              }
             
@@ -105,7 +105,7 @@ void ofApp::contactEnd(ofxBox2dContactArgs &e) {
           
           if (agentB->desireState == Attraction) {
             if (!dataB->hasInterAgentJoint) {
-              dataA->applyRepulsion = true;
+              dataA->applyAttraction = true;
               e.a->GetBody()->SetUserData(dataA);
             }
             
