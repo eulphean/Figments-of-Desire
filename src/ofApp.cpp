@@ -303,37 +303,37 @@ void ofApp::processOsc() {
     
     if(m.getAddress() == "/leftBack"){
       float val = m.getArgAsFloat(0);
-      cout << "Left Back" << endl;
+      Midi::instance().sendMidiControlChangeRotary(0, val);
     }
     
     if(m.getAddress() == "/leftFront"){
       float val = m.getArgAsFloat(0);
-        cout << "Left Front" << endl;
+      Midi::instance().sendMidiControlChangeRotary(1, val);
     }
     
     if(m.getAddress() == "/rightBack"){
       float val = m.getArgAsFloat(0);
-        cout << "Right Back" << endl;
+       Midi::instance().sendMidiControlChangeRotary(2, val);
     }
     
     if(m.getAddress() == "/rightFront"){
       float val = m.getArgAsFloat(0);
-        cout << "Right Front" << endl;
+        Midi::instance().sendMidiControlChangeRotary(3, val);
     }
     
     if(m.getAddress() == "/rain"){
       float val = m.getArgAsFloat(0);
-        cout << "Rain" << endl;
+       Midi::instance().sendMidiControlChangeRotary(4, val);
     }
     
     if(m.getAddress() == "/rightBackMix"){
       float val = m.getArgAsFloat(0);
-        cout << "Right Back Mix" << endl;
+       Midi::instance().sendMidiControlChangeRotary(5, val);
     }
     
     if(m.getAddress() == "/leftFrontMix"){
       float val = m.getArgAsFloat(0);
-        cout << "Left Front Mix" << endl;
+       Midi::instance().sendMidiControlChangeRotary(6, val);
     }
   }
 }
