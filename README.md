@@ -1,4 +1,4 @@
-# Figments-Of-Desire
+# Figments of Desire
 In 2019, Amay Kataria developed the second work in his Figments series called [Figments of Desire](https://amaykataria.com/#/FigmentsOfDesire). This project explores the poetics of attraction through two synthetic agents that are choreographed to a musical score. The harmonious loop of the score activates the agents to unwind a generative yet controlled narrative of behaviors of attraction, repulsion, and entanglement. This synthetic couple algorithmically explores its desires by evaluating the sonic condition of its environment. Harmoniously behaving, these artificial bodies are confounded in an autopoietic ecosystem of coexistence.
 
 This work is developed using an open-source creative coding library called [Open-Frameworks](https://openframeworks.cc/). 
